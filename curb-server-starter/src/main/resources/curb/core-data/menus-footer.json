@@ -1,0 +1,53 @@
+[
+  {
+    "name": "系统管理",
+    "urlType": 1,
+    "icon": "fa fa-cogs",
+    "children": [
+      {
+        "name": "用户管理",
+        "url": "/system/users",
+        "urlType": 1,
+        "icon": "fa fa-users"
+      },
+      {
+        "name": "角色管理",
+        "url": "/system/roles",
+        "urlType": 1,
+        "icon": "fas fa-user-tag"
+      },
+      {
+        "name": "应用管理",
+        "url": "/system/apps",
+        "urlType": 1,
+                "children": [
+                  {
+                    "name": "页面管理",
+                    "url": "/system/pages",
+                    "urlType": 1,
+                    "icon": "fa fa-file"
+                  },
+                  {
+                    "name": "权限管理",
+                    "url": "/system/permissions",
+                    "urlType": 1,
+                    "icon": "fa fa-lock"
+                  },
+                  {
+                    "name": "菜单管理",
+                    "url": "/system/menus",
+                    "urlType": 1,
+                    "icon": "fa fa-list"
+                  }
+                ],
+        "icon": "fa fa-window-restore"
+      },
+      {
+        "name": "项目组管理",
+        "url": "/system/groups",
+        "urlType": 1,
+        "icon": "fa fa-sitemap"
+      }
+    ]
+  }
+]

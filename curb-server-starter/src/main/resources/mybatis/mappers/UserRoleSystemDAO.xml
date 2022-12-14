@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.UserRoleSystemDAO">
+
+    <sql id="tablename">curb_user_role_system</sql>
+
+    <sql id="roleIdIn">
+        <trim>
+            role_id IN
+            <foreach collection="roleIds" index="idx" item="roleId" open="(" separator="," close=")">${roleId}</foreach>
+        </trim>
+    </sql>
+
+    <sql id="userIdIn">
+        <trim>
+            user_id IN
+            <foreach collection="userIds" index="idx" item="userId" open="(" separator="," close=")">${userId}</foreach>
+        </trim>
+    </sql>
+
+    <select id="listRoleId" resultType="int">
+        SELECT role_id FROM
+        <include refid="tablename"/>
+        WHERE user_id = #{userId} AND (group_id = #{groupId} OR role_id = 1)
+    </select>
+
+    <select id="listUserId" resultType="int">
+        SELECT user_id FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId} AND role_id = #{roleId}
+    </select>
+
+    <insert id="insertForUser">
+        INSERT IGNORE INTO
+        <include refid="tablename"/>
+        (group_id, user_id, role_id, create_time)
+        VALUES
+        <foreach collection="roleIds" index="idx" item="roleId" open="" separator="," close="">
+            (#{groupId}, #{userId}, #{roleId}, NOW())
+        </foreach>
+    </insert>
+
+    <insert id="insertForRole">
+        INSERT IGNORE INTO
+        <include refid="tablename"/>
+        (group_id, user_id, role_id, create_time)
+        VALUES
+        <foreach collection="userIds" index="idx" item="userId" open="" separator="," close="">
+            (#{groupId}, #{userId}, #{roleId}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deleteForUser">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId} AND user_id = #{userId} AND
+        <include refid="roleIdIn"/>
+    </delete>
+
+    <delete id="deleteForRole">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId} AND role_id = #{roleId} AND
+        <include refid="userIdIn"/>
+    </delete>
+</mapper>

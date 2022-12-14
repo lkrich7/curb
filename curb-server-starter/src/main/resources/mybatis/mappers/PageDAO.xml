@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.PageDAO">
+
+    <resultMap id="PageMap" type="curb.server.po.PagePO">
+        <id property="pageId" column="page_id"/>
+        <result property="appId" column="app_id"/>
+        <result property="path" column="path"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="accessLevel" column="access_level"/>
+        <result property="sign" column="sign"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_page</sql>
+
+    <select id="get" resultMap="PageMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{pageId}
+    </select>
+
+    <select id="getByAppIdPath" resultMap="PageMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId} AND path = #{path}
+    </select>
+
+    <select id="listByAppId" resultMap="PageMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+        ORDER BY `page_id` DESC
+    </select>
+
+    <insert id="insert" parameterType="curb.server.po.PagePO"
+            useGeneratedKeys="true" keyProperty="pageId">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        `app_id`, `path`, `name`, `type`, `access_level`, `sign`, `version`, `state`, create_time, update_time
+        )
+        VALUES (
+        #{appId}, #{path}, #{name}, #{type}, #{accessLevel}, #{sign}, #{version}, #{state}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="curb.server.po.PagePO">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        `path` = #{path},
+        `name` = #{name},
+        `type` = #{type},
+        `access_level` = #{accessLevel},
+        `sign` = #{sign},
+        update_time = NOW()
+        WHERE page_id = #{pageId}
+    </update>
+
+    <update id="updateVersion">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        `version` = #{newVersion},
+        update_time = NOW()
+        WHERE page_id = #{pageId}
+        AND `version` = #{oldVersion}
+    </update>
+
+    <update id="updateState">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        `state` = #{state},
+        update_time = NOW()
+        WHERE page_id = #{pageId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{pageId}
+    </delete>
+
+    <delete id="deleteByAppId">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </delete>
+</mapper>

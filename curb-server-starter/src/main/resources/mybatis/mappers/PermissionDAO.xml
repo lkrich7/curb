@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.PermissionDAO">
+
+    <resultMap id="PermissionMap" type="curb.server.po.PermissionPO">
+        <id property="permId" column="perm_id"/>
+        <result property="name" column="name"/>
+        <result property="sign" column="sign"/>
+        <result property="appId" column="app_id"/>
+        <result property="description" column="description"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_permission</sql>
+
+    <select id="get" resultMap="PermissionMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE perm_id = #{permId}
+    </select>
+
+    <select id="getByAppIdSign" resultMap="PermissionMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId} AND `sign` = #{sign}
+    </select>
+
+    <select id="listByAppId" resultMap="PermissionMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+        ORDER BY sign
+    </select>
+
+    <select id="listByAppIdState" resultMap="PermissionMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId} AND state = #{state}
+        ORDER BY sign
+    </select>
+
+    <insert id="insert" parameterType="curb.server.po.PermissionPO"
+            useGeneratedKeys="true" keyProperty="permId">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        `name`, `sign`, app_id, `state`, `description`, create_time, update_time
+        )
+        VALUES (
+        #{name}, #{sign}, #{appId}, #{state}, #{description}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="curb.server.po.PermissionPO">
+        UPDATE
+        <include refid="tablename"/>
+        SET `name` = #{name},
+        `sign` = #{sign},
+        `description` = #{description},
+        update_time = NOW()
+        WHERE perm_id = #{permId} AND app_id = #{appId}
+    </update>
+
+    <update id="updateState">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        `state` = #{state},
+        update_time = NOW()
+        WHERE perm_id = #{permId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE perm_id = #{permId}
+    </delete>
+
+</mapper>

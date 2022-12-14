@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.OpLogDAO">
+    <resultMap id="OpLogMap" type="curb.server.po.OpLogPO">
+        <id property="id" column="id"/>
+        <result property="user" column="user"/>
+        <result property="type" column="type"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <sql id="condition">
+        <trim prefix="WHERE" prefixOverrides="AND||OR">
+            <if test="id != null">AND id = #{id}</if>
+            <if test="user != null">AND `user` = #{user}</if>
+            <if test="type != null">AND `type` = #{type}</if>
+            <if test="content != null">AND `content` LIKE concat('%', #{content}, '%')</if>
+        </trim>
+    </sql>
+    <insert id="insert" parameterType="curb.server.po.OpLogPO" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO op_log(`user`, `type`, `content`, create_time) VALUES (#{user}, #{type}, #{content}, now())
+    </insert>
+    <select id="countByParam" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM op_log <include refid="condition"/>
+    </select>
+    <select id="getByParam" resultMap="OpLogMap">
+        SELECT * FROM op_log <include refid="condition"/>
+        ORDER BY id DESC
+        <if test="limit != null and limit > 0">
+            LIMIT<if test="start != null  and start > 0">#{start},</if>#{limit}
+        </if>
+    </select>
+</mapper>

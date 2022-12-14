@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.PageBodyDAO">
+
+    <resultMap id="PageBodyMap" type="curb.server.po.PageBodyPO">
+        <id property="pageId" column="page_id"/>
+        <id property="version" column="`version`"/>
+        <result property="body" column="body"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_page_body</sql>
+
+    <select id="get" resultMap="PageBodyMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{pageId} AND `version` = #{version}
+    </select>
+
+    <select id="countByPageId" resultType="int">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{appId}
+        ORDER BY `version` DESC
+    </select>
+
+    <select id="listByPageId" resultMap="PageBodyMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{appId}
+        ORDER BY `version` DESC
+        <if test="limit != null">LIMIT <if test="offset != null">#{offset},</if>#{limit}</if>
+    </select>
+
+    <insert id="insert" parameterType="curb.server.po.PageBodyPO">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        `page_id`, `version`, `body`, create_time, update_time
+        )
+        VALUES (
+        #{pageId}, #{version}, #{body}, NOW(), NOW()
+        )
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{pageId} AND `version` = #{version}
+    </delete>
+
+    <delete id="deleteByPageId">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE page_id = #{pageId}
+    </delete>
+</mapper>

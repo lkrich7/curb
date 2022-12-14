@@ -1,0 +1,5 @@
+# Auto Configuration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  curb.server.configuration.CurbServerAutoConfiguration
+
+#org.springframework.boot.env.EnvironmentPostProcessor=\

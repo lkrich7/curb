@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.AppDAO">
+
+    <resultMap id="AppMap" type="curb.server.po.AppPO">
+        <id property="appId" column="app_id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="domain" column="domain"/>
+        <result property="mainPage" column="main_page"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="state" column="state"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_app</sql>
+
+    <select id="get" resultMap="AppMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </select>
+
+    <select id="getByDomain" resultMap="AppMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE `domain` = #{domain}
+    </select>
+
+    <select id="listByGroupId" resultMap="AppMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId}
+        <if test="state != null">AND `state` = #{state}</if>
+        ORDER BY `app_id` ASC
+    </select>
+
+    <insert id="insert" parameterType="curb.server.po.AppPO"
+            useGeneratedKeys="true" keyProperty="appId">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        group_id, `domain`, main_page, `name`, `description`, state, create_time, update_time
+        )
+        VALUES (
+        #{groupId}, #{domain}, '/', #{name}, #{description}, #{state}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update" parameterType="curb.server.po.AppPO">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        `domain` = #{domain},
+        `main_page` = #{mainPage},
+        `name` = #{name},
+        `description` = #{description},
+        update_time = NOW()
+        WHERE app_id = #{appId}
+    </update>
+
+    <update id="updateState">
+        UPDATE
+        <include refid="tablename"/>
+        SET
+        state = #{state},
+        update_time = NOW()
+        WHERE app_id = #{appId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </delete>
+</mapper>

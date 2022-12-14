@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.GroupDAO">
+
+    <resultMap id="GroupMap" type="curb.server.po.GroupPO">
+        <id property="groupId" column="group_id"/>
+        <result property="domain" column="domain"/>
+        <result property="name" column="name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_group</sql>
+
+    <select id="get" resultMap="GroupMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId}
+    </select>
+
+    <select id="getByDomain" resultMap="GroupMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE `domain` = #{domain}
+    </select>
+
+    <select id="list" resultMap="GroupMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        ORDER BY group_id DESC
+    </select>
+
+    <insert id="insert" parameterType="curb.server.po.GroupPO"
+             useGeneratedKeys="true" keyProperty="groupId">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        `domain`, `name`, group_secret, create_time, update_time
+        )
+        VALUES
+        (
+        #{domain}, #{name}, #{groupSecret}, NOW(), NOW()
+        )
+    </insert>
+
+    <update id="update"  parameterType="curb.server.po.GroupPO" >
+        UPDATE
+        <include refid="tablename"/>
+        <set>
+            <if test='domain != null and domain != "" '>
+                `domain` = #{domain},
+            </if>
+            <if test='name != null and name != "" '>
+                `name` = #{name},
+            </if>
+            <if test='groupSecret != null '>
+                group_secret = #{groupSecret},
+            </if>
+            update_time = NOW(),
+        </set>
+        WHERE group_id = #{groupId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE group_id = #{groupId}
+    </delete>
+
+</mapper>

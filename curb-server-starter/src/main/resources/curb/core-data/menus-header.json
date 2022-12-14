@@ -1,0 +1,9 @@
+[
+  {
+    "name": "首页",
+    "url": "/",
+    "urlType": 1,
+    "skipCheck": true,
+    "icon": "fa fa-home"
+  }
+]
