@@ -54,6 +54,17 @@ public class PagePO {
      * 数据状态
      */
     private Integer state;
+
+    /**
+     * 页面创建用户
+     */
+    private Integer createUserId;
+
+    /**
+     * 最后更新用户
+     */
+    private Integer updateUserId;
+
     /**
      * 数据创建时间
      */
@@ -133,6 +144,22 @@ public class PagePO {
 
     public void setState(Integer state) {
         this.state = state;
+    }
+
+    public Integer getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Integer createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Integer getUpdateUserId() {
+        return updateUserId;
+    }
+
+    public void setUpdateUserId(Integer updateUserId) {
+        this.updateUserId = updateUserId;
     }
 
     public Date getCreateTime() {

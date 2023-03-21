@@ -22,7 +22,7 @@ public interface PageDAO {
 
     int update(PagePO page);
 
-    int updateVersion(@Param("pageId") int pageId, @Param("newVer") int newVer, @Param("oldVer") int oldVers);
+    int updateVersion(@Param("pageId") int pageId, @Param("newVersion") int newVer, @Param("oldVersion") int oldVers);
 
     int updateState(@Param("pageId") int pageId, @Param("state") int state);
 

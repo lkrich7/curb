@@ -1,10 +1,10 @@
 package curb.server.util;
 
+import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.util.ServletUtil;
 import curb.core.util.UrlCodec;
-import curb.core.ErrorEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.UUID;
 
 /**
+ *
  */
 public final class CurbServerUtil {
 
@@ -23,14 +24,33 @@ public final class CurbServerUtil {
     private CurbServerUtil() {
     }
 
+    /**
+     * 判断当前应用是否是项目组主应用
+     *
+     * @param group
+     * @param app
+     * @return
+     */
     public static boolean isGroupApp(Group group, App app) {
-        return isSystemAppId(app.getAppId()) || group.getDomain().equalsIgnoreCase(app.getDomain());
+        return isSystemAppId(app.getAppId()) || group.getUrl().equals(app.getUrl());
     }
 
+    /**
+     * 判断是否为系统应用ID
+     *
+     * @param appId
+     * @return
+     */
     public static boolean isSystemAppId(int appId) {
         return CURB_APP_ID == appId;
     }
 
+    /**
+     * 判断是否为系统项目组ID
+     *
+     * @param groupId
+     * @return
+     */
     public static boolean isSystemGroupId(int groupId) {
         return CURB_GROUP_ID == groupId;
     }
@@ -47,14 +67,56 @@ public final class CurbServerUtil {
     }
 
     public static String generateSecret() {
-        return UUID.randomUUID().toString().replace("-", "");
+        return UUID.randomUUID().toString();
     }
 
     public static String getGroupSecret(HttpServletRequest request) {
         return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_GROUP_SECRET);
     }
 
-    public static String getDomain(HttpServletRequest request) {
+    public static String buildLoginUrl(HttpServletRequest request, URI url) {
+        String targetUrl = getUrl(request);
+        String targetUrlEncoded = UrlCodec.encodeUtf8(targetUrl);
+        return String.format("%s/login?targetUrl=%s", url, targetUrlEncoded);
+    }
+
+    public static String getUrl(HttpServletRequest request) {
+        String scheme = getScheme(request);
+        String domain = getDomain(request);
+        String path = request.getRequestURI();
+        String query = StringUtils.trimToNull(request.getQueryString());
+        StringBuilder builder = new StringBuilder(scheme)
+                .append("://")
+                .append(domain)
+                .append(path);
+        if (query != null) {
+            builder.append("?").append(query);
+        }
+        return builder.toString();
+    }
+
+
+    /**
+     * 返回客户端请求的网络协议名
+     *
+     * @param request
+     * @return
+     */
+    private static String getScheme(HttpServletRequest request) {
+        String scheme = request.getHeader("X-Forwarded-Proto");
+        if (scheme == null || scheme.trim().isEmpty()) {
+            scheme = request.getScheme();
+        }
+        return scheme.trim().toLowerCase();
+    }
+
+    /**
+     * 返回客户端请求的域
+     *
+     * @param request
+     * @return
+     */
+    private static String getDomain(HttpServletRequest request) {
         String domain = request.getHeader("X-CURB-HOST");
         if (StringUtils.isNotBlank(domain)) {
             return domain;
@@ -63,103 +125,35 @@ public final class CurbServerUtil {
         if (StringUtils.isNotBlank(domain)) {
             return domain;
         }
-        domain = request.getServerName() + ":" + request.getServerPort();              ;
+        int port = request.getServerPort();
+        String scheme = getScheme(request);
+        domain = buildDomain(request.getServerName(), port, scheme);
         return domain;
     }
 
-    public static String getScheme(HttpServletRequest request) {
-        String xForwardedProto = request.getHeader("X-Forwarded-Proto");
-        if (xForwardedProto == null || xForwardedProto.trim().isEmpty()) {
-            return request.getScheme();
-        }
-        return xForwardedProto;
-    }
-
-    public static final String getUrl(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        String queryString = request.getQueryString();
-
-        return buildUrl(request, path, queryString);
-    }
-
-    public static final String buildUrl(HttpServletRequest request, String path, String queryString) {
-        StringBuilder url = buildUrlBase(request);
-        if (!path.startsWith("/")) {
-            url.append("/");
-        }
-        url.append(path);
-
-        if (StringUtils.isNotBlank(queryString)) {
-            url.append("?");
-            url.append(queryString);
-        }
-
-        return url.toString();
-    }
-
-    private static final StringBuilder buildUrlBase(HttpServletRequest request) {
-        StringBuilder url = new StringBuilder();
-
-        String scheme = request.getScheme();
-        String domain = getDomain(request);
-        int port = request.getServerPort();
-        url.append(scheme);
-        url.append("://");
-        url.append(domain);
+    /**
+     * 根据主机名、端口号和协议名构造域
+     *
+     * @param host
+     * @param port
+     * @param scheme
+     * @return
+     */
+    private static String buildDomain(String host, int port, String scheme) {
         if (("http".equalsIgnoreCase(scheme) && port != 80)
                 || ("https".equalsIgnoreCase(scheme) && port != 443)) {
-            url.append(':');
-            url.append(port);
+            return host + ":" + port;
         }
-        return url;
+        return host;
     }
 
-    public static String buildLoginUrl(HttpServletRequest request, String domain, String targetUrl) {
-        String scheme = getScheme(request);
-        targetUrl = checkTargetUrl(targetUrl, request);
-        return buildLoginUrl(scheme, domain, targetUrl);
-    }
-
-    public static final String buildLoginUrl(HttpServletRequest request, String domain) {
-        String scheme = getScheme(request);
-        String currentDomain = getDomain(request);
-        if (!isEqualOrSub(currentDomain, domain)) {
-            domain = currentDomain;
-        }
-        String targetUrl = getUrl(request);
-        return buildLoginUrl(scheme, domain, targetUrl);
-    }
-
-
-    private static final String buildLoginUrl(String scheme, String domain, String targetUrlSafe) {
-        targetUrlSafe = UrlCodec.encodeUtf8(targetUrlSafe);
-        return String.format("%s://%s/login?targetUrl=%s", scheme, domain, targetUrlSafe);
-    }
-
-    public static String checkTargetUrl(String targetUrl, HttpServletRequest request) {
-        do try {
-            String domain = CurbServerUtil.getDomain(request);
-            URI targetUri = URI.create(targetUrl);
-            String scheme = targetUri.getScheme();
-            String targetDomain = targetUri.getHost();
-            if (scheme != null && !"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-                // 非HTTP(S)协议
-                break;
-            }
-            if (targetDomain == null || targetDomain.isEmpty()) {
-                // 无域名
-                return CurbServerUtil.buildUrl(request, targetUrl, null);
-            }
-            if (isEqualOrSub(targetDomain, domain)) {
-                // 同域或子域
-                return targetUrl;
-            }
-        } catch (Exception e) {
-            // ignored
-        } while (false);
-        return CurbServerUtil.buildUrl(request, "/", null);
-    }
-
+    /**
+     * 判断一个域名是否和另一个域名相同或是另一个域名的子域名
+     *
+     * @param subDomain
+     * @param domain
+     * @return
+     */
     private static boolean isEqualOrSub(String subDomain, String domain) {
         if (!subDomain.endsWith(domain)) {
             return false;

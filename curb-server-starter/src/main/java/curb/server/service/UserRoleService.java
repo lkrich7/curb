@@ -71,7 +71,11 @@ public class UserRoleService {
             normalRoleIds = Collections.emptyList();
         } else {
             Set<Integer> groupRoleIds = groupRoles.stream().map(RolePO::getRoleId).collect(Collectors.toSet());
-            normalRoleIds = userRoleDAO.listRoleIdByUserId(userId, groupRoleIds);
+            if (!groupRoleIds.isEmpty()) {
+                normalRoleIds = userRoleDAO.listRoleIdByUserId(userId, groupRoleIds);
+            } else {
+                normalRoleIds = Collections.emptyList();
+            }
         }
         List<Integer> systemRoleIds = userRoleSystemDAO.listRoleId(groupId, userId);
         Set<Integer> ret = new TreeSet<>();
@@ -150,7 +154,9 @@ public class UserRoleService {
         }
 
         Set<Integer> olds = new TreeSet<>();
-        olds.addAll(userRoleDAO.listRoleIdByUserId(userId, groupNormalRoleIds));
+        if (!groupNormalRoleIds.isEmpty()) {
+            olds.addAll(userRoleDAO.listRoleIdByUserId(userId, groupNormalRoleIds));
+        }
 
         Set<Integer> delete = Sets.difference(olds, news);
         Set<Integer> insert = Sets.difference(news, olds);

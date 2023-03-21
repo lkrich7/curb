@@ -1,8 +1,5 @@
 package curb.server.service;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import curb.core.ErrorEnum;
 import curb.server.dao.GroupDAO;
 import curb.server.dao.GroupSecretDAO;
@@ -14,9 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -33,48 +27,8 @@ public class GroupService {
     @Autowired
     private AppService appService;
 
-    private LoadingCache<Integer, Optional<GroupPO>> idGroupCatch = CacheBuilder.newBuilder()
-            .maximumSize(100).expireAfterWrite(5, TimeUnit.SECONDS)
-            .build(new CacheLoader<Integer, Optional<GroupPO>>() {
-                @Override
-                public Optional<GroupPO> load(Integer groupId) {
-                    GroupPO groupDto = groupDAO.get(groupId);
-                    if (groupDto == null) {
-                        return Optional.empty();
-                    } else {
-                        return Optional.of(groupDto);
-                    }
-                }
-            });
-
-    private LoadingCache<String, Optional<GroupPO>> domainGroupCatch = CacheBuilder.newBuilder()
-            .maximumSize(100).expireAfterWrite(5, TimeUnit.SECONDS)
-            .build(new CacheLoader<String, Optional<GroupPO>>() {
-                @Override
-                public Optional<GroupPO> load(String domain) {
-                    GroupPO groupDto = groupDAO.getByDomain(domain);
-                    if (groupDto == null) {
-                        return Optional.empty();
-                    } else {
-                        return Optional.of(groupDto);
-                    }
-                }
-            });
-
     public GroupPO getById(Integer groupId) {
-        try {
-            return idGroupCatch.get(groupId).orElse(null);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public GroupPO getByDomain(String domain) {
-        try {
-            return domainGroupCatch.get(domain).orElse(null);
-        } catch (ExecutionException e) {
-            throw new IllegalStateException(e);
-        }
+        return groupDAO.get(groupId);
     }
 
     public String getGroupSecret(Integer groupId) {
@@ -83,35 +37,35 @@ public class GroupService {
         }
         return groupSecretDAO.get(groupId);
     }
+
     public List<GroupPO> list() {
         return groupDAO.list();
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void create(GroupPO groupPO) {
-        checkDomainConflict(null, groupPO.getDomain());
-
+        checkUrlConflict(null, groupPO.getUrl());
         int rows = groupDAO.insert(groupPO);
         if (rows != 1) {
             throw ErrorEnum.SERVER_ERROR.toCurbException();
         }
-
+        // 生成项目组密钥
         groupSecretDAO.insert(groupPO.getGroupId(), CurbServerUtil.generateSecret());
 
+        // 创建项目组默认应用
         AppPO appPO = new AppPO();
         appPO.setGroupId(groupPO.getGroupId());
-        appPO.setDomain(groupPO.getDomain());
         appPO.setName(groupPO.getName());
-        appPO.setDescription(groupPO.getName());
+        appPO.setUrl(groupPO.getUrl());
         appService.create(appPO);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public boolean update(GroupPO group) {
-        checkDomainConflict(group.getGroupId(), group.getDomain());
+        checkUrlConflict(group.getGroupId(), group.getUrl());
         GroupPO existed = checkGroup(group.getGroupId());
         existed.setName(group.getName());
-        existed.setDomain(group.getDomain());
+        existed.setUrl(group.getUrl());
 
         int row = groupDAO.update(existed);
         if (row != 1) {
@@ -129,11 +83,11 @@ public class GroupService {
         return group;
     }
 
-    private void checkDomainConflict(Integer groupId, String domain) {
-        GroupPO existed = groupDAO.getByDomain(domain);
+    private void checkUrlConflict(Integer groupId, String url) {
+        GroupPO existed = groupDAO.getByUrl(url);
         if (existed == null || existed.getGroupId().equals(groupId)) {
             return;
         }
-        throw ErrorEnum.PARAM_ERROR.toCurbException("域名已存在");
+        throw ErrorEnum.PARAM_ERROR.toCurbException("网址已存在");
     }
 }

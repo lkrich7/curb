@@ -10,7 +10,7 @@ public class PageListVO extends PaginationVO<PageListItemVO> {
         this.app = app;
     }
 
-    public PageListVO(Collection<PageListItemVO> rows, int total, AppVO app) {
+    public PageListVO(Collection<PageListItemVO> rows, Integer total, AppVO app) {
         super(rows, total);
         this.app = app;
     }

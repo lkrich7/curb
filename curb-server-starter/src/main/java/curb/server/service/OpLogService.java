@@ -4,7 +4,7 @@ import curb.core.ErrorEnum;
 import curb.server.enums.OpType;
 import curb.server.dao.OpLogDAO;
 import curb.server.po.OpLogPO;
-import curb.server.dto.Paged;
+import curb.server.bo.Pagination;
 import curb.core.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,18 +25,18 @@ public class OpLogService {
         return change == 1;
     }
 
-    public Paged<OpLogPO> search(Map<String, Object> paramMap, int pageNo, int pageSize) {
+    public Pagination<OpLogPO> search(Map<String, Object> paramMap, int pageNo, int pageSize) {
         int totalCount = opLogDAO.countByParam(paramMap);
-        int totalPage = new Paged<>(pageNo, pageSize, totalCount).getTotalPage();
+        int totalPage = new Pagination<>(pageNo, pageSize, totalCount).pages();
         if (pageNo > totalPage) {
             pageNo = totalPage <= 0 ? 1 : totalPage;
         }
         paramMap.put("start", pageSize * (pageNo - 1));
         paramMap.put("limit", pageSize);
         List<OpLogPO> results = opLogDAO.getByParam(paramMap);
-        Paged<OpLogPO> paged = new Paged<>(pageNo, pageSize, totalCount);
-        paged.setPageList(results);
-        return paged;
+        Pagination<OpLogPO> pagination = new Pagination<>(pageNo, pageSize, totalCount);
+        pagination.setRows(results);
+        return pagination;
     }
 
     public void log(Integer userId, OpType opType, Map<String, Object> content) {

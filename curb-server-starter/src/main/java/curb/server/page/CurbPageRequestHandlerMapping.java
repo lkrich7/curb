@@ -1,6 +1,5 @@
 package curb.server.page;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.AbstractHandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;

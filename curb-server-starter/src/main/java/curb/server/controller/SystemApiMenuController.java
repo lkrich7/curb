@@ -4,6 +4,7 @@ import curb.core.ApiResult;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
+import curb.core.model.User;
 import curb.server.po.AppPO;
 import curb.server.service.AppMenuService;
 import curb.server.service.AppService;
@@ -41,10 +42,11 @@ public class SystemApiMenuController {
 
     @PostMapping(value = "edit/save")
     public ApiResult<Void> saveEdit(@RequestParam(required = false) Integer appId,
+                                    @RequestParam(required = false) Integer version,
                                     @RequestParam String menus,
-                                    App app, Group group) {
-        appId = appService.checkApp(appId, app, group).getAppId();
-        appMenuService.saveEditable(appId, menus);
+                                    App app, Group group, User user) {
+        AppPO appPO = appService.checkApp(appId, app, group);
+        appMenuService.saveEditable(appId, version, menus, user.getUserId());
 
         return ErrorEnum.SUCCESS.toApiResult();
     }

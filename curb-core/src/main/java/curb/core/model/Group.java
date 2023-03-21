@@ -1,6 +1,7 @@
 package curb.core.model;
 
 import java.io.Serializable;
+import java.net.URI;
 
 /**
  * 项目组信息
@@ -18,9 +19,9 @@ public class Group implements Serializable {
     private String name;
 
     /**
-     * 项目组根域名
+     * 项目组网址
      */
-    private String domain;
+    private URI url;
 
     public int getGroupId() {
         return groupId;
@@ -38,12 +39,12 @@ public class Group implements Serializable {
         this.name = name;
     }
 
-    public String getDomain() {
-        return domain;
+    public URI getUrl() {
+        return url;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setUrl(URI url) {
+        this.url = url;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class Group implements Serializable {
         return "Group{" +
                 "groupId=" + groupId +
                 ", name='" + name + '\'' +
-                ", domain='" + domain + '\'' +
+                ", url='" + url + '\'' +
                 '}';
     }
 }

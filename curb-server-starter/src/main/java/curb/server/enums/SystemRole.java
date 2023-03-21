@@ -26,14 +26,14 @@ import static curb.server.enums.SystemPermissions.SYSTEM_API_GROUP_UPDATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_MENU_EDIT_GET;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_MENU_EDIT_SAVE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CONFIG_GET;
-import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CONFIG_SAVE;
+import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CONFIG_UPDATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CREATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_DELETE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_DISABLE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_ENABLE;
-import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_GET;
+import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_BODY_GET;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_LIST;
-import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_UPDATE;
+import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_BODY_UPDATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PERMISSION_CREATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PERMISSION_DELETE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PERMISSION_DISABLE;
@@ -115,11 +115,11 @@ public enum SystemRole {
             SYSTEM_PAGES,
             SYSTEM_PAGE_EDIT,
             SYSTEM_API_PAGE_LIST,
-            SYSTEM_API_PAGE_GET,
             SYSTEM_API_PAGE_CREATE,
-            SYSTEM_API_PAGE_UPDATE,
+            SYSTEM_API_PAGE_BODY_GET,
+            SYSTEM_API_PAGE_BODY_UPDATE,
             SYSTEM_API_PAGE_CONFIG_GET,
-            SYSTEM_API_PAGE_CONFIG_SAVE,
+            SYSTEM_API_PAGE_CONFIG_UPDATE,
             SYSTEM_API_PAGE_ENABLE,
             SYSTEM_API_PAGE_DISABLE,
             SYSTEM_API_PAGE_DELETE,
@@ -183,11 +183,11 @@ public enum SystemRole {
             SYSTEM_PAGES,
             SYSTEM_PAGE_EDIT,
             SYSTEM_API_PAGE_LIST,
-            SYSTEM_API_PAGE_GET,
             SYSTEM_API_PAGE_CREATE,
-            SYSTEM_API_PAGE_UPDATE,
+            SYSTEM_API_PAGE_BODY_GET,
+            SYSTEM_API_PAGE_BODY_UPDATE,
             SYSTEM_API_PAGE_CONFIG_GET,
-            SYSTEM_API_PAGE_CONFIG_SAVE,
+            SYSTEM_API_PAGE_CONFIG_UPDATE,
             SYSTEM_API_PAGE_ENABLE,
             SYSTEM_API_PAGE_DISABLE,
             SYSTEM_API_PAGE_DELETE,

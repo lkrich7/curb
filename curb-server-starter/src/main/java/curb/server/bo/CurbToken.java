@@ -27,9 +27,9 @@ public class CurbToken {
      */
     private Integer type;
     /**
-     * 用户邮箱
+     * 登录用户名
      */
-    private String email;
+    private String username;
     /**
      * 用户姓名
      */
@@ -47,12 +47,12 @@ public class CurbToken {
         this.type = type;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getName() {
@@ -96,7 +96,7 @@ public class CurbToken {
     private static String buildRawString(CurbToken token) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("type", token.getType());
-        map.put("email", token.getEmail());
+        map.put("username", token.getUsername());
         map.put("name", token.getName());
         map.put("ts", token.getTs());
         return JsonUtil.toJSONString(map);

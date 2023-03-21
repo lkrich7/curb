@@ -1,5 +1,6 @@
 package curb.server.util;
 
+import curb.core.model.App;
 import curb.core.model.Menu;
 import curb.core.util.JsonUtil;
 import curb.server.page.CurbPage;
@@ -8,6 +9,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,17 @@ import static org.junit.Assert.*;
 
 public class CoreDataUtilTest {
 
+    @Test
+    public void testURI() {
+        App app = new App();
+        app.setName("test");
+        app.setAppId(123);
+        app.setUrl(URI.create("http://wwww.sogou.com/123"));
+        String str = JsonUtil.toJSONString(app, true);
+        System.err.println(str);
+        App app2 = JsonUtil.parseObject(str, App.class);
+        assertEquals(app.getUrl(), app2.getUrl());
+    }
     @Test
     public void loadMenus() {
         List<Menu> menu = CoreDataUtil.loadMenus("curb/core-data/menus-footer.json");

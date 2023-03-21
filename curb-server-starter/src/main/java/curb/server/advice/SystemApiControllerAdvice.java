@@ -45,7 +45,7 @@ public class SystemApiControllerAdvice {
     public ApiResult<Void> handleParamException(Throwable e, HttpServletRequest request,
                                                 HttpServletResponse response) {
         String msg = buildErrMsg(request, response);
-        LOGGER.error("handleParamException {}:{}", msg, e.getMessage(), e);
+        LOGGER.error("handleParamException({}): {}", msg, e.getMessage(), e);
         return ErrorEnum.PARAM_ERROR.toApiResult();
     }
 
@@ -55,9 +55,9 @@ public class SystemApiControllerAdvice {
                                                HttpServletResponse response) {
         String msg = buildErrMsg(request, response);
         if (ErrorEnum.SERVER_ERROR.getStatus() == e.getStatus()) {
-            LOGGER.error("handleCurbException {}:{}", msg, e.getMessage(), e);
+            LOGGER.error("handleCurbException({}): {}", msg, e.getMessage(), e);
         } else {
-            LOGGER.info("handleCurbException {}:{}", msg, e.getMessage());
+            LOGGER.info("handleCurbException({}): {}", msg, e.getMessage());
         }
         return e.toApiResult();
     }
@@ -67,7 +67,7 @@ public class SystemApiControllerAdvice {
     public ApiResult<Void> handleException(Throwable e, HttpServletRequest request,
                                            HttpServletResponse response) {
         String msg = buildErrMsg(request, response);
-        LOGGER.error("handleException {}:{}", msg, e.getMessage(), e);
-        return ErrorEnum.SERVER_ERROR.toApiResult(null, e.getMessage());
+        LOGGER.error("handleException({}): {}", msg, e.getMessage(), e);
+        return ErrorEnum.SERVER_ERROR.toApiResult();
     }
 }

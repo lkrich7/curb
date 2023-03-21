@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 
 public class CurbPageHandlerExceptionResolver implements HandlerExceptionResolver, Ordered {
 
@@ -37,11 +38,11 @@ public class CurbPageHandlerExceptionResolver implements HandlerExceptionResolve
             errorMessage = ErrorEnum.SERVER_ERROR.getMsg();
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        String domain = CurbServerUtil.getDomain(request);
+        String url = CurbServerUtil.getUrl(request);
         if (httpStatus.is5xxServerError()) {
-            LOGGER.error("resolved exception [{}{}] : {}", domain, request.getRequestURI(), e.getMessage(), e);
+            LOGGER.error("resolved exception [{}] : {}", url, e.getMessage(), e);
         } else {
-            LOGGER.info("resolved exception [{}{}] : {}", domain, request.getRequestURI(), e.getMessage());
+            LOGGER.info("resolved exception [{}] : {}", url, e.getMessage());
         }
         ModelMap modelMap = new ModelMap();
         modelMap.put("errorMessage", errorMessage);
@@ -59,7 +60,7 @@ public class CurbPageHandlerExceptionResolver implements HandlerExceptionResolve
 
     private ModelAndView redirectToLogin(HttpServletRequest request) {
         Group group = CurbUtil.getGroup(request);
-        String redirectUrl = CurbServerUtil.buildLoginUrl(request, group.getDomain());
+        String redirectUrl = CurbServerUtil.buildLoginUrl(request, group.getUrl());
         return new ModelAndView("redirect:" + redirectUrl);
     }
 

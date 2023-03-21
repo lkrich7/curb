@@ -16,6 +16,7 @@ spring:
       write-dates-as-timestamps: true
 
   freemarker:
+    suffix: .ftl
     request-context-attribute: rc
     expose-request-attributes: true
     expose-session-attributes: false
@@ -45,7 +46,7 @@ mybatis:
 
 logging:
   level:
-    root: debug
+    root: info
     org.mybatis: info
     org.apache.tomcat: info
     org.hibernate: info
@@ -55,6 +56,6 @@ curb:
   test-mode:
     enabled: true
     user:
-        name: liukan
-        userId: 1234
-        email: liukan@123.com
+      userId: 1
+      username: root
+      name: Root

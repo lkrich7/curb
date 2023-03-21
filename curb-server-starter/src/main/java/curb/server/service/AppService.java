@@ -1,6 +1,5 @@
 package curb.server.service;
 
-import curb.server.dao.MenuDAO;
 import curb.server.dao.AppSecretDAO;
 import curb.server.enums.AppState;
 import curb.core.ErrorEnum;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -25,9 +25,6 @@ public class AppService {
 
     @Autowired
     private AppSecretDAO appSecretDAO;
-
-    @Autowired
-    private MenuDAO menuDAO;
 
     @Autowired
     private PermissionService permissionService;
@@ -61,8 +58,8 @@ public class AppService {
         return appDAO.get(id);
     }
 
-    public AppPO getByDomain(String domain) {
-        return appDAO.getByDomain(domain);
+    public AppPO getByUrl(String url) {
+        return appDAO.getByUrl(url);
     }
 
     public String getSecret(int appId) {
@@ -75,7 +72,7 @@ public class AppService {
 
     @Transactional(rollbackFor = Exception.class)
     public void create(AppPO app) {
-        checkDomainConflict(app.getAppId(), app.getDomain());
+        checkUrlConflict(app.getAppId(), app.getUrl());
         app.setState(AppState.ENABLED.getCode());
         int row = appDAO.insert(app);
         if (row != 1) {
@@ -83,17 +80,16 @@ public class AppService {
         }
         Integer appId = app.getAppId();
         String secret = CurbServerUtil.generateSecret();
-
+        appSecretDAO.insert(appId, secret);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public boolean update(AppPO app) {
         AppPO existed = checkApp(app.getAppId(), app.getGroupId());
-        checkDomainConflict(app.getAppId(), app.getDomain());
+        checkUrlConflict(app.getAppId(), app.getUrl());
 
-        existed.setDomain(app.getDomain());
+        existed.setUrl(app.getUrl());
         existed.setName(app.getName());
-        existed.setDescription(app.getDescription());
 
         int row = appDAO.update(existed);
         if (row != 1) {
@@ -122,11 +118,11 @@ public class AppService {
         pageService.deleteByAppId(appId);
     }
 
-    private void checkDomainConflict(Integer appId, String domain) {
-        AppPO app = appDAO.getByDomain(domain);
+    private void checkUrlConflict(Integer appId, String url) {
+        AppPO app = appDAO.getByUrl(url);
         if (app == null || app.getAppId().equals(appId)) {
             return;
         }
-        throw ErrorEnum.PARAM_ERROR.toCurbException("域名已存在");
+        throw ErrorEnum.PARAM_ERROR.toCurbException("网址已存在");
     }
 }

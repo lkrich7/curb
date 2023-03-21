@@ -9,7 +9,7 @@ import java.util.List;
 public class GroupVO {
     private Integer groupId;
     private String name;
-    private String domain;
+    private String url;
 
     public Integer getGroupId() {
         return groupId;
@@ -27,12 +27,12 @@ public class GroupVO {
         this.name = name;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getUrl() {
+        return url;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public static GroupVO fromPO(GroupPO po) {
@@ -42,7 +42,7 @@ public class GroupVO {
         GroupVO ret = new GroupVO();
         ret.setGroupId(po.getGroupId());
         ret.setName(po.getName());
-        ret.setDomain(po.getDomain());
+        ret.setUrl(po.getUrl());
         return ret;
     }
 

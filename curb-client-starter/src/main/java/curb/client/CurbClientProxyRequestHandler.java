@@ -109,7 +109,7 @@ public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping imp
         setRealIpHeader(request, proxyRequest);
 
         App app = dataProvider.getApp(request);
-        proxyRequest.setHeader("X-CURB-HOST", app.getDomain());
+        proxyRequest.setHeader("X-CURB-HOST", app.getUrl().getHost());
 
         log.info("proxy request: {} {} {} upstream: {}", request.getMethod(), uri, request.getProtocol(), httpHost);
         final CloseableHttpResponse proxyResponse = proxyClient.execute(httpHost, proxyRequest);

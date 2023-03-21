@@ -5,8 +5,8 @@
 
     <resultMap id="GroupMap" type="curb.server.po.GroupPO">
         <id property="groupId" column="group_id"/>
-        <result property="domain" column="domain"/>
         <result property="name" column="name"/>
+        <result property="url" column="url"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -19,10 +19,10 @@
         WHERE group_id = #{groupId}
     </select>
 
-    <select id="getByDomain" resultMap="GroupMap">
+    <select id="getByUrl" resultMap="GroupMap">
         SELECT * FROM
         <include refid="tablename"/>
-        WHERE `domain` = #{domain}
+        WHERE `url` = #{url}
     </select>
 
     <select id="list" resultMap="GroupMap">
@@ -32,30 +32,23 @@
     </select>
 
     <insert id="insert" parameterType="curb.server.po.GroupPO"
-             useGeneratedKeys="true" keyProperty="groupId">
+            useGeneratedKeys="true" keyProperty="groupId">
         INSERT INTO
         <include refid="tablename"/>
-        (
-        `domain`, `name`, group_secret, create_time, update_time
-        )
+        (`name`, `url`, create_time, update_time)
         VALUES
-        (
-        #{domain}, #{name}, #{groupSecret}, NOW(), NOW()
-        )
+        (#{name}, #{url}, NOW(), NOW())
     </insert>
 
-    <update id="update"  parameterType="curb.server.po.GroupPO" >
+    <update id="update" parameterType="curb.server.po.GroupPO">
         UPDATE
         <include refid="tablename"/>
         <set>
-            <if test='domain != null and domain != "" '>
-                `domain` = #{domain},
-            </if>
-            <if test='name != null and name != "" '>
+            <if test='name != null'>
                 `name` = #{name},
             </if>
-            <if test='groupSecret != null '>
-                group_secret = #{groupSecret},
+            <if test='url != null'>
+                `url` = #{url},
             </if>
             update_time = NOW(),
         </set>

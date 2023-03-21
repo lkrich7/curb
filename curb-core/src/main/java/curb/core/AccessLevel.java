@@ -3,9 +3,9 @@ package curb.core;
 /**
  * 访问控制级别枚举
  */
-public enum AccessLevel {
+public enum AccessLevel implements CodedEnum<AccessLevel> {
     /**
-     * 允许匿名访问
+     * 匿名访问
      */
     ANONYMOUS(0),
     /**
@@ -25,19 +25,11 @@ public enum AccessLevel {
     }
 
     public static AccessLevel valueOfCode(Integer code) {
-        return valueOfCode(code, null);
+        return CodedEnum.valueOfCode(AccessLevel.class, code, null);
     }
 
     public static AccessLevel valueOfCode(Integer code, AccessLevel defaultValue) {
-        if (code == null) {
-            return defaultValue;
-        }
-        for (AccessLevel ret : AccessLevel.values()) {
-            if (code == ret.getCode()) {
-                return ret;
-            }
-        }
-        return defaultValue;
+        return CodedEnum.valueOfCode(AccessLevel.class, code, defaultValue);
     }
 
     public int getCode() {
@@ -46,8 +38,6 @@ public enum AccessLevel {
 
     @Override
     public String toString() {
-        return "AccessLevel{" +
-                "code=" + code +
-                '}';
+        return "AccessLevel(" + code + ')';
     }
 }

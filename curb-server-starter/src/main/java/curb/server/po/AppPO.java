@@ -15,21 +15,13 @@ public class AppPO {
      */
     private Integer groupId;
     /**
-     * 域名
-     */
-    private String domain;
-    /**
-     * 首页路径
-     */
-    private String mainPage;
-    /**
      * 应用名称
      */
     private String name;
     /**
-     * 应用描述
+     * 应用网址
      */
-    private String description;
+    private String url;
     /**
      * 数据状态
      * @see curb.server.enums.AppState
@@ -60,20 +52,12 @@ public class AppPO {
         this.groupId = groupId;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getUrl() {
+        return url;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public String getMainPage() {
-        return mainPage;
-    }
-
-    public void setMainPage(String mainPage) {
-        this.mainPage = mainPage;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getName() {
@@ -82,14 +66,6 @@ public class AppPO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Integer getState() {
@@ -121,10 +97,8 @@ public class AppPO {
         return "AppPO{" +
                 "appId=" + appId +
                 ", groupId=" + groupId +
-                ", domain='" + domain + '\'' +
-                ", mainPage='" + mainPage + '\'' +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                ", url='" + url + '\'' +
                 ", state=" + state +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +

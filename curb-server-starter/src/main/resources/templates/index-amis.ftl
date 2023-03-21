@@ -68,7 +68,7 @@
                     },
                     {
                         type: 'tpl',
-                        tpl: '${(curbUser.name)!"匿名"} (${(curbUser.email)!"未登录"})'
+                        tpl: '${(curbUser.name)!"匿名"} (${(curbUser.username)!"未登录"})'
                     },
                     {
                         type: 'link',

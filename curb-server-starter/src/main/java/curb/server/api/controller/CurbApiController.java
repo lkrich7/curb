@@ -16,7 +16,6 @@ import curb.server.po.GroupPO;
 import curb.server.service.AppMenuService;
 import curb.server.service.AppService;
 import curb.server.service.GroupService;
-import curb.server.service.PermissionService;
 import curb.server.service.UserPermissionService;
 import curb.server.service.UserService;
 import org.slf4j.Logger;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class CurbApiController {
         AppPO appPO = appService.get(appId);
         GroupPO groupPO = groupService.getById(appPO.getGroupId());
         App app = toApp(appPO);
-        List<Menu> menu = appMenuService.list(appId);
+        List<Menu> menu = appMenuService.list(appId, 0);
         Group group = toGroup(groupPO);
         List<App> apps = listGroupApps(appPO.getGroupId());
 
@@ -95,8 +95,8 @@ public class CurbApiController {
         if (curbToken == null) {
             return ErrorEnum.NEED_LOGIN.toApiResult();
         }
-        String email = curbToken.getEmail();
-        User user = userService.getByEmail(email);
+        String username = curbToken.getUsername();
+        User user = userService.getByUsername(username);
 
         UserState state = UserState.check(user);
         if (state.isOk()) {
@@ -122,7 +122,7 @@ public class CurbApiController {
             return ErrorEnum.PARAM_ERROR.toApiResult(null, "非法的用户信息");
         }
         List<UserPermission> permList = userPermissionService.listUserPermission(appId, user.getUserId());
-        LOGGER.info("appId:{} user:{}, email:{} get Permission List", appId, userId, user.getEmail());
+        LOGGER.info("appId:{} user:{}, username:{} get Permission List", appId, userId, user.getUsername());
         return ErrorEnum.SUCCESS.toApiResult(permList);
     }
 
@@ -133,15 +133,14 @@ public class CurbApiController {
         App tmp = new App();
         tmp.setAppId(po.getAppId());
         tmp.setName(po.getName());
-        tmp.setDomain(po.getDomain());
-        tmp.setDescription(po.getDescription());
+        tmp.setUrl(URI.create(po.getUrl()));
         return tmp;
     }
 
     private Group toGroup(GroupPO group) {
         Group ret = new Group();
         ret.setName(group.getName());
-        ret.setDomain(group.getDomain());
+        ret.setUrl(URI.create(group.getUrl()));
         ret.setGroupId(group.getGroupId());
         return ret;
     }

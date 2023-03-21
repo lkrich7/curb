@@ -19,6 +19,7 @@ public class CurbServerProperties extends CurbProperties {
                 "/api/**",
                 "/static/**",
                 "/amis/**",
+                "/amis-editor/**",
         });
     }
 

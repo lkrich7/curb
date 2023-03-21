@@ -1,5 +1,6 @@
 package curb.server.dao;
 
+import curb.server.po.TempPO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 

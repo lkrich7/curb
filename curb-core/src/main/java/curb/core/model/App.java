@@ -1,6 +1,7 @@
 package curb.core.model;
 
 import java.io.Serializable;
+import java.net.URI;
 
 /**
  * 应用基本信息
@@ -13,14 +14,9 @@ public class App implements Serializable {
     private Integer appId;
 
     /**
-     * 应用的域名
+     * 所属项目组
      */
-    private String domain;
-
-    /**
-     * 应用首页路径
-     */
-    private String mainPage;
+    private Integer groupId;
 
     /**
      * 应用名称
@@ -28,9 +24,9 @@ public class App implements Serializable {
     private String name;
 
     /**
-     * 应用描述
+     * 应用网址
      */
-    private String description;
+    private URI url;
 
     public Integer getAppId() {
         return appId;
@@ -40,20 +36,20 @@ public class App implements Serializable {
         this.appId = appId;
     }
 
-    public String getDomain() {
-        return domain;
+    public Integer getGroupId() {
+        return groupId;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
-    public String getMainPage() {
-        return mainPage;
+    public URI getUrl() {
+        return url;
     }
 
-    public void setMainPage(String mainPage) {
-        this.mainPage = mainPage;
+    public void setUrl(URI url) {
+        this.url = url;
     }
 
     public String getName() {
@@ -64,22 +60,13 @@ public class App implements Serializable {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @Override
     public String toString() {
         return "App{" +
                 "appId=" + appId +
-                ", domain='" + domain + '\'' +
-                ", mainPage='" + mainPage + '\'' +
+                ", groupId=" + groupId +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                ", url=" + url +
                 '}';
     }
 }

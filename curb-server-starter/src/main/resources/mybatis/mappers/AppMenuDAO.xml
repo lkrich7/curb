@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="curb.server.dao.AppMenuDAO">
+
+    <resultMap id="AppMenuMap" type="curb.server.po.AppMenuPO">
+        <id property="appId" column="app_id"/>
+        <id property="version" column="`version`"/>
+        <result property="userId" column="user_id"/>
+        <result property="menu" column="menu"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="tablename">curb_app_menu</sql>
+
+    <select id="get" resultMap="AppMenuMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </select>
+
+    <select id="getLatest" resultMap="AppMenuMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+        ORDER BY `version` DESC LIMIT 1
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO
+        <include refid="tablename"/>
+        (
+        app_id, `version`, user_id, `menu`, create_time, update_time
+        )
+        VALUES (
+        #{appId}, #{version}, #{userId}, #{menu}, NOW(), NOW()
+        )
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </delete>
+</mapper>

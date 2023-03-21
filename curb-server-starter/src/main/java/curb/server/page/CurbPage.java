@@ -29,8 +29,9 @@ public class CurbPage implements CurbAccessConfig, Serializable {
     static {
         INDEX = new CurbPage();
         INDEX.setPath("/");
-        INDEX.setType(PageType.AMIS);
         INDEX.setName("首页");
+        INDEX.setType(PageType.AMIS);
+        INDEX.setLevel(AccessLevel.LOGIN);
     }
 
     /**

@@ -14,7 +14,7 @@ public interface AppDAO {
 
     AppPO get(@Param("appId") int appId);
 
-    AppPO getByDomain(@Param("domain") String domain);
+    AppPO getByUrl(@Param("url") String url);
 
     /**
      * @param groupId 项目组ID

@@ -1,19 +1,19 @@
 package curb.server.controller;
 
 import curb.core.ApiResult;
-import curb.core.model.UserState;
-import curb.server.vo.OptionSelectVO;
-import curb.server.vo.PaginationVO;
-import curb.server.po.RolePO;
-import curb.server.dto.Paged;
+import curb.core.ErrorEnum;
 import curb.core.model.Group;
 import curb.core.model.User;
-import curb.core.ErrorEnum;
+import curb.core.model.UserState;
+import curb.server.bo.Pagination;
 import curb.server.enums.SystemRole;
+import curb.server.po.RolePO;
 import curb.server.service.RoleService;
 import curb.server.service.UserRoleService;
 import curb.server.service.UserService;
 import curb.server.util.OptionSelectDtoUtil;
+import curb.server.vo.OptionSelectVO;
+import curb.server.vo.PaginationVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,17 +36,14 @@ import java.util.TreeSet;
 @RequestMapping("/system/api/user/")
 public class SystemApiUserController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private RoleService roleService;
-
-    @Autowired
-    private UserRoleService userRoleService;
-
     private static final int MAX_PAGE_SIZE = 200;
     private static final int DEFAULT_PAGE_SIZE = 15;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private UserRoleService userRoleService;
 
     /**
      * 用户列表
@@ -73,10 +70,10 @@ public class SystemApiUserController {
         paramMap.put("keyword", keyword);
         paramMap.put("type", type);
 
-        Paged<User> results = userService.search(paramMap, pageNo, pageSize);
+        Pagination<User> results = userService.search(paramMap, pageNo, pageSize);
         PaginationVO<User> data = new PaginationVO<>();
-        data.setRows(results.getPageList());
-        data.setTotal(results.getTotalCount());
+        data.setRows(results.getRows());
+        data.setTotal(results.getTotal());
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
@@ -99,17 +96,18 @@ public class SystemApiUserController {
     /**
      * 创建用户
      *
-     * @param name  用户姓名
-     * @param email 用户邮箱
-     * @param type  用户类型
+     * @param username 用户名
+     * @param name     用户姓名
+     * @param type     用户类型
      * @return
      */
     @PostMapping("create")
-    public ApiResult<Void> createUser(@RequestParam String name,
-                                      @RequestParam String email,
-                                      @RequestParam int type
+    public ApiResult<Void> createUser(
+            @RequestParam String username,
+            @RequestParam String name,
+            @RequestParam int type
     ) {
-        User user = checkParam(null, name, email, type);
+        User user = checkParam(null, name, username, type);
         userService.create(user);
         return ErrorEnum.SUCCESS.toApiResult();
     }
@@ -117,19 +115,19 @@ public class SystemApiUserController {
     /**
      * 更新用户信息
      *
-     * @param userId 用户ID
-     * @param name   用户姓名
-     * @param email  用户邮箱
-     * @param type   用户类型
+     * @param userId   用户ID
+     * @param name     用户姓名
+     * @param username 用户名
+     * @param type     用户类型
      * @return
      */
     @PostMapping("update")
     public ApiResult<Void> updateUser(@RequestParam int userId,
                                       @RequestParam String name,
-                                      @RequestParam String email,
+                                      @RequestParam String username,
                                       @RequestParam int type
     ) {
-        User user = checkParam(userId, name, email, type);
+        User user = checkParam(userId, name, username, type);
         userService.update(user);
         return ErrorEnum.SUCCESS.toApiResult();
     }
@@ -218,11 +216,11 @@ public class SystemApiUserController {
         return ErrorEnum.SUCCESS.toApiResult();
     }
 
-    private User checkParam(Integer userId, String name, String email, int type) {
+    private User checkParam(Integer userId, String name, String username, int type) {
         User user = new User();
         user.setUserId(userId);
         user.setName(name);
-        user.setEmail(email);
+        user.setUsername(username);
         user.setType(type);
         return user;
     }

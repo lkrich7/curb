@@ -96,7 +96,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
                 request.getMethod(),
                 request.getRequestURL().toString(),
                 queryString == null || queryString.isEmpty() ? "" : "?" + queryString,
-                user == null ? null : user.getEmail(),
+                user == null ? null : user.getUsername(),
                 userState,
                 ServletUtil.getIp(request));
     }
@@ -371,15 +371,15 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @return
      */
     protected boolean onUnauthenticated(User user, UserState state, App app, Group group, HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String domain;
+        String url;
         if (group == null) {
-            domain = request.getServerName();
-            LOGGER.warn("group not found, domain:{}", domain);
+            url = request.getScheme()  + "://" + request.getServerName();
+            LOGGER.warn("group not found, use url:{}", url);
         } else {
-            domain = group.getDomain();
+            url = group.getUrl().toString();
         }
         String targetUrl = UrlCodec.encodeUtf8(request.getRequestURL().toString());
-        String redirectUrl = String.format("http://%s/login?targetUrl=%s", domain, targetUrl);
+        String redirectUrl = String.format("%s/login?targetUrl=%s", url, targetUrl);
         try {
             response.sendRedirect(redirectUrl);
         } catch (IOException e) {

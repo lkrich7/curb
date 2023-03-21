@@ -58,7 +58,7 @@ class AmisAppVo implements Serializable {
         for (AppPO po : list) {
             AmisAppVo vo = new AmisAppVo();
             vo.label = po.getName();
-            vo.url = String.format("http://%s/", po.getDomain());
+            vo.url = po.getUrl();
             ret.add(vo);
         }
 

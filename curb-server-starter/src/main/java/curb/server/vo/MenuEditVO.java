@@ -17,6 +17,8 @@ public class MenuEditVO implements Serializable {
 
     private String name;
 
+    private Integer version;
+
     private List<Menu> menus;
 
     public MenuEditVO() {

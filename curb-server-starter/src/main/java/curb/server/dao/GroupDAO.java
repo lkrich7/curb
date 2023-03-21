@@ -13,7 +13,7 @@ public interface GroupDAO {
 
     GroupPO get(int groupId);
 
-    GroupPO getByDomain(String domain);
+    GroupPO getByUrl(String url);
 
     List<GroupPO> list();
 

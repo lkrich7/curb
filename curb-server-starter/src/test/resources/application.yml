@@ -7,6 +7,10 @@ spring:
   application:
     name: curb-server-starter-demo
 
+  output:
+    ansi:
+      enabled: always
+
   jackson:
     serialization:
       write-dates-as-timestamps: true
@@ -22,16 +26,15 @@ spring:
       template_exception_handler: html_debug
 
   datasource:
-#    driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/curb?rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/curb?useSSL=false&rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&
     username: root
     password: 123456
-    hikari:
-      pool-name: hikari-pool-default
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 2000
-      validation-timeout: 2000
+#    hikari:
+#      pool-name: hikari-pool-default
+#      maximum-pool-size: 20
+#      minimum-idle: 5
+#      connection-timeout: 2000
+#      validation-timeout: 2000
 #      idle-timeout: 600000
 #      max-lifetime: 1800000
 
@@ -42,8 +45,15 @@ mybatis:
 logging:
   level:
     root: debug
-    #    org.mybatis: debug
+    org.mybatis: info
     org.apache.tomcat: info
     org.hibernate: info
     org.apache.catalina: info
     org.springframework: info
+curb:
+  test-mode:
+    enabled: true
+    user:
+      userId: 1
+      username: root
+      name: Root

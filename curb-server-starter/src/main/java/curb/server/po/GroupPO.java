@@ -11,17 +11,13 @@ public class GroupPO {
      */
     private Integer groupId;
     /**
-     * 项目组主域名
-     */
-    private String domain;
-    /**
      * 项目组名称
      */
     private String name;
     /**
-     * 项目组描述
+     * 项目组网址
      */
-    private String description;
+    private String url;
     /**
      * 数据创建时间
      */
@@ -39,12 +35,12 @@ public class GroupPO {
         this.groupId = groupId;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getUrl() {
+        return url;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getName() {
@@ -53,14 +49,6 @@ public class GroupPO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Date getCreateTime() {

@@ -5,8 +5,9 @@
 
     <resultMap id="PageBodyMap" type="curb.server.po.PageBodyPO">
         <id property="pageId" column="page_id"/>
-        <id property="version" column="`version`"/>
+        <id property="version" column="version"/>
         <result property="body" column="body"/>
+        <result property="userId" column="user_id"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -20,16 +21,15 @@
     </select>
 
     <select id="countByPageId" resultType="int">
-        SELECT * FROM
+        SELECT COUNT(*) FROM
         <include refid="tablename"/>
-        WHERE page_id = #{appId}
-        ORDER BY `version` DESC
+        WHERE page_id = #{pageId}
     </select>
 
     <select id="listByPageId" resultMap="PageBodyMap">
         SELECT * FROM
         <include refid="tablename"/>
-        WHERE page_id = #{appId}
+        WHERE page_id = #{pageId}
         ORDER BY `version` DESC
         <if test="limit != null">LIMIT <if test="offset != null">#{offset},</if>#{limit}</if>
     </select>
@@ -38,10 +38,10 @@
         INSERT INTO
         <include refid="tablename"/>
         (
-        `page_id`, `version`, `body`, create_time, update_time
+        `page_id`, `version`, `body`, user_id, create_time, update_time
         )
         VALUES (
-        #{pageId}, #{version}, #{body}, NOW(), NOW()
+        #{pageId}, #{version}, #{body}, #{userId}, NOW(), NOW()
         )
     </insert>
 

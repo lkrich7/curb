@@ -3,7 +3,7 @@ package curb.server.service;
 import curb.core.ErrorEnum;
 import curb.core.model.UserState;
 import curb.server.dao.UserDAO;
-import curb.server.dto.Paged;
+import curb.server.bo.Pagination;
 import curb.core.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,26 +23,26 @@ public class UserService {
     @Autowired
     private UserRoleService userRoleService;
 
-    public Paged<User> search(Map<String, Object> paramMap, Integer pageNo, Integer pageSize) {
+    public Pagination<User> search(Map<String, Object> paramMap, Integer pageNo, Integer pageSize) {
         int totalCount = userDAO.countByCondition(paramMap);
-        Paged<User> paged = new Paged<>(pageNo, pageSize, totalCount);
-        if (pageNo < 1 || pageNo > paged.getTotalPage()) {
-            return paged;
+        Pagination<User> pagination = new Pagination<>(pageNo, pageSize, totalCount);
+        if (pageNo < 1 || pageNo > pagination.pages()) {
+            return pagination;
         }
-        paramMap.put("start", paged.offset());
+        paramMap.put("start", pagination.offset());
         paramMap.put("limit", pageSize);
 
         List<User> results = userDAO.listByCondition(paramMap);
-        paged.setPageList(results);
-        return paged;
+        pagination.setRows(results);
+        return pagination;
     }
 
     public User getById(int userId) {
         return userDAO.get(userId);
     }
 
-    public User getByEmail(String email) {
-        return userDAO.getByEmail(email);
+    public User getByUsername(String username) {
+        return userDAO.getByUsername(username);
     }
 
     public User checkUserExisted(int userId) {
@@ -56,8 +56,8 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public void create(User user) {
-        if (userDAO.getByEmail(user.getEmail()) != null) {
-            throw ErrorEnum.PARAM_ERROR.toCurbException("用户邮箱已存在");
+        if (userDAO.getByUsername(user.getUsername()) != null) {
+            throw ErrorEnum.PARAM_ERROR.toCurbException("用户名已存在");
         }
         user.setState(UserState.OK.getCode());
         int rows = userDAO.insert(user);
@@ -72,13 +72,13 @@ public class UserService {
         if (existed == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("用户不存在");
         }
-        if (!existed.getEmail().equals(user.getEmail())) {
-            User existedEmail = userDAO.getByEmail(user.getEmail());
-            if (existedEmail != null && !existedEmail.getUserId().equals(existed.getUserId())) {
-                throw ErrorEnum.PARAM_ERROR.toCurbException("用户邮箱已存在");
+        if (!existed.getUsername().equals(user.getUsername())) {
+            User existedUsername = userDAO.getByUsername(user.getUsername());
+            if (existedUsername != null && !existedUsername.getUserId().equals(existed.getUserId())) {
+                throw ErrorEnum.PARAM_ERROR.toCurbException("用户名已存在");
             }
         }
-        existed.setEmail(user.getEmail());
+        existed.setUsername(user.getUsername());
         existed.setName(user.getName());
         existed.setType(user.getType());
         int rows = userDAO.update(user);

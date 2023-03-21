@@ -8,7 +8,7 @@ import curb.core.CodedEnum;
 public enum AppState implements CodedEnum<AppState> {
     UNKNOWN(0, "未知"),
     ENABLED(1, "已启用"),
-    DISABLED(2, "已禁用"),
+    DISABLED(2, "已停用"),
     ;
 
     private final int code;

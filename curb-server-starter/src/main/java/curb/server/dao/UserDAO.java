@@ -16,7 +16,7 @@ public interface UserDAO {
 
     User get(@Param("userId") int userId);
 
-    User getByEmail(String email);
+    User getByUsername(String username);
 
     int countByCondition(Map<String, Object> paramMap);
 

@@ -11,6 +11,7 @@
         <result property="type" column="type"/>
         <result property="accessLevel" column="access_level"/>
         <result property="sign" column="sign"/>
+        <result property="version" column="version"/>
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -42,10 +43,10 @@
         INSERT INTO
         <include refid="tablename"/>
         (
-        `app_id`, `path`, `name`, `type`, `access_level`, `sign`, `version`, `state`, create_time, update_time
+        `app_id`, `path`, `name`, `type`, `access_level`, `sign`, `version`, `state`, create_user_id, update_user_id, create_time, update_time
         )
         VALUES (
-        #{appId}, #{path}, #{name}, #{type}, #{accessLevel}, #{sign}, #{version}, #{state}, NOW(), NOW()
+        #{appId}, #{path}, #{name}, #{type}, #{accessLevel}, #{sign}, #{version}, #{state}, #{createUserId}, #{updateUserId}, NOW(), NOW()
         )
     </insert>
 

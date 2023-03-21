@@ -5,8 +5,8 @@
 
     <resultMap id="UserMap" type="curb.core.model.User">
         <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
         <result property="name" column="name"/>
-        <result property="email" column="email"/>
         <result property="type" column="type"/>
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
@@ -18,9 +18,7 @@
     <sql id="condition">
         <trim prefix="WHERE" prefixOverrides="AND||OR">
             <if test="userId != null">AND user_id = #{userId}</if>
-            <if test="keyword != null">AND (`name` LIKE concat('%', #{keyword}, '%') OR email LIKE concat('%',
-                #{keyword}, '%'))
-            </if>
+            <if test="keyword != null">AND (`name` LIKE concat('%', #{keyword}, '%') OR username LIKE concat('%', #{keyword}, '%'))</if>
             <if test="type != null">AND `type` = #{type}</if>
             <if test="state != null">AND `state` = #{state}</if>
         </trim>
@@ -33,11 +31,11 @@
         WHERE user_id = #{userId}
     </select>
 
-    <select id="getByEmail" resultMap="UserMap">
+    <select id="getByUsername" resultMap="UserMap">
         SELECT *
         FROM
         <include refid="tablename"/>
-        WHERE email = #{email}
+        WHERE name = #{name}
     </select>
 
     <select id="countByCondition" resultType="int">
@@ -69,10 +67,10 @@
         INSERT INTO
         <include refid="tablename"/>
         (
-        `name`, `email`, `type`, state, create_time
+        `name`, `username`, `type`, state, create_time
         )
         VALUES (
-        #{name}, #{email}, #{type}, #{state}, NOW()
+        #{name}, #{username}, #{type}, #{state}, NOW()
         )
     </insert>
 
@@ -81,7 +79,7 @@
         <include refid="tablename"/>
         SET
         `name` = #{name},
-        `email` = #{email},
+        `username` = #{username},
         `type` = #{type},
         `update_time` = NOW()
         WHERE user_id = #{userId}

@@ -6,8 +6,9 @@ import curb.core.CodedEnum;
  * 权限数据状态枚举
  */
 public enum PermissionState implements CodedEnum<PermissionState> {
-    DISABLED(0, "未启用"),
-    ENABLED(1, "启用"),
+    UNKNOWN(0, "未知"),
+    ENABLED(1, "已启用"),
+    DISABLED(2, "已停用"),
     ;
 
     private final int code;
@@ -25,5 +26,9 @@ public enum PermissionState implements CodedEnum<PermissionState> {
 
     public String getName() {
         return name;
+    }
+
+    public static PermissionState check(Integer stateCode) {
+        return CodedEnum.valueOfCode(PermissionState.class, stateCode, UNKNOWN);
     }
 }

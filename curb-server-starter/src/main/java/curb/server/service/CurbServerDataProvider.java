@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 
 /**
  * 服务端数据服务
@@ -41,50 +42,34 @@ public class CurbServerDataProvider implements CurbDataProvider {
         return toApp(appPO);
     }
 
+    private AppPO getAppPO(HttpServletRequest request) {
+        String url = CurbServerUtil.getUrl(request);
+        AppPO appPO = appService.getByUrl(url);
+        if (appPO == null) {
+            throw ErrorEnum.NOT_FOUND.toCurbException();
+        }
+        return appPO;
+    }
+
     private App toApp(AppPO appPO) {
         App ret = new App();
         ret.setAppId(appPO.getAppId());
-        ret.setDomain(appPO.getDomain());
-        ret.setMainPage(appPO.getMainPage());
+        ret.setGroupId(appPO.getGroupId());
+        ret.setUrl(URI.create(appPO.getUrl()));
         ret.setName(appPO.getName());
-        ret.setDescription(appPO.getDescription());
         return ret;
-    }
-
-    private AppPO getAppPO(HttpServletRequest request) {
-        String domain = CurbServerUtil.getDomain(request);
-        AppPO appPO = appService.getByDomain(domain);
-
-        if (appPO == null) {
-            GroupPO groupDto = groupService.getByDomain(domain);
-            if (groupDto == null) {
-                throw ErrorEnum.NOT_FOUND.toCurbException();
-            }
-            appPO = appService.get(CurbServerUtil.CURB_APP_ID);
-            appPO.setGroupId(groupDto.getGroupId());
-            appPO.setDomain(groupDto.getDomain());
-            appPO.setMainPage("/");
-            appPO.setName(groupDto.getName());
-            appPO.setDescription(groupDto.getName());
-        }
-
-        return appPO;
     }
 
     @Override
     public Group getGroup(HttpServletRequest request) {
-        String domain = CurbServerUtil.getDomain(request);
-        GroupPO groupPO = groupService.getByDomain(domain);
-        if (groupPO == null) {
-            AppPO app = appService.getByDomain(domain);
-            if (app != null) {
-                groupPO = groupService.getById(app.getGroupId());
-            }
-        }
-        if (groupPO == null) {
+        App app = CurbUtil.getApp(request);
+        if (app == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
-
+        GroupPO groupPO = groupService.getById(app.getGroupId());
+        if (app == null) {
+            throw ErrorEnum.NOT_FOUND.toCurbException();
+        }
         return GroupUtil.fromPO(groupPO);
     }
 
@@ -97,7 +82,7 @@ public class CurbServerDataProvider implements CurbDataProvider {
         if (token == null || CurbUtil.isTokenExpired(token.getTs())) {
             return null;
         }
-        return userService.getByEmail(token.getEmail());
+        return userService.getByUsername(token.getUsername());
     }
 
     @Override

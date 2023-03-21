@@ -2,15 +2,27 @@ package curb.server.vo;
 
 import java.util.Collection;
 
+/**
+ * 分页VO
+ *
+ * @param <T>
+ */
 public class PaginationVO<T> {
 
+    /**
+     * 当前页数据
+     */
     private Collection<T> rows;
-    private int total;
+
+    /**
+     * 数据总条数
+     */
+    private Integer total;
 
     public PaginationVO() {
     }
 
-    public PaginationVO(Collection<T> rows, int total) {
+    public PaginationVO(Collection<T> rows, Integer total) {
         this.rows = rows;
         this.total = total;
     }
@@ -27,7 +39,7 @@ public class PaginationVO<T> {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(Integer total) {
         this.total = total;
     }
 

@@ -1,17 +1,16 @@
 package curb.server.page;
 
-import curb.server.configuration.CurbServerProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.format.support.FormattingConversionService;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.springframework.web.util.UrlPathHelper;
 
 public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
-
-    @Autowired
-    private CurbServerProperties properties;
 
     @Bean
     public CurbPageRequestHandler amisPageRequestHandler() {
@@ -19,22 +18,29 @@ public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
     }
 
     @Bean
-    public CurbPageRequestHandlerMapping amisPageRequestHandlerMapping(CurbPageRequestHandler handler) {
+    public CurbPageRequestHandlerMapping amisPageRequestHandlerMapping(
+            CurbPageRequestHandler handler,
+            @Qualifier("mvcPathMatcher") PathMatcher pathMatcher,
+            @Qualifier("mvcUrlPathHelper") UrlPathHelper urlPathHelper,
+            @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+            @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
         CurbPageRequestHandlerMapping mapping = new CurbPageRequestHandlerMapping(handler);
         mapping.setOrder(1);
-        mapping.setInterceptors(getInterceptors());
+        mapping.setInterceptors(this.getInterceptors(conversionService, resourceUrlProvider));
         mapping.setCorsConfigurations(getCorsConfigurations());
-
-        PathMatchConfigurer configurer = getPathMatchConfigurer();
-
-        UrlPathHelper pathHelper = configurer.getUrlPathHelper();
-        if (pathHelper != null) {
-            mapping.setUrlPathHelper(pathHelper);
-        }
-        PathMatcher pathMatcher = configurer.getPathMatcher();
-        if (pathMatcher != null) {
-            mapping.setPathMatcher(pathMatcher);
-        }
+        mapping.setPathMatcher(pathMatcher);
+        mapping.setUrlPathHelper(urlPathHelper);
+//
+//        PathMatchConfigurer configurer = getPathMatchConfigurer();
+//
+//        UrlPathHelper pathHelper = configurer.getUrlPathHelper();
+//        if (pathHelper != null) {
+//            mapping.setUrlPathHelper(pathHelper);
+//        }
+//        PathMatcher pathMatcher = configurer.getPathMatcher();
+//        if (pathMatcher != null) {
+//            mapping.setPathMatcher(pathMatcher);
+//        }
         return mapping;
     }
 
@@ -43,6 +49,5 @@ public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
         CurbPageHandlerExceptionResolver ret = new CurbPageHandlerExceptionResolver();
         ret.setOrder(1);
         return ret;
-
     }
 }

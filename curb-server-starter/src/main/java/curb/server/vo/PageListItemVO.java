@@ -12,6 +12,7 @@ public class PageListItemVO {
     private String name;
     private String path;
     private Integer type;
+    private Integer accessLevel;
     private Integer state;
     private Date updateTime;
 
@@ -47,6 +48,14 @@ public class PageListItemVO {
         this.type = type;
     }
 
+    public Integer getAccessLevel() {
+        return accessLevel;
+    }
+
+    public void setAccessLevel(Integer accessLevel) {
+        this.accessLevel = accessLevel;
+    }
+
     public Integer getState() {
         return state;
     }
@@ -72,6 +81,7 @@ public class PageListItemVO {
         ret.setPath(po.getPath());
         ret.setName(po.getName());
         ret.setType(po.getType());
+        ret.setAccessLevel(po.getAccessLevel());
         ret.setUpdateTime(po.getUpdateTime());
         ret.setState(po.getState());
         return ret;

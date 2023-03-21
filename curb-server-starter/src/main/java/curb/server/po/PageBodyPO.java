@@ -1,5 +1,7 @@
 package curb.server.po;
 
+import curb.server.vo.PageBodyHistoryVO;
+
 import java.util.Date;
 
 /**
@@ -21,6 +23,11 @@ public class PageBodyPO {
      * 页面内容
      */
     private String body;
+
+    /**
+     * 提交用户ID
+     */
+    private Integer userId;
 
     /**
      * 数据创建时间
@@ -55,6 +62,14 @@ public class PageBodyPO {
         this.body = body;
     }
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -80,5 +95,14 @@ public class PageBodyPO {
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 '}';
+    }
+
+    public PageBodyHistoryVO toVO() {
+        PageBodyHistoryVO ret = new PageBodyHistoryVO();
+        ret.setPageId(pageId);
+        ret.setVersion(version);
+        ret.setUserId(userId);
+        ret.setUpdateTime(updateTime);
+        return ret;
     }
 }

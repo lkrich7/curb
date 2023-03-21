@@ -1,16 +1,16 @@
 package curb.server.controller;
 
+import curb.core.ApiResult;
+import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
-import curb.core.ApiResult;
-import curb.server.vo.AppVO;
-import curb.server.vo.AppSecretVO;
-import curb.server.vo.PaginationVO;
-import curb.server.po.AppPO;
 import curb.server.enums.AppState;
-import curb.core.ErrorEnum;
+import curb.server.po.AppPO;
 import curb.server.service.AppService;
 import curb.server.util.CurbServerUtil;
+import curb.server.vo.AppSecretVO;
+import curb.server.vo.AppVO;
+import curb.server.vo.PaginationVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,18 +71,16 @@ public class SystemApiAppController {
     /**
      * 新建应用
      *
-     * @param name        应用名称
-     * @param domain      应用域名
-     * @param description 应用说明
-     * @param group       项目组对象
+     * @param name  应用名称
+     * @param url   应用网址
+     * @param group 项目组对象
      * @return
      */
     @PostMapping("create")
-    public ApiResult<Void> createApp(@RequestParam String domain,
+    public ApiResult<Void> createApp(@RequestParam String url,
                                      @RequestParam String name,
-                                     @RequestParam String description,
                                      Group group) {
-        AppPO app = checkParam(null, domain, name, description, group);
+        AppPO app = checkParam(null, url, name, group);
         appService.create(app);
         return ErrorEnum.SUCCESS.toApiResult();
     }
@@ -90,20 +88,18 @@ public class SystemApiAppController {
     /**
      * 修改应用
      *
-     * @param appId       应用ID
-     * @param name        应用名称
-     * @param domain      应用域名
-     * @param description 应用说明
-     * @param group       项目组对象
+     * @param appId 应用ID
+     * @param name  应用名称
+     * @param url   应用网址
+     * @param group 项目组对象
      * @return
      */
     @PostMapping("update")
     public ApiResult<Void> updateApp(@RequestParam int appId,
-                                     @RequestParam String domain,
                                      @RequestParam String name,
-                                     @RequestParam String description,
+                                     @RequestParam String url,
                                      Group group) {
-        AppPO app = checkParam(appId, domain, name, description, group);
+        AppPO app = checkParam(appId, url, name, group);
         appService.update(app);
         return ErrorEnum.SUCCESS.toApiResult();
     }
@@ -167,21 +163,21 @@ public class SystemApiAppController {
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
-    private AppPO checkParam(Integer appId, String domain, String name, String description, Group group) {
-        domain = StringUtils.trimToNull(domain);
+    private AppPO checkParam(Integer appId, String url, String name, Group group) {
         name = StringUtils.trimToNull(name);
-        description = StringUtils.trimToNull(description);
-
-        if (name == null || domain == null || description == null) {
-            throw ErrorEnum.PARAM_ERROR.toCurbException();
+        if (name == null) {
+            throw ErrorEnum.PARAM_ERROR.toCurbException("应用名称不能为空");
+        }
+        url = StringUtils.trimToNull(url);
+        if (url == null) {
+            throw ErrorEnum.PARAM_ERROR.toCurbException("应用网址不能为空");
         }
 
         AppPO app = new AppPO();
         app.setAppId(appId);
         app.setGroupId(group.getGroupId());
         app.setName(name);
-        app.setDomain(domain);
-        app.setDescription(description);
+        app.setUrl(url);
 
         return app;
     }

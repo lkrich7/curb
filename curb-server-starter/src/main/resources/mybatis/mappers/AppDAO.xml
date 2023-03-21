@@ -6,10 +6,8 @@
     <resultMap id="AppMap" type="curb.server.po.AppPO">
         <id property="appId" column="app_id"/>
         <result property="groupId" column="group_id"/>
-        <result property="domain" column="domain"/>
-        <result property="mainPage" column="main_page"/>
         <result property="name" column="name"/>
-        <result property="description" column="description"/>
+        <result property="url" column="url"/>
         <result property="state" column="state"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -23,10 +21,10 @@
         WHERE app_id = #{appId}
     </select>
 
-    <select id="getByDomain" resultMap="AppMap">
+    <select id="getByUrl" resultMap="AppMap">
         SELECT * FROM
         <include refid="tablename"/>
-        WHERE `domain` = #{domain}
+        WHERE `url` = LEFT(#{url}, LENGTH(`url`))
     </select>
 
     <select id="listByGroupId" resultMap="AppMap">
@@ -42,10 +40,10 @@
         INSERT INTO
         <include refid="tablename"/>
         (
-        group_id, `domain`, main_page, `name`, `description`, state, create_time, update_time
+        group_id, `name`, `url`, state, create_time, update_time
         )
         VALUES (
-        #{groupId}, #{domain}, '/', #{name}, #{description}, #{state}, NOW(), NOW()
+        #{groupId}, #{name}, #{url}, #{state}, NOW(), NOW()
         )
     </insert>
 
@@ -53,10 +51,8 @@
         UPDATE
         <include refid="tablename"/>
         SET
-        `domain` = #{domain},
-        `main_page` = #{mainPage},
         `name` = #{name},
-        `description` = #{description},
+        `url` = #{url},
         update_time = NOW()
         WHERE app_id = #{appId}
     </update>
