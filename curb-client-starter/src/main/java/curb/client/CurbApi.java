@@ -2,11 +2,7 @@ package curb.client;
 
 
 import curb.core.ApiResult;
-import curb.core.model.App;
 import curb.core.model.AppDetail;
-import curb.core.model.Group;
-import curb.core.model.Menu;
-import curb.core.model.Permission;
 import curb.core.model.User;
 import curb.core.model.UserPermission;
 

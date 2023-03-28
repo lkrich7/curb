@@ -1,5 +1,7 @@
 package curb.server.vo;
 
+import curb.core.model.User;
+
 import java.util.Date;
 
 public class PageBodyHistoryVO {
@@ -15,14 +17,19 @@ public class PageBodyHistoryVO {
     private Integer version;
 
     /**
-     * 提交用户ID
+     * 提交用户
      */
-    private Integer userId;
+    private User user;
 
     /**
-     * 修改时间
+     * 提交时间
      */
     private Date updateTime;
+
+    /**
+     * 页面内容
+     */
+    private String body;
 
     public Integer getPageId() {
         return pageId;
@@ -40,12 +47,12 @@ public class PageBodyHistoryVO {
         this.version = version;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Date getUpdateTime() {
@@ -54,5 +61,13 @@ public class PageBodyHistoryVO {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 }

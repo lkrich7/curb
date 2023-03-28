@@ -17,14 +17,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * 项目组管理API
+ */
 @RestController
 @RequestMapping("/system/api/group/")
 public class SystemApiGroupController {
 
-    @Autowired
     private GroupService groupService;
+
+    @Autowired
+    public SystemApiGroupController(GroupService groupService) {
+        this.groupService = groupService;
+    }
 
     /**
      * 项目组列表
@@ -37,9 +45,9 @@ public class SystemApiGroupController {
         List<GroupVO> list;
         if (CurbServerUtil.isSystemGroupId(group.getGroupId())) {
             // 当前在系统项目组时，列出全部项目组
-            list = GroupVO.fromPO(groupService.list());
+            list = toVO(groupService.list());
         } else {
-            GroupVO groupVO = GroupVO.fromPO(groupService.getById(group.getGroupId()));
+            GroupVO groupVO = toVO(groupService.getById(group.getGroupId()));
             list = new ArrayList<>(1);
             list.add(groupVO);
         }
@@ -51,14 +59,14 @@ public class SystemApiGroupController {
      * 获取项目组信息，用于项目组信息编辑
      *
      * @param groupId 指定的项目组ID，如缺省则获取当前项目组
-     * @param group 当前项目组
+     * @param group   当前项目组
      * @return
      */
     @GetMapping("get")
     public ApiResult<GroupVO> getForEdit(@RequestParam(required = false) Integer groupId, Group group) {
         groupId = CurbServerUtil.checkGroupId(groupId, group);
         GroupPO po = groupService.getById(groupId);
-        GroupVO data = GroupVO.fromPO(po);
+        GroupVO data = toVO(po);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -113,6 +121,29 @@ public class SystemApiGroupController {
         ret.setGroupId(groupId);
         ret.setUrl(url);
         ret.setName(name);
+        return ret;
+    }
+
+    private static GroupVO toVO(GroupPO po) {
+        if (po == null) {
+            return null;
+        }
+        GroupVO ret = new GroupVO();
+        ret.setGroupId(po.getGroupId());
+        ret.setName(po.getName());
+        ret.setUrl(po.getUrl());
+        return ret;
+    }
+
+    private static List<GroupVO> toVO(List<GroupPO> list) {
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<GroupVO> ret = new ArrayList<>(list.size());
+        for (GroupPO po : list) {
+            GroupVO item = toVO(po);
+            ret.add(item);
+        }
         return ret;
     }
 }

@@ -12,6 +12,7 @@
         <module>curb-client-starter</module>
         <module>curb-server-starter</module>
         <module>curb-server-starter-demo</module>
+        <module>curb-client-starter-demo</module>
     </modules>
 
     <packaging>pom</packaging>

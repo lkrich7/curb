@@ -11,7 +11,7 @@ import curb.server.po.RolePO;
 import curb.server.service.RoleService;
 import curb.server.service.UserRoleService;
 import curb.server.service.UserService;
-import curb.server.util.OptionSelectDtoUtil;
+import curb.server.converter.OptionVOConverter;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.PaginationVO;
 import org.apache.commons.lang3.StringUtils;
@@ -71,9 +71,7 @@ public class SystemApiUserController {
         paramMap.put("type", type);
 
         Pagination<User> results = userService.search(paramMap, pageNo, pageSize);
-        PaginationVO<User> data = new PaginationVO<>();
-        data.setRows(results.getRows());
-        data.setTotal(results.getTotal());
+        PaginationVO<User> data = results.toVO(e -> e);
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
@@ -183,7 +181,7 @@ public class SystemApiUserController {
         List<RolePO> groupRoles = roleService.listAllByGroupId(groupId);
         Set<Integer> userRoleIds = userRoleService.listRoleIdByUserId(userId, groupId, groupRoles);
 
-        OptionSelectVO data = OptionSelectDtoUtil.fromRolePO(groupRoles, userRoleIds);
+        OptionSelectVO data = OptionVOConverter.fromRolePO(groupRoles, userRoleIds);
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }

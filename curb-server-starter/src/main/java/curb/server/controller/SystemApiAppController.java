@@ -7,6 +7,7 @@ import curb.core.model.Group;
 import curb.server.enums.AppState;
 import curb.server.po.AppPO;
 import curb.server.service.AppService;
+import curb.server.converter.AppVOConverter;
 import curb.server.util.CurbServerUtil;
 import curb.server.vo.AppSecretVO;
 import curb.server.vo.AppVO;
@@ -22,12 +23,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 应用管理API
+ */
 @RestController
 @RequestMapping("/system/api/app/")
 public class SystemApiAppController {
 
-    @Autowired
     private AppService appService;
+
+    @Autowired
+    public SystemApiAppController(AppService appService) {
+        this.appService = appService;
+    }
 
     /**
      * 应用列表
@@ -44,11 +52,11 @@ public class SystemApiAppController {
         if (CurbServerUtil.isGroupApp(group, app)) {
             AppState state = enabled != null && enabled ? AppState.ENABLED : null;
             List<AppPO> list = appService.listByGroupId(group.getGroupId(), state);
-            rows = AppVO.fromPO(list);
+            rows = AppVOConverter.fromPO(list);
         } else {
             AppPO po = appService.checkApp(app.getAppId(), group.getGroupId());
             rows = new ArrayList<>(1);
-            rows.add(AppVO.fromPO(po));
+            rows.add(AppVOConverter.fromPO(po));
         }
         PaginationVO<AppVO> data = new PaginationVO<>(rows, rows.size());
         return ErrorEnum.SUCCESS.toApiResult(data);
@@ -64,7 +72,7 @@ public class SystemApiAppController {
     @GetMapping("get")
     public ApiResult<AppVO> getForEdit(@RequestParam int appId, Group group) {
         AppPO app = appService.checkApp(appId, group.getGroupId());
-        AppVO data = AppVO.fromPO(app);
+        AppVO data = AppVOConverter.fromPO(app);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 

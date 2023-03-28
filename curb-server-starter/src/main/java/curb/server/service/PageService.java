@@ -1,10 +1,11 @@
 package curb.server.service;
 
+import curb.core.AccessLevel;
 import curb.core.ErrorEnum;
 import curb.core.util.JsonUtil;
+import curb.server.bo.Pagination;
 import curb.server.dao.PageBodyDAO;
 import curb.server.dao.PageDAO;
-import curb.server.bo.Pagination;
 import curb.server.enums.PageState;
 import curb.server.enums.PageType;
 import curb.server.page.CurbPage;
@@ -20,6 +21,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 页面管理服务
+ */
 @Service
 public class PageService {
 
@@ -30,7 +34,6 @@ public class PageService {
 
     private PageDAO pageDAO;
 
-    @Autowired
     private PageBodyDAO pageBodyDAO;
 
     @Autowired
@@ -44,9 +47,25 @@ public class PageService {
         }
     }
 
+    /**
+     * 取指定页面最新版本数据
+     *
+     * @param appId 页面所属应用ID
+     * @param url   页面地址路径
+     * @return
+     */
     public CurbPage getPage(int appId, String url) {
         return getPage(appId, url, null);
     }
+
+    /**
+     * 获取指定页面的指定版本数据
+     *
+     * @param appId   页面所属应用ID
+     * @param url     页面地址路径
+     * @param version 指定页面版本号
+     * @return
+     */
     public CurbPage getPage(int appId, String url, Integer version) {
         CurbPage page = CurbPage.buildWrapPage(url);
         if (page != null) {
@@ -70,16 +89,23 @@ public class PageService {
         return page;
     }
 
-    public List<PagePO> listEditables(int appId) {
-        return pageDAO.listByAppId(appId);
-    }
-
-    public PagePO checkEditablePage(int pageId, int appId) {
+    public PagePO checkPage(int pageId, int appId) {
         PagePO po = pageDAO.get(pageId);
         if (po == null || !po.getAppId().equals(appId)) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
         return po;
+    }
+
+    public Pagination<PagePO> paginationListPage(int appId, int pn, int ps) {
+        int count = pageDAO.countByCondition(appId);
+        if (count == 0) {
+            return new Pagination<>(pn, ps);
+        }
+        Pagination<PagePO> ret = new Pagination<>(pn, ps, count);
+        List<PagePO> items = pageDAO.listByCondition(appId, ps, ret.offset());
+        ret.setItems(items);
+        return ret;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -94,7 +120,7 @@ public class PageService {
         int pageId = po.getPageId();
         int appId = po.getAppId();
         String path = po.getPath();
-        PagePO existed = checkEditablePage(pageId, appId);
+        PagePO existed = checkPage(pageId, appId);
         checkUriConflict(appId, path, pageId);
 
         existed.setPath(path);
@@ -107,7 +133,7 @@ public class PageService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateState(int pageId, int appId, PageState state) {
-        checkEditablePage(pageId, appId);
+        checkPage(pageId, appId);
 
         int rows = pageDAO.updateState(pageId, state.getCode());
         if (rows != 1) {
@@ -117,19 +143,20 @@ public class PageService {
 
     @Transactional(rollbackFor = Exception.class)
     public void delete(int pageId, int appId) {
-        checkEditablePage(pageId, appId);
+        checkPage(pageId, appId);
         pageDAO.delete(pageId);
         pageBodyDAO.deleteByPageId(pageId);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteByAppId(int appId) {
-        List<PagePO> list = pageDAO.listByAppId(appId);
         pageDAO.deleteByAppId(appId);
+        List<PagePO> list = pageDAO.listByCondition(appId, Integer.MAX_VALUE, 0);
         for (PagePO po : list) {
             pageBodyDAO.deleteByPageId(po.getPageId());
         }
     }
+
     public PageBodyPO getBody(int pageId, int version) {
         return pageBodyDAO.get(pageId, version);
     }
@@ -138,13 +165,14 @@ public class PageService {
         int count = pageBodyDAO.countByPageId(pageId);
         Pagination<PageBodyPO> ret = new Pagination<>(pn, ps, count);
         List<PageBodyPO> rows = pageBodyDAO.listByPageId(pageId, ps, ret.offset());
-        ret.setRows(rows);
+        ret.setItems(rows);
         return ret;
     }
 
+
     @Transactional(rollbackFor = Exception.class)
     public void saveBody(PageBodyEditVO vo, Integer appId, Integer userId) {
-        PagePO po = checkEditablePage(vo.getPageId(), appId);
+        PagePO po = checkPage(vo.getPageId(), appId);
         boolean unmodified = checkBody(po, vo.getBody());
         if (unmodified) {
             return;
@@ -163,8 +191,13 @@ public class PageService {
         pageBodyDAO.insert(bodyPO);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void rollback(int pageId, int version) {
+    }
+
     /**
      * 检查要保存的页面内容格式，并与当前版本内容对比，如果没有变化返回true
+     *
      * @param po
      * @param body
      * @return
@@ -178,7 +211,7 @@ public class PageService {
             }
         }
         PageBodyPO bodyPO = pageBodyDAO.get(po.getPageId(), po.getVersion());
-        if(bodyPO == null) {
+        if (bodyPO == null) {
             return false;
         }
         return body.equals(bodyPO.getBody());
@@ -197,7 +230,7 @@ public class PageService {
             version = po.getVersion();
         }
         PageBodyPO bodyPO = pageBodyDAO.get(po.getPageId(), version);
-        page = CurbPage.fromPO(po, bodyPO);
+        page = toCurbPage(po, bodyPO);
         return page;
     }
 
@@ -207,6 +240,25 @@ public class PageService {
             return;
         }
         throw ErrorEnum.PARAM_ERROR.toCurbException("页面地址路径已存在");
+    }
+
+    public static CurbPage toCurbPage(PagePO po, PageBodyPO bodyPO) {
+        if (po == null) {
+            return null;
+        }
+        PageType type = PageType.valueOfCode(po.getType(), PageType.AMIS);
+        AccessLevel level = AccessLevel.valueOfCode(po.getAccessLevel(), AccessLevel.PERMISSION);
+        CurbPage ret = new CurbPage();
+        ret.setPath(po.getPath());
+        ret.setName(po.getName());
+        ret.setType(type);
+        ret.setLevel(level);
+        ret.setSign(po.getSign());
+        ret.setVersion(po.getVersion());
+        if (bodyPO != null) {
+            ret.setBody(bodyPO.getBody());
+        }
+        return ret;
     }
 
 }

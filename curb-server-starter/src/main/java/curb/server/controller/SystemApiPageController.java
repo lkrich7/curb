@@ -8,6 +8,7 @@ import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
 import curb.server.bo.Pagination;
+import curb.server.converter.AppVOConverter;
 import curb.server.enums.PageState;
 import curb.server.enums.PageType;
 import curb.server.page.CurbPage;
@@ -16,14 +17,15 @@ import curb.server.po.PageBodyPO;
 import curb.server.po.PagePO;
 import curb.server.service.AppService;
 import curb.server.service.PageService;
+import curb.server.service.UserService;
 import curb.server.vo.AppVO;
 import curb.server.vo.PageBodyEditVO;
 import curb.server.vo.PageBodyHistoryVO;
 import curb.server.vo.PageEditVO;
-import curb.server.vo.PageListItemVO;
 import curb.server.vo.PageListVO;
 import curb.server.vo.PaginationVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -42,11 +45,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/system/api/page/")
 public class SystemApiPageController {
 
-    @Autowired
     private AppService appService;
 
-    @Autowired
     private PageService pageService;
+
+    private UserService userService;
+
+    @Autowired
+    public SystemApiPageController(AppService appService, PageService pageService, UserService userService) {
+        this.appService = appService;
+        this.pageService = pageService;
+        this.userService = userService;
+    }
 
     /**
      * 页面列表
@@ -58,16 +68,18 @@ public class SystemApiPageController {
      */
     @GetMapping("list")
     public ApiResult<PageListVO> list(@RequestParam(required = false) Integer appId,
+                                      @RequestParam(required = false, defaultValue = "1") Integer pn,
+                                      @RequestParam(required = false, defaultValue = "15") Integer ps,
                                       App app, Group group) {
         AppPO appPO = appService.checkApp(appId, app, group);
-        AppVO appVO = AppVO.fromPO(appPO);
 
         appId = appPO.getAppId();
+        Pagination<PagePO> poList = pageService.paginationListPage(appId, pn, ps);
 
-        List<PagePO> poList = pageService.listEditables(appId);
-        List<PageListItemVO> list = PageListItemVO.fromPO(poList);
+        AppVO appVO = AppVOConverter.fromPO(appPO);
+        PageListVO data = new PageListVO(appVO);
+        poList.fillVO(PagePO::toPageListItemVO, data);
 
-        PageListVO data = new PageListVO(list, list.size(), appVO);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -107,9 +119,9 @@ public class SystemApiPageController {
                                             @RequestParam int pageId,
                                             App app, Group group) {
         appId = appService.checkApp(appId, app, group).getAppId();
-        PagePO po = pageService.checkEditablePage(pageId, appId);
+        PagePO po = pageService.checkPage(pageId, appId);
 
-        PageEditVO vo = PageEditVO.fromPO(po);
+        PageEditVO vo = toVO(po);
         return ErrorEnum.SUCCESS.toApiResult(vo);
     }
 
@@ -149,7 +161,7 @@ public class SystemApiPageController {
                                                     @RequestParam(required = false) Integer version,
                                                     App app, Group group) {
         appId = appService.checkApp(appId, app, group).getAppId();
-        PagePO pagePO = pageService.checkEditablePage(pageId, appId);
+        PagePO pagePO = pageService.checkPage(pageId, appId);
         PageBodyPO bodyPO = pageService.getBody(pageId, pagePO.getVersion());
         PageBodyEditVO data = new PageBodyEditVO();
         data.setPageId(pageId);
@@ -187,13 +199,38 @@ public class SystemApiPageController {
                                                                       @RequestParam(required = false, defaultValue = "15") Integer ps,
                                                                       App app, Group group) {
         appId = appService.checkApp(appId, app, group).getAppId();
-        PagePO pagePO = pageService.checkEditablePage(pageId, appId);
+        pageService.checkPage(pageId, appId);
         Pagination<PageBodyPO> pagination = pageService.pagedListBodyHistory(pageId, pn, ps);
-        List<PageBodyHistoryVO> rows = pagination.getRows().stream()
-                .map(PageBodyPO::toVO)
-                .collect(Collectors.toList());
-        PaginationVO<PageBodyHistoryVO> data = new PaginationVO<>(rows, pagination.getTotal());
+
+        Set<Integer> userIds = pagination.getItems().stream()
+                .map(PageBodyPO::getUserId)
+                .collect(Collectors.toSet());
+        Map<Integer, User> userMap = userService.listByUserIds(userIds).stream()
+                .collect(Collectors.toMap(User::getUserId, e -> e));
+        PaginationVO<PageBodyHistoryVO> data = pagination.toVO(e -> toVO(e, userMap));
         return ErrorEnum.SUCCESS.toApiResult(data);
+    }
+
+    @PostMapping("body/history/rollback")
+    public ApiResult<Void> rollbackPageBody(@RequestParam(required = false) Integer appId,
+                                            @RequestParam int pageId,
+                                            @RequestParam int version,
+                                            App app, Group group) {
+        appId = appService.checkApp(appId, app, group).getAppId();
+        pageService.checkPage(pageId, appId);
+        pageService.rollback(pageId, version);
+        return ErrorEnum.SUCCESS.toApiResult();
+    }
+
+
+    private PageBodyHistoryVO toVO(PageBodyPO po, Map<Integer, User> userMap) {
+        PageBodyHistoryVO ret = new PageBodyHistoryVO();
+        ret.setPageId(po.getPageId());
+        ret.setVersion(po.getVersion());
+        ret.setUpdateTime(po.getUpdateTime());
+        ret.setUser(userMap.get(po.getUserId()));
+        ret.setBody(po.getBody());
+        return ret;
     }
 
     /**
@@ -290,8 +327,17 @@ public class SystemApiPageController {
         if (pageType == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("页面类型错误");
         }
-        AccessLevel accessLevel = AccessLevel.valueOfCode(vo.getAccessLevel(), AccessLevel.PERMISSION);
-        String sign = StringUtils.trimToEmpty(vo.getSign());
+        AccessLevel accessLevel = AccessLevel.valueOfCode(vo.getAccessLevel());
+        if (accessLevel == null) {
+            throw ErrorEnum.PARAM_ERROR.toCurbException("页面访问级别错误");
+        }
+        String sign = "";
+        if (accessLevel == AccessLevel.PERMISSION) {
+            sign = StringUtils.trimToEmpty(vo.getSign());
+            if (sign.isEmpty()) {
+                throw ErrorEnum.PARAM_ERROR.toCurbException("页面访问权限标识不能为空");
+            }
+        }
 
         PagePO ret = new PagePO();
         ret.setPageId(vo.getPageId());
@@ -315,4 +361,18 @@ public class SystemApiPageController {
         return ret;
     }
 
+    private static PageEditVO toVO(PagePO po) {
+        if (po == null) {
+            return null;
+        }
+        PageEditVO ret = new PageEditVO();
+        ret.setPageId(po.getPageId());
+        ret.setName(po.getName());
+        ret.setPath(po.getPath());
+        ret.setType(po.getType());
+        ret.setAccessLevel(po.getAccessLevel());
+        ret.setSign(po.getSign());
+        BeanUtils.copyProperties(po, ret);
+        return ret;
+    }
 }

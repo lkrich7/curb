@@ -64,7 +64,7 @@ public class SystemApiRoleController {
     @GetMapping("list")
     public ApiResult<PaginationVO<RoleVO>> listRole(Group group) {
         List<RolePO> poList = roleService.listAllByGroupId(group.getGroupId());
-        List<RoleVO> rows = RoleVO.fromPO(poList);
+        List<RoleVO> rows = toVO(poList);
         PaginationVO<RoleVO> data = new PaginationVO<>(rows, rows.size());
 
         return ErrorEnum.SUCCESS.toApiResult(data);
@@ -79,8 +79,8 @@ public class SystemApiRoleController {
      */
     @GetMapping("get")
     public ApiResult<RoleVO> getForEdit(@RequestParam int roleId, Group group) {
-        RolePO role = roleService.checkRole(roleId, group.getGroupId());
-        RoleVO data = RoleVO.fromPO(role);
+        RolePO rolePO = roleService.checkRole(roleId, group.getGroupId());
+        RoleVO data = toVO(rolePO);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -277,6 +277,30 @@ public class SystemApiRoleController {
             String label = String.format("%s(%s)", po.getName(), po.getSign());
             String value = String.valueOf(po.getPermId());
             ret.add(new OptionVO(label, value));
+        }
+        return ret;
+    }
+
+    private static RoleVO toVO(RolePO po) {
+        if (po == null) {
+            return null;
+        }
+        RoleVO ret = new RoleVO();
+        ret.setRoleId(po.getRoleId());
+        ret.setSign(po.getSign());
+        ret.setName(po.getName());
+        ret.setDescription(po.getDescription());
+        ret.setState(po.getState());
+        return ret;
+    }
+
+    private static List<RoleVO> toVO(List<RolePO> list) {
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        ArrayList<RoleVO> ret = new ArrayList<>();
+        for (RolePO po : list) {
+            ret.add(toVO(po));
         }
         return ret;
     }

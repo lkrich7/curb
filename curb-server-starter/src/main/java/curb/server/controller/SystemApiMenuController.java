@@ -24,11 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/system/api/menu/")
 public class SystemApiMenuController {
 
-    @Autowired
     private AppService appService;
 
-    @Autowired
     private AppMenuService appMenuService;
+
+    @Autowired
+    public SystemApiMenuController(AppService appService, AppMenuService appMenuService) {
+        this.appService = appService;
+        this.appMenuService = appMenuService;
+    }
 
     @GetMapping(value = "edit/get")
     public ApiResult<MenuEditVO> getForEdit(@RequestParam(required = false) Integer appId,
@@ -46,6 +50,7 @@ public class SystemApiMenuController {
                                     @RequestParam String menus,
                                     App app, Group group, User user) {
         AppPO appPO = appService.checkApp(appId, app, group);
+        appId = appPO.getAppId();
         appMenuService.saveEditable(appId, version, menus, user.getUserId());
 
         return ErrorEnum.SUCCESS.toApiResult();

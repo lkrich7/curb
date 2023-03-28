@@ -35,7 +35,7 @@ public class OpLogService {
         paramMap.put("limit", pageSize);
         List<OpLogPO> results = opLogDAO.getByParam(paramMap);
         Pagination<OpLogPO> pagination = new Pagination<>(pageNo, pageSize, totalCount);
-        pagination.setRows(results);
+        pagination.setItems(results);
         return pagination;
     }
 

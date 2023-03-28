@@ -12,7 +12,7 @@ public class PaginationVO<T> {
     /**
      * 当前页数据
      */
-    private Collection<T> rows;
+    private Collection<T> items;
 
     /**
      * 数据总条数
@@ -22,17 +22,17 @@ public class PaginationVO<T> {
     public PaginationVO() {
     }
 
-    public PaginationVO(Collection<T> rows, Integer total) {
-        this.rows = rows;
+    public PaginationVO(Collection<T> items, Integer total) {
+        this.items = items;
         this.total = total;
     }
 
-    public Collection<T> getRows() {
-        return rows;
+    public Collection<T> getItems() {
+        return items;
     }
 
-    public void setRows(Collection<T> rows) {
-        this.rows = rows;
+    public void setItems(Collection<T> items) {
+        this.items = items;
     }
 
     public int getTotal() {

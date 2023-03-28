@@ -1,7 +1,5 @@
 package curb.server.po;
 
-import curb.server.vo.PageBodyHistoryVO;
-
 import java.util.Date;
 
 /**
@@ -97,12 +95,4 @@ public class PageBodyPO {
                 '}';
     }
 
-    public PageBodyHistoryVO toVO() {
-        PageBodyHistoryVO ret = new PageBodyHistoryVO();
-        ret.setPageId(pageId);
-        ret.setVersion(version);
-        ret.setUserId(userId);
-        ret.setUpdateTime(updateTime);
-        return ret;
-    }
 }

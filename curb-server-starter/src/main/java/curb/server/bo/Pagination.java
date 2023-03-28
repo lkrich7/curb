@@ -1,7 +1,12 @@
 package curb.server.bo;
 
+import curb.server.po.PagePO;
+import curb.server.vo.PaginationVO;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 分页查询数据容器
@@ -28,7 +33,7 @@ public class Pagination<T> {
     /**
      * 当前分页数据
      */
-    private List<T> rows;
+    private List<T> items;
 
     public Pagination(int no, int size) {
         this(no, size, 0);
@@ -38,7 +43,7 @@ public class Pagination<T> {
         this(no, size, total, Collections.emptyList());
     }
 
-    public Pagination(int no, int size, int total, List<T> rows) {
+    public Pagination(int no, int size, int total, List<T> items) {
         if (no < 1) {
             throw new IllegalArgumentException("\"no\" should be greater than 0");
         }
@@ -48,7 +53,11 @@ public class Pagination<T> {
         this.no = no;
         this.size = size;
         this.total = total;
-        this.rows = rows;
+        this.items = items;
+    }
+
+    public static Pagination<PagePO> empty() {
+        return new Pagination(1, 10, 0, new ArrayList(0));
     }
 
     public int getNo() {
@@ -75,12 +84,12 @@ public class Pagination<T> {
         this.total = total;
     }
 
-    public List<T> getRows() {
-        return rows;
+    public List<T> getItems() {
+        return items;
     }
 
-    public void setRows(List<T> rows) {
-        this.rows = rows;
+    public void setItems(List<T> items) {
+        this.items = items;
     }
 
     /**
@@ -105,13 +114,29 @@ public class Pagination<T> {
         return (no - 1) * size;
     }
 
+    public <V> PaginationVO<V> toVO(Function<T, V> function) {
+        PaginationVO<V> ret = new PaginationVO<>();
+        fillVO(function, ret);
+        return ret;
+    }
+
+    public <V, P extends PaginationVO<V>> void fillVO(Function<T, V> function, P ret) {
+        List<V> items = new ArrayList<>(this.items.size());
+        for (T row : this.items) {
+            items.add(function.apply(row));
+        }
+        ret.setItems(items);
+        ret.setTotal(total);
+    }
+
     @Override
     public String toString() {
         return "Pagination{" +
                 "size=" + size +
                 ", no=" + no +
                 ", total=" + total +
-                ", rows=" + rows +
+                ", rows=" + items +
                 '}';
     }
+
 }

@@ -58,7 +58,7 @@
         SELECT * FROM
         <include refid="tablename"/>
         WHERE user_id IN
-        <foreach collection="userIds" index="idx" item="userId" open="(" separator="," close=")">${userId}</foreach>
+        <foreach collection="userIds" item="userId" open="(" separator="," close=")">${userId}</foreach>
         ORDER BY `user_id` DESC
     </select>
 

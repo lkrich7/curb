@@ -59,5 +59,4 @@ public @interface CurbMethod {
      */
     String[] ignoreParamNames() default {};
 
-
 }

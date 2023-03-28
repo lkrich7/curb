@@ -53,6 +53,6 @@ public enum UserState implements CodedEnum<UserState> {
 
     @Override
     public String toString() {
-        return "UserState-" + name() + "{" + "code=" + code + ", name='" + name + '\'' + '}';
+        return "UserState-" + name();
     }
 }

@@ -1,9 +1,10 @@
 package curb.server.vo;
 
-import curb.server.vo.OptionVO;
-
 import java.util.Collection;
 
+/**
+ * 选项列表
+ */
 public class OptionSelectVO {
     private Collection<OptionVO> options;
     private String value;

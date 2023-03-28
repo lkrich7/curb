@@ -18,6 +18,14 @@
     </resultMap>
 
     <sql id="tablename">curb_page</sql>
+    <sql id="condition">
+        <trim prefix="WHERE" prefixOverrides="AND||OR">
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="keyword != null">AND (`name` LIKE concat('%', #{keyword}, '%') OR username LIKE concat('%', #{keyword}, '%'))</if>
+            <if test="type != null">AND `type` = #{type}</if>
+            <if test="state != null">AND `state` = #{state}</if>
+        </trim>
+    </sql>
 
     <select id="get" resultMap="PageMap">
         SELECT * FROM
@@ -31,11 +39,18 @@
         WHERE app_id = #{appId} AND path = #{path}
     </select>
 
-    <select id="listByAppId" resultMap="PageMap">
+    <select id="countByCondition" resultType="int">
+        SELECT COUNT(*) FROM
+        <include refid="tablename"/>
+        WHERE app_id = #{appId}
+    </select>
+
+    <select id="listByCondition" resultMap="PageMap">
         SELECT * FROM
         <include refid="tablename"/>
         WHERE app_id = #{appId}
         ORDER BY `page_id` DESC
+        <if test="limit != null">LIMIT <if test="offset != null">#{offset},</if>#{limit}</if>
     </select>
 
     <insert id="insert" parameterType="curb.server.po.PagePO"

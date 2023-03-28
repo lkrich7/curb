@@ -20,7 +20,7 @@ public final class AppMenuUtil {
             return Collections.emptyList();
         }
         List<Menu> ret = JsonUtil.parseArray(str, Menu.class);
-        if (ret == null && ret.isEmpty()) {
+        if (ret == null || ret.isEmpty()) {
             return Collections.emptyList();
         }
         return ret;

@@ -70,25 +70,6 @@ public class CurbPage implements CurbAccessConfig, Serializable {
      */
     private String body;
 
-    public static CurbPage fromPO(PagePO po, PageBodyPO bodyPO) {
-        if (po == null) {
-            return null;
-        }
-        PageType type = PageType.valueOfCode(po.getType(), PageType.AMIS);
-        AccessLevel level = AccessLevel.valueOfCode(po.getAccessLevel(), AccessLevel.PERMISSION);
-        CurbPage ret = new CurbPage();
-        ret.setPath(po.getPath());
-        ret.setName(po.getName());
-        ret.setType(type);
-        ret.setLevel(level);
-        ret.setSign(po.getSign());
-        ret.setVersion(po.getVersion());
-        if (bodyPO != null) {
-            ret.setBody(bodyPO.getBody());
-        }
-        return ret;
-    }
-
     public static CurbPage buildWrapPage(String url) {
         Matcher matcher = WRAP_PAGE_PATH_PATTERN.matcher(url);
         if (matcher.matches()) {

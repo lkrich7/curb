@@ -1,11 +1,6 @@
 package curb.server.vo;
 
-import curb.server.po.PagePO;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 public class PageListItemVO {
     private Integer pageId;
@@ -72,32 +67,4 @@ public class PageListItemVO {
         this.updateTime = updateTime;
     }
 
-    public static PageListItemVO fromPO(PagePO po) {
-        if (po == null) {
-            return null;
-        }
-        PageListItemVO ret = new PageListItemVO();
-        ret.setPageId(po.getPageId());
-        ret.setPath(po.getPath());
-        ret.setName(po.getName());
-        ret.setType(po.getType());
-        ret.setAccessLevel(po.getAccessLevel());
-        ret.setUpdateTime(po.getUpdateTime());
-        ret.setState(po.getState());
-        return ret;
-    }
-
-    public static List<PageListItemVO> fromPO(List<PagePO> poList) {
-        if (poList == null || poList.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<PageListItemVO> ret = new ArrayList<>(poList.size());
-        for (PagePO po : poList) {
-            PageListItemVO item = PageListItemVO.fromPO(po);
-            if (item != null) {
-                ret.add(item);
-            }
-        }
-        return ret;
-    }
 }

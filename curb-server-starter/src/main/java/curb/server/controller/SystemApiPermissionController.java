@@ -1,23 +1,24 @@
 package curb.server.controller;
 
 import curb.core.ApiResult;
-import curb.server.vo.AppVO;
-import curb.server.vo.OptionSelectVO;
-import curb.server.vo.PermissionVO;
-import curb.server.vo.PermissionListVO;
-import curb.server.po.AppPO;
-import curb.server.po.PermissionPO;
-import curb.server.po.RolePO;
+import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.Permission;
-import curb.core.ErrorEnum;
+import curb.server.converter.AppVOConverter;
 import curb.server.enums.PermissionState;
+import curb.server.po.AppPO;
+import curb.server.po.PermissionPO;
+import curb.server.po.RolePO;
 import curb.server.service.AppService;
 import curb.server.service.PermissionService;
 import curb.server.service.RolePermissionService;
 import curb.server.service.RoleService;
-import curb.server.util.OptionSelectDtoUtil;
+import curb.server.converter.OptionVOConverter;
+import curb.server.vo.AppVO;
+import curb.server.vo.OptionSelectVO;
+import curb.server.vo.PermissionListVO;
+import curb.server.vo.PermissionVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +48,29 @@ public class SystemApiPermissionController {
     @Autowired
     private RolePermissionService rolePermissionService;
 
+    private static PermissionVO toVO(PermissionPO po) {
+        if (po == null) {
+            return null;
+        }
+        PermissionVO ret = new PermissionVO();
+        ret.setPermId(po.getPermId());
+        ret.setSign(po.getSign());
+        ret.setName(po.getName());
+        ret.setState(po.getState());
+        return ret;
+    }
+
+    private static List<PermissionVO> toVO(List<PermissionPO> list) {
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        ArrayList<PermissionVO> ret = new ArrayList<>();
+        for (PermissionPO po : list) {
+            ret.add(toVO(po));
+        }
+        return ret;
+    }
+
     /**
      * 应用权限列表
      *
@@ -61,11 +87,11 @@ public class SystemApiPermissionController {
         AppPO appPO = appService.checkApp(appId, app, group);
         appId = appPO.getAppId();
 
-        AppVO appVO = AppVO.fromPO(appPO);
+        AppVO appVO = AppVOConverter.fromPO(appPO);
         List<PermissionPO> permissions = permissionService.listByAppId(appId);
 
         PermissionListVO data = new PermissionListVO();
-        data.setRows(PermissionVO.fromPO(permissions));
+        data.setItems(toVO(permissions));
         data.setTotal(permissions.size());
         data.setApp(appVO);
 
@@ -90,7 +116,7 @@ public class SystemApiPermissionController {
         appId = appService.checkApp(appId, app, group).getAppId();
 
         PermissionPO permission = permissionService.checkPermission(permId, appId);
-        PermissionVO data = PermissionVO.fromPO(permission);
+        PermissionVO data = toVO(permission);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -234,7 +260,7 @@ public class SystemApiPermissionController {
         List<RolePO> roles = roleService.listNormalByGroupId(group.getGroupId());
         Set<Integer> roleIds = rolePermissionService.listRoleId(permId);
 
-        OptionSelectVO data = OptionSelectDtoUtil.fromRolePO(roles, roleIds);
+        OptionSelectVO data = OptionVOConverter.fromRolePO(roles, roleIds);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 

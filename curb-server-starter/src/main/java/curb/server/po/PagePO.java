@@ -1,6 +1,11 @@
 package curb.server.po;
 
+import curb.server.vo.PageListItemVO;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 页面表(curb_page)数据持久化类
@@ -194,4 +199,24 @@ public class PagePO {
                 ", updateTime=" + updateTime +
                 '}';
     }
+
+    public PageListItemVO toPageListItemVO() {
+        PageListItemVO pageListItemVO = new PageListItemVO();
+        pageListItemVO.setPageId(this.getPageId());
+        pageListItemVO.setName(this.getName());
+        pageListItemVO.setPath(this.getPath());
+        pageListItemVO.setType(this.getType());
+        pageListItemVO.setAccessLevel(this.getAccessLevel());
+        pageListItemVO.setState(this.getState());
+        pageListItemVO.setUpdateTime(this.getUpdateTime());
+        return pageListItemVO;
+    }
+
+    public static PageListItemVO convertToPageListItemVO(PagePO pagePO) {
+        if (pagePO == null) {
+            return null;
+        }
+        return pagePO.toPageListItemVO();
+    }
+
 }

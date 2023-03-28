@@ -1,7 +1,7 @@
 package curb.server.vo;
 
 /**
- * 列表选项
+ * 选项列表条目
  */
 public class OptionVO {
 

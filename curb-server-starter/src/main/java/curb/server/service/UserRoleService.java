@@ -103,6 +103,9 @@ public class UserRoleService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void saveRoleUsers(int roleId, int groupId, Collection<Integer> userIds, int operUserId) {
+        if (userIds == null || userIds.isEmpty()) {
+            return;
+        }
         TreeSet<Integer> news = Sets.newTreeSet(userIds);
         List<User> users = userDAO.listByUserIds(news);
         if (users.size() != news.size()) {

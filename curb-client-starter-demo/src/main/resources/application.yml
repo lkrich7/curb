@@ -1,0 +1,65 @@
+server:
+  port: 8080
+#  servlet.session:
+#    tracking-modes:
+
+spring:
+  application:
+    name: curb-server-starter-demo
+
+  output:
+    ansi:
+      enabled: always
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+  freemarker:
+    suffix: .ftl
+    request-context-attribute: rc
+    expose-request-attributes: true
+    expose-session-attributes: false
+    expose-spring-macro-helpers: true
+    settings:
+      date_format: yyyy-MM-dd
+      datetime_format: yyyy-MM-dd HH:mm:ss
+      template_exception_handler: html_debug
+
+  datasource:
+#    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/curb?useSSL=false&rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&
+    username: root
+    password: 123456
+#    hikari:
+#      pool-name: hikari-pool-default
+#      maximum-pool-size: 20
+#      minimum-idle: 5
+#      connection-timeout: 2000
+#      validation-timeout: 2000
+#      idle-timeout: 600000
+#      max-lifetime: 1800000
+
+mybatis:
+  mapper-locations: classpath:/mybatis/mappers/*.xml
+  config-location: classpath:/mybatis/mybatis.xml
+
+logging:
+  level:
+    root: info
+    org.mybatis: info
+    org.apache.tomcat: info
+    org.hibernate: info
+    org.apache.catalina: info
+    org.springframework: info
+curb:
+  test-mode:
+    enabled: true
+    user:
+      userId: 1
+      username: root
+      name: Root
+  client:
+    server: example.com
+    appid: 1
+    secret: a26bec19d4514d5ca95ce5ae0547ec5f

@@ -1,12 +1,9 @@
 package curb.server.vo;
 
-import curb.server.po.PageBodyPO;
-
 /**
  * 页面基本信息编辑对象
  */
 public class PageBodyEditVO {
-
 
     /**
      * 页面ID`

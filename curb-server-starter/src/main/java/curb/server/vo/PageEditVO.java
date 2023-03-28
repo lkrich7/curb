@@ -1,8 +1,5 @@
 package curb.server.vo;
 
-import curb.server.po.PagePO;
-import org.springframework.beans.BeanUtils;
-
 /**
  * 页面基本信息编辑对象
  */
@@ -32,6 +29,7 @@ public class PageEditVO {
 
     /**
      * 访问控制等级
+     *
      * @see curb.core.AccessLevel
      */
     private Integer accessLevel;
@@ -89,18 +87,4 @@ public class PageEditVO {
         this.sign = sign;
     }
 
-    public static PageEditVO fromPO(PagePO po) {
-        if (po == null) {
-            return null;
-        }
-        PageEditVO ret = new PageEditVO();
-        ret.setPageId(po.getPageId());
-        ret.setName(po.getName());
-        ret.setPath(po.getPath());
-        ret.setType(po.getType());
-        ret.setAccessLevel(po.getAccessLevel());
-        ret.setSign(po.getSign());
-        BeanUtils.copyProperties(po, ret);
-        return ret;
-    }
 }

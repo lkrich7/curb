@@ -7,7 +7,7 @@ import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.util.CurbUtil;
 import curb.server.bo.CurbToken;
-import curb.server.util.GroupUtil;
+import curb.server.converter.GroupConverter;
 import curb.core.ErrorEnum;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
@@ -70,7 +70,7 @@ public class CurbServerDataProvider implements CurbDataProvider {
         if (app == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
-        return GroupUtil.fromPO(groupPO);
+        return GroupConverter.fromPO(groupPO);
     }
 
     @Override

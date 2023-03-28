@@ -1,7 +1,6 @@
 package curb.server.vo;
 
 import curb.core.model.Menu;
-import curb.server.controller.SystemApiMenuController;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 /**
  * 菜单编辑DTO
  *
- * @see SystemApiMenuController
+ * @see curb.server.controller.SystemApiMenuController
  */
 public class MenuEditVO implements Serializable {
 

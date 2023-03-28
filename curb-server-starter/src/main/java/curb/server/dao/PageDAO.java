@@ -16,7 +16,9 @@ public interface PageDAO {
 
     PagePO getByAppIdPath(@Param("appId") int appId, @Param("path") String path);
 
-    List<PagePO> listByAppId(@Param("appId") int appId);
+    int countByCondition(@Param("appId") int appId);
+
+    List<PagePO> listByCondition(@Param("appId") int appId, @Param("limit") Integer limit, @Param("offset") Integer offset);
 
     int insert(PagePO page);
 
