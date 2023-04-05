@@ -43,6 +43,9 @@ public class PageService {
         List<CurbPage> pages = CoreDataUtil.loadPages("curb/core-data/pages.json");
         innerPages = new LinkedHashMap<>();
         for (CurbPage page : pages) {
+            if (page.getLevel() == null) {
+                page.setLevel(AccessLevel.PERMISSION);
+            }
             innerPages.put(page.getPath(), page);
         }
     }

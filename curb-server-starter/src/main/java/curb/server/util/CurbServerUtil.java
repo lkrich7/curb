@@ -3,26 +3,17 @@ package curb.server.util;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
-import curb.core.util.ServletUtil;
-import curb.core.util.UrlCodec;
-import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
 import java.util.UUID;
 
 /**
  *
  */
-public final class CurbServerUtil {
+public enum CurbServerUtil {
+    ;
 
     public static final int CURB_APP_ID = 1;
     public static final int CURB_GROUP_ID = 1;
-
-    private static final String ATTRIBUTE_NAME_GROUP_SECRET = "curbGroupSecret";
-
-    private CurbServerUtil() {
-    }
 
     /**
      * 判断当前应用是否是项目组主应用
@@ -68,83 +59,6 @@ public final class CurbServerUtil {
 
     public static String generateSecret() {
         return UUID.randomUUID().toString();
-    }
-
-    public static String getGroupSecret(HttpServletRequest request) {
-        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_GROUP_SECRET);
-    }
-
-    public static String buildLoginUrl(HttpServletRequest request, URI url) {
-        String targetUrl = getUrl(request);
-        String targetUrlEncoded = UrlCodec.encodeUtf8(targetUrl);
-        return String.format("%s/login?targetUrl=%s", url, targetUrlEncoded);
-    }
-
-    public static String getUrl(HttpServletRequest request) {
-        String scheme = getScheme(request);
-        String domain = getDomain(request);
-        String path = request.getRequestURI();
-        String query = StringUtils.trimToNull(request.getQueryString());
-        StringBuilder builder = new StringBuilder(scheme)
-                .append("://")
-                .append(domain)
-                .append(path);
-        if (query != null) {
-            builder.append("?").append(query);
-        }
-        return builder.toString();
-    }
-
-
-    /**
-     * 返回客户端请求的网络协议名
-     *
-     * @param request
-     * @return
-     */
-    private static String getScheme(HttpServletRequest request) {
-        String scheme = request.getHeader("X-Forwarded-Proto");
-        if (scheme == null || scheme.trim().isEmpty()) {
-            scheme = request.getScheme();
-        }
-        return scheme.trim().toLowerCase();
-    }
-
-    /**
-     * 返回客户端请求的域
-     *
-     * @param request
-     * @return
-     */
-    private static String getDomain(HttpServletRequest request) {
-        String domain = request.getHeader("X-CURB-HOST");
-        if (StringUtils.isNotBlank(domain)) {
-            return domain;
-        }
-        domain = request.getHeader("Host");
-        if (StringUtils.isNotBlank(domain)) {
-            return domain;
-        }
-        int port = request.getServerPort();
-        String scheme = getScheme(request);
-        domain = buildDomain(request.getServerName(), port, scheme);
-        return domain;
-    }
-
-    /**
-     * 根据主机名、端口号和协议名构造域
-     *
-     * @param host
-     * @param port
-     * @param scheme
-     * @return
-     */
-    private static String buildDomain(String host, int port, String scheme) {
-        if (("http".equalsIgnoreCase(scheme) && port != 80)
-                || ("https".equalsIgnoreCase(scheme) && port != 443)) {
-            return host + ":" + port;
-        }
-        return host;
     }
 
     /**

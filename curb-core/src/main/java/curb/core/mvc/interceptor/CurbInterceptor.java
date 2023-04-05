@@ -19,16 +19,12 @@ import curb.core.model.UserAppPermissions;
 import curb.core.model.UserState;
 import curb.core.util.CurbUtil;
 import curb.core.util.ServletUtil;
-import curb.core.util.UrlCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
@@ -36,8 +32,6 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -157,14 +151,14 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!includeDispatcherTypes.contains(request.getDispatcherType())) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("skiped preHandle for DispatcherType({}): {} {}?{}, ", request.getDispatcherType(),
+                LOGGER.debug("Passed for DispatcherType({}): {} {}?{}, ", request.getDispatcherType(),
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
             }
             return true;
         }
         if (excludeStaticResource && isStaticResourceRequest(request, handler)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("skiped preHandle for static resource request: {} {}?{}",
+                LOGGER.debug("Passed for static resource request: {} {}?{}",
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
             }
             return true;
@@ -191,7 +185,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
         if (accessLevel == AccessLevel.ANONYMOUS) {
             // 允许匿名访问，直接返回
-            LOGGER.info("skiped: {}", msg);
+            LOGGER.info("Passed(Anonymous): {}", msg);
             return true;
         }
 
@@ -199,13 +193,13 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
             onAuthenticated(user, app, group, request, response, handler);
         } else {
             // 用户登录不正常
-            LOGGER.info("onUnauthenticated: {}", msg);
+            LOGGER.info("Denied(Unauthenticated): {}", msg);
             return onUnauthenticated(user, userState, app, group, request, response, handler);
         }
 
         if (accessLevel == AccessLevel.LOGIN) {
-            // 跳过权限验证，直接返回
-            LOGGER.info("isAuthorized: {}", msg);
+            // 允许登录用户访问，直接返回
+            LOGGER.info("Passed(Login): {}", msg);
             return true;
         }
 
@@ -216,10 +210,10 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         CurbUtil.setPermissionResult(request, permissionResult);
 
         if (isAuthorized(permissionResult)) {
-            LOGGER.info("onAuthorized: {}", msg);
+            LOGGER.info("Passed(Permission): {}", msg);
             return onAuthorized(user, app, group, request, response, handler);
         } else {
-            LOGGER.info("onUnauthorized: {}", msg);
+            LOGGER.info("Denied(Permission): {}", msg);
             return onUnauthorized(user, app, group, request, response, handler);
         }
     }
@@ -343,7 +337,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @return
      */
     protected boolean isAuthenticated(User user, UserState userState) {
-        return userState.isOk();
+        return user != null && userState.isOk();
     }
 
     /**
@@ -361,7 +355,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     /**
-     * 登录态验证不通过
+     * 登录态验证不通过时的处理函数
      *
      * @param user     当前用户
      * @param state    当前用户状态
@@ -370,22 +364,15 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @param handler
      * @return
      */
-    protected boolean onUnauthenticated(User user, UserState state, App app, Group group, HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String url;
-        if (group == null) {
-            url = request.getScheme()  + "://" + request.getServerName();
-            LOGGER.warn("group not found, use url:{}", url);
-        } else {
-            url = group.getUrl().toString();
+    protected boolean onUnauthenticated(User user, UserState state, App app, Group group,
+                                        HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (user == null) {
+            throw ErrorEnum.NEED_LOGIN.toCurbException();
         }
-        String targetUrl = UrlCodec.encodeUtf8(request.getRequestURL().toString());
-        String redirectUrl = String.format("%s/login?targetUrl=%s", url, targetUrl);
-        try {
-            response.sendRedirect(redirectUrl);
-        } catch (IOException e) {
-            throw ErrorEnum.SERVER_ERROR.toCurbException(e);
+        if (state == UserState.NOT_EXISTED) {
+            throw ErrorEnum.NEED_LOGIN.toCurbException();
         }
-        return false;
+        throw ErrorEnum.USER_BLOCKED.toCurbException();
     }
 
     /**
@@ -399,7 +386,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     /**
-     * 处理有操作权限情况
+     * 权限验证通过时处理函数
      *
      * @param user     当前用户
      * @param app
@@ -424,32 +411,9 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @param handler
      * @return
      */
-    protected boolean onUnauthorized(User user, App app, Group group, HttpServletRequest request, HttpServletResponse response, Object handler) {
-        try {
-            boolean returnJson = false;
-            if (handler instanceof HandlerMethod) {
-                HandlerMethod handlerMethod = (HandlerMethod) handler;
-                returnJson = handlerMethod.hasMethodAnnotation(ResponseBody.class);
-                if (!returnJson) {
-                    returnJson = handlerMethod.getBeanType().isAnnotationPresent(RestController.class);
-                }
-            }
-            if (returnJson) {
-                response.setContentType("application/json; charset=UTF-8");
-                try (PrintWriter writer = response.getWriter()) {
-                    writer.print("{ \"code\": 403, \"msg\": \"无权限\"}");
-                }
-            } else {
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                response.setContentType("text/html; charset=UTF-8");
-                try (PrintWriter writer = response.getWriter()) {
-                    writer.print("<H1>无权限</H1>");
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return false;
+    protected boolean onUnauthorized(User user, App app, Group group,
+                                     HttpServletRequest request, HttpServletResponse response, Object handler) {
+        throw ErrorEnum.FORBIDDEN.toCurbException();
     }
 
     protected boolean isInTestMode() {

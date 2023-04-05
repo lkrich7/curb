@@ -24,6 +24,9 @@ public class ApiResult<D> implements StatusMsg, Serializable {
      */
     private D data;
 
+    public ApiResult() {
+        this(0, null, null);
+    }
     public ApiResult(StatusMsg statusMsg) {
         this(statusMsg, null);
     }
@@ -38,6 +41,7 @@ public class ApiResult<D> implements StatusMsg, Serializable {
         this.data = data;
     }
 
+    @Override
     public int getStatus() {
         return status;
     }
@@ -46,6 +50,7 @@ public class ApiResult<D> implements StatusMsg, Serializable {
         this.status = status;
     }
 
+    @Override
     public String getMsg() {
         return msg;
     }

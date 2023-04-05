@@ -9,10 +9,6 @@ import java.util.Set;
 public class CurbProperties {
 
     /**
-     * 测试模式设置
-     */
-    private final TestMode testMode = new TestMode();
-    /**
      * 是否启用Curb
      */
     private boolean enabled = true;
@@ -36,6 +32,11 @@ public class CurbProperties {
      * 是否排除对静态资源请求的检查
      */
     private boolean excludeStaticResource = false;
+
+    /**
+     * 测试模式设置
+     */
+    private final TestMode testMode = new TestMode();
 
     public boolean isEnabled() {
         return enabled;

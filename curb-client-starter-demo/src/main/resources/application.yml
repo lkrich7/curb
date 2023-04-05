@@ -1,11 +1,11 @@
 server:
-  port: 8080
+  port: 8000
 #  servlet.session:
 #    tracking-modes:
 
 spring:
   application:
-    name: curb-server-starter-demo
+    name: curb-client-starter-demo
 
   output:
     ansi:
@@ -15,51 +15,28 @@ spring:
     serialization:
       write-dates-as-timestamps: true
 
-  freemarker:
-    suffix: .ftl
-    request-context-attribute: rc
-    expose-request-attributes: true
-    expose-session-attributes: false
-    expose-spring-macro-helpers: true
-    settings:
-      date_format: yyyy-MM-dd
-      datetime_format: yyyy-MM-dd HH:mm:ss
-      template_exception_handler: html_debug
-
-  datasource:
-#    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/curb?useSSL=false&rewriteBatchedStatements=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&
-    username: root
-    password: 123456
-#    hikari:
-#      pool-name: hikari-pool-default
-#      maximum-pool-size: 20
-#      minimum-idle: 5
-#      connection-timeout: 2000
-#      validation-timeout: 2000
-#      idle-timeout: 600000
-#      max-lifetime: 1800000
-
-mybatis:
-  mapper-locations: classpath:/mybatis/mappers/*.xml
-  config-location: classpath:/mybatis/mybatis.xml
-
 logging:
   level:
-    root: info
+    root: debug
     org.mybatis: info
     org.apache.tomcat: info
     org.hibernate: info
     org.apache.catalina: info
-    org.springframework: info
+    org.springframework: debug
+
 curb:
+  enabled: true
+  client:
+    server: 127.0.0.1:8080
+    appid: 1
+    secret: 7f279a4d-bfbd-11ed-a782-0242ac110002
+  reverse-proxy: # 客户端反向代理功能配置，该功能可将部分路径请求代理到logincenter服务端，在客户端实现logincenter的其他功能（应用权限管理、LEGO等）
+    enabled: false # 该配置默认关闭，需要显式开启， 注意，该配置优先级默认是最低的，controller和静态资源的路径, 优先于该配置，请设置spring.mvc.static-path-pattern，或者考虑调整优先级(LoginCenterClientProxyRequestHandler.setOrder)
+    url-mappings: /** # 开启后将拦截url-mappings匹配的请求路径转发。该配置默认为 /** 即所有请求(未被其他handlermapping匹配到)。
   test-mode:
     enabled: true
     user:
-      userId: 1
-      username: root
-      name: Root
-  client:
-    server: example.com
-    appid: 1
-    secret: a26bec19d4514d5ca95ce5ae0547ec5f
+      userId: 13
+      username: t1
+      name: T1
+

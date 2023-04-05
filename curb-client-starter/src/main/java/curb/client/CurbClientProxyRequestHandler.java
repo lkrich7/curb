@@ -42,7 +42,7 @@ import java.util.Enumeration;
 
 /**
  * 客户端反向代理转发请求处理器，用于将Curb客户服务中的其余非业务接口请求（系统管理页面等）
- * 转发到Curb服务端，通常用于本地系统本地调试，不建议在生产环境中使用，推荐使用Nginx进行请求路由转发，
+ * 转发到Curb服务端，通常用于本地系统本地调试，不建议在生产环境中使用，推荐使用Nginx进行请求路由转发。
  */
 public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping implements HttpRequestHandler {
 

@@ -44,10 +44,4 @@ public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
         return mapping;
     }
 
-    @Bean
-    public CurbPageHandlerExceptionResolver amisHandlerExceptionResolver() {
-        CurbPageHandlerExceptionResolver ret = new CurbPageHandlerExceptionResolver();
-        ret.setOrder(1);
-        return ret;
-    }
 }
