@@ -56,9 +56,6 @@ public class Pagination<T> {
         this.items = items;
     }
 
-    public static Pagination<PagePO> empty() {
-        return new Pagination(1, 10, 0, new ArrayList(0));
-    }
 
     public int getNo() {
         return no;
