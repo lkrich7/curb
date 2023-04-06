@@ -29,20 +29,6 @@
         LIMIT 1
     </select>
 
-    <select id="listByRoleIds" resultMap="RoleMap">
-        SELECT * FROM
-        <include refid="tablename"/>
-        WHERE group_id = #{groupId} AND `sign` = #{sign}
-        LIMIT 1
-    </select>
-
-    <select id="listByGroupIdWithoutSystem" resultMap="RoleMap">
-        SELECT * FROM
-        <include refid="tablename"/>
-        WHERE group_id = #{groupId}
-        AND `sign` NOT IN ('LC_ROOT', 'LC_GROUP_SYS_ADMIN', 'LC_GROUP_BIZ_ADMIN')
-        ORDER BY role_id DESC
-    </select>
     <select id="listByGroupId" resultMap="RoleMap">
         SELECT * FROM
         <include refid="tablename"/>
@@ -54,7 +40,6 @@
         SELECT role_id FROM
         <include refid="tablename"/>
         WHERE group_id = #{groupId}
-        AND `sign` NOT IN ('LC_ROOT', 'LC_GROUP_SYS_ADMIN', 'LC_GROUP_BIZ_ADMIN')
         ORDER BY role_id DESC
     </select>
 
@@ -72,11 +57,12 @@
     <update id="update" parameterType="curb.server.po.RolePO">
         UPDATE
         <include refid="tablename"/>
-        SET
-        `sign` = #{sign},
-        `name` = #{name},
-        `description` = #{description},
-        `update_time` = NOW()
+        <set>
+            <if test="sign != null">`sign` = #{sign},</if>
+            <if test="name != null">`name` = #{name},</if>
+            <if test="description != null">`description` = #{description},</if>
+            `update_time` = NOW()
+        </set>
         WHERE role_id = #{roleId}
     </update>
 

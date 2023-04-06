@@ -2,23 +2,24 @@ package curb.server.controller;
 
 import com.google.common.base.Joiner;
 import curb.core.ApiResult;
-import curb.server.vo.OptionVO;
-import curb.server.vo.OptionSelectVO;
-import curb.server.vo.PaginationVO;
-import curb.server.vo.RoleVO;
-import curb.server.vo.RoleUserListVO;
-import curb.server.po.PermissionPO;
-import curb.server.po.RolePO;
+import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
-import curb.core.ErrorEnum;
+import curb.server.converter.RoleVOConverter;
 import curb.server.enums.RoleState;
+import curb.server.po.PermissionPO;
+import curb.server.po.RolePO;
 import curb.server.service.AppService;
 import curb.server.service.PermissionService;
 import curb.server.service.RolePermissionService;
 import curb.server.service.RoleService;
 import curb.server.service.UserRoleService;
+import curb.server.vo.OptionSelectVO;
+import curb.server.vo.OptionVO;
+import curb.server.vo.PaginationVO;
+import curb.server.vo.RoleUserListVO;
+import curb.server.vo.RoleVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,8 +64,8 @@ public class SystemApiRoleController {
      */
     @GetMapping("list")
     public ApiResult<PaginationVO<RoleVO>> listRole(Group group) {
-        List<RolePO> poList = roleService.listAllByGroupId(group.getGroupId());
-        List<RoleVO> rows = toVO(poList);
+        List<RolePO> poList = roleService.listByGroupIdWithSystem(group.getGroupId());
+        List<RoleVO> rows = RoleVOConverter.convert(poList);
         PaginationVO<RoleVO> data = new PaginationVO<>(rows, rows.size());
 
         return ErrorEnum.SUCCESS.toApiResult(data);
@@ -80,7 +81,7 @@ public class SystemApiRoleController {
     @GetMapping("get")
     public ApiResult<RoleVO> getForEdit(@RequestParam int roleId, Group group) {
         RolePO rolePO = roleService.checkRole(roleId, group.getGroupId());
-        RoleVO data = toVO(rolePO);
+        RoleVO data = RoleVOConverter.convert(rolePO);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -98,9 +99,9 @@ public class SystemApiRoleController {
                                       @RequestParam String name,
                                       @RequestParam String description,
                                       Group group) {
-        RolePO roleVo = checkParam(null, sign, name, description, group);
-        roleVo.setState(RoleState.ENABLED.getCode());
-        roleService.create(roleVo);
+        RolePO rolePO = checkParam(null, sign, name, description, group);
+        rolePO.setState(RoleState.ENABLED.getCode());
+        roleService.create(rolePO);
         return ErrorEnum.SUCCESS.toApiResult();
     }
 
@@ -120,8 +121,8 @@ public class SystemApiRoleController {
                                       @RequestParam String name,
                                       @RequestParam String description,
                                       Group group) {
-        RolePO roleVo = checkParam(roleId, sign, name, description, group);
-        roleService.update(roleVo);
+        RolePO rolePO = checkParam(roleId, sign, name, description, group);
+        roleService.update(rolePO);
         return ErrorEnum.SUCCESS.toApiResult();
     }
 
@@ -259,13 +260,13 @@ public class SystemApiRoleController {
             throw ErrorEnum.PARAM_ERROR.toCurbException();
         }
 
-        RolePO roleVo = new RolePO();
-        roleVo.setRoleId(roleId);
-        roleVo.setGroupId(group.getGroupId());
-        roleVo.setSign(sign);
-        roleVo.setName(name);
-        roleVo.setDescription(description);
-        return roleVo;
+        RolePO rolePO = new RolePO();
+        rolePO.setRoleId(roleId);
+        rolePO.setGroupId(group.getGroupId());
+        rolePO.setSign(sign);
+        rolePO.setName(name);
+        rolePO.setDescription(description);
+        return rolePO;
     }
 
     private Collection<OptionVO> toOptions(List<PermissionPO> poList) {
@@ -281,27 +282,4 @@ public class SystemApiRoleController {
         return ret;
     }
 
-    private static RoleVO toVO(RolePO po) {
-        if (po == null) {
-            return null;
-        }
-        RoleVO ret = new RoleVO();
-        ret.setRoleId(po.getRoleId());
-        ret.setSign(po.getSign());
-        ret.setName(po.getName());
-        ret.setDescription(po.getDescription());
-        ret.setState(po.getState());
-        return ret;
-    }
-
-    private static List<RoleVO> toVO(List<RolePO> list) {
-        if (list == null) {
-            return Collections.emptyList();
-        }
-        ArrayList<RoleVO> ret = new ArrayList<>();
-        for (RolePO po : list) {
-            ret.add(toVO(po));
-        }
-        return ret;
-    }
 }

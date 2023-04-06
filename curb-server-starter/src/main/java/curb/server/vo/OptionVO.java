@@ -5,7 +5,13 @@ package curb.server.vo;
  */
 public class OptionVO {
 
+    /**
+     * 选项显示文本
+     */
     private String label;
+    /**
+     * 选项值
+     */
     private String value;
 
     public OptionVO() {

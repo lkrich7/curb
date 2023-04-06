@@ -5,16 +5,17 @@ import curb.server.po.RolePO;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.OptionVO;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * OptionVO转换器
+ */
 public enum OptionVOConverter {
     ;
 
-    public static OptionSelectVO fromRolePO(Collection<RolePO> roles, Collection<Integer> roleIds) {
-        Collection<OptionVO> options = fromRolePO(roles);
+    public static OptionSelectVO convert(Collection<RolePO> roles, Collection<Integer> roleIds) {
+        Collection<OptionVO> options = convert(roles);
         String value = Joiner.on(',').skipNulls().join(roleIds);
 
         OptionSelectVO ret = new OptionSelectVO();
@@ -23,21 +24,13 @@ public enum OptionVOConverter {
         return ret;
     }
 
-    private static Collection<OptionVO> fromRolePO(Collection<RolePO> poList) {
-        if (poList == null || poList.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<OptionVO> ret = new ArrayList<>(poList.size());
-        for (RolePO po : poList) {
-            OptionVO optionVO = fromRolePO(po);
-            ret.add(optionVO);
-        }
-        return ret;
-    }
-
-    private static OptionVO fromRolePO(RolePO po) {
+    public static OptionVO convert(RolePO po) {
         String label = String.format("%s(%s)", po.getName(), po.getSign());
         String value = String.valueOf(po.getRoleId());
         return new OptionVO(label, value);
+    }
+
+    public static List<OptionVO> convert(Collection<RolePO> poList) {
+        return ListConverter.convert(poList, OptionVOConverter::convert);
     }
 }

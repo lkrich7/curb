@@ -17,8 +17,9 @@ public interface RoleDAO {
 
     RolePO getByGroupIdSign(@Param("groupId") int groupId, @Param("sign") String sign);
 
-    List<RolePO> listByRoleIds(@Param("roleIds") List<Integer> roleIds);
+    List<RolePO> listByGroupId(int groupId);
 
+    List<Integer> listRoleIdByGroupId(int groupId);
     int insert(RolePO role);
 
     int update(RolePO role);
@@ -27,10 +28,5 @@ public interface RoleDAO {
 
     int delete(@Param("roleId") int roleId);
 
-    List<RolePO> listByGroupIdWithoutSystem(int groupId);
-
-    List<RolePO> listByGroupId(int groupId);
-
-    List<Integer> listRoleIdByGroupId(int groupId);
 
 }

@@ -178,10 +178,10 @@ public class SystemApiUserController {
         Integer groupId = group.getGroupId();
         userService.checkUserExisted(userId);
 
-        List<RolePO> groupRoles = roleService.listAllByGroupId(groupId);
+        List<RolePO> groupRoles = roleService.listByGroupIdWithSystem(groupId);
         Set<Integer> userRoleIds = userRoleService.listRoleIdByUserId(userId, groupId, groupRoles);
 
-        OptionSelectVO data = OptionVOConverter.fromRolePO(groupRoles, userRoleIds);
+        OptionSelectVO data = OptionVOConverter.convert(groupRoles, userRoleIds);
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }

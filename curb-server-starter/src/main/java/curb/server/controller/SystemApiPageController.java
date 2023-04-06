@@ -74,11 +74,11 @@ public class SystemApiPageController {
         AppPO appPO = appService.checkApp(appId, app, group);
 
         appId = appPO.getAppId();
-        Pagination<PagePO> poList = pageService.paginationListPage(appId, pn, ps);
+        Pagination<PagePO> pagination = pageService.paginationListPage(appId, pn, ps);
 
-        AppVO appVO = AppVOConverter.fromPO(appPO);
+        AppVO appVO = AppVOConverter.convert(appPO);
         PageListVO data = new PageListVO(appVO);
-        poList.fillVO(PagePO::toPageListItemVO, data);
+        pagination.fillVO(PagePO::toPageListItemVO, data);
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }

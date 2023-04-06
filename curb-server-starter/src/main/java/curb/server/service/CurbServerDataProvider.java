@@ -11,7 +11,6 @@ import curb.server.converter.GroupConverter;
 import curb.core.ErrorEnum;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
-import curb.server.util.CurbServerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +69,7 @@ public class CurbServerDataProvider implements CurbDataProvider {
         if (app == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
-        return GroupConverter.fromPO(groupPO);
+        return GroupConverter.convert(groupPO);
     }
 
     @Override

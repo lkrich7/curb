@@ -1,9 +1,9 @@
 package curb.server.service;
 
 import curb.core.ErrorEnum;
+import curb.server.dao.RoleDAO;
 import curb.server.enums.RoleState;
 import curb.server.enums.SystemRole;
-import curb.server.dao.RoleDAO;
 import curb.server.po.RolePO;
 import curb.server.util.CurbServerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
+ * 角色服务
  */
 @Service
 public class RoleService {
@@ -26,6 +27,13 @@ public class RoleService {
     @Autowired
     private RolePermissionService rolePermissionService;
 
+    /**
+     * 检查角色状态是否正常以及是否属于项目组
+     *
+     * @param roleId  角色ID
+     * @param groupId 项目组ID
+     * @return
+     */
     public RolePO checkRole(int roleId, int groupId) {
         RolePO role = roleDAO.get(roleId);
         if (role == null || role.getGroupId().intValue() != groupId) {
@@ -34,12 +42,24 @@ public class RoleService {
         return role;
     }
 
-    public List<RolePO> listNormalByGroupId(int groupId) {
-        return roleDAO.listByGroupIdWithoutSystem(groupId);
+    /**
+     * 查询指定项目组ID下的全部普通角色数据
+     *
+     * @param groupId 项目组ID
+     * @return
+     */
+    public List<RolePO> listByGroupId(int groupId) {
+        return roleDAO.listByGroupId(groupId);
     }
 
-    public List<RolePO> listAllByGroupId(int groupId) {
-        List<RolePO> ret = listNormalByGroupId(groupId);
+    /**
+     * 查询指定项目组ID下的全部角色数据，包括权限系统内置角色
+     *
+     * @param groupId 项目组ID
+     * @return
+     */
+    public List<RolePO> listByGroupIdWithSystem(int groupId) {
+        List<RolePO> ret = roleDAO.listByGroupId(groupId);
 
         // 添加权限系统内置角色
         ret.add(SystemRole.GROUP_BIZ_ADMIN.toRole(groupId));
@@ -50,6 +70,11 @@ public class RoleService {
         return ret;
     }
 
+    /**
+     * 创建角色
+     *
+     * @param role 角色数据
+     */
     @Transactional(rollbackFor = Exception.class)
     public void create(RolePO role) {
         checkSignConflict(role.getGroupId(), role.getSign(), null);
@@ -59,10 +84,15 @@ public class RoleService {
         }
     }
 
+    /**
+     * 更新角色
+     *
+     * @param role 角色数据
+     */
     @Transactional(rollbackFor = Exception.class)
     public void update(RolePO role) {
+        checkSystemRole(role.getRoleId());
         RolePO existed = checkRole(role.getRoleId(), role.getGroupId());
-        checkInternalRole(role.getSign());
         checkSignConflict(role.getGroupId(), role.getSign(), role.getRoleId());
 
         existed.setSign(role.getSign());
@@ -74,10 +104,17 @@ public class RoleService {
         }
     }
 
+    /**
+     * 更新角色状态
+     *
+     * @param roleId  角色ID
+     * @param groupId 项目组ID
+     * @param state   角色状态
+     */
     @Transactional(rollbackFor = Exception.class)
     public void updateState(int roleId, int groupId, RoleState state) {
-        RolePO role = checkRole(roleId, groupId);
-        checkInternalRole(role.getSign());
+        checkSystemRole(roleId);
+        checkRole(roleId, groupId);
 
         int rows = roleDAO.updateState(roleId, state.getCode());
         if (rows != 1) {
@@ -85,6 +122,12 @@ public class RoleService {
         }
     }
 
+    /**
+     * 删除角色
+     *
+     * @param roleId  角色ID
+     * @param groupId 项目组ID
+     */
     @Transactional(rollbackFor = Exception.class)
     public void delete(int roleId, int groupId) {
         checkRole(roleId, groupId);
@@ -93,15 +136,15 @@ public class RoleService {
         rolePermissionService.deleteByRoleId(roleId);
     }
 
-    private void checkInternalRole(String sign) {
-        if (SystemRole.getBySign(sign) != null) {
+    private void checkSystemRole(int roleId) {
+        if (SystemRole.getByRoleId(roleId) != null) {
             throw ErrorEnum.FORBIDDEN.toCurbException("系统内置角色不可修改");
         }
     }
 
     private void checkSignConflict(Integer groupId, String sign, Integer roleId) {
         if (SystemRole.getBySign(sign) != null) {
-            throw ErrorEnum.FORBIDDEN.toCurbException("角色标识已存在");
+            throw ErrorEnum.PARAM_ERROR.toCurbException("角色标识已存在");
         }
 
         RolePO existed = roleDAO.getByGroupIdSign(groupId, sign);

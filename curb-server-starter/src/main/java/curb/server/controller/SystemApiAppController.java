@@ -52,11 +52,11 @@ public class SystemApiAppController {
         if (CurbServerUtil.isGroupApp(group, app)) {
             AppState state = enabled != null && enabled ? AppState.ENABLED : null;
             List<AppPO> list = appService.listByGroupId(group.getGroupId(), state);
-            rows = AppVOConverter.fromPO(list);
+            rows = AppVOConverter.convert(list);
         } else {
             AppPO po = appService.checkApp(app.getAppId(), group.getGroupId());
             rows = new ArrayList<>(1);
-            rows.add(AppVOConverter.fromPO(po));
+            rows.add(AppVOConverter.convert(po));
         }
         PaginationVO<AppVO> data = new PaginationVO<>(rows, rows.size());
         return ErrorEnum.SUCCESS.toApiResult(data);
@@ -72,7 +72,7 @@ public class SystemApiAppController {
     @GetMapping("get")
     public ApiResult<AppVO> getForEdit(@RequestParam int appId, Group group) {
         AppPO app = appService.checkApp(appId, group.getGroupId());
-        AppVO data = AppVOConverter.fromPO(app);
+        AppVO data = AppVOConverter.convert(app);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 

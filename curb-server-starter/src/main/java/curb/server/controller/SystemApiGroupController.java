@@ -3,6 +3,8 @@ package curb.server.controller;
 import curb.core.ApiResult;
 import curb.core.ErrorEnum;
 import curb.core.model.Group;
+import curb.server.converter.GroupVOConverter;
+import curb.server.converter.ListConverter;
 import curb.server.po.GroupPO;
 import curb.server.service.GroupService;
 import curb.server.util.CurbServerUtil;
@@ -45,11 +47,10 @@ public class SystemApiGroupController {
         List<GroupVO> list;
         if (CurbServerUtil.isSystemGroupId(group.getGroupId())) {
             // 当前在系统项目组时，列出全部项目组
-            list = toVO(groupService.list());
+            list = GroupVOConverter.convert(groupService.list());
         } else {
-            GroupVO groupVO = toVO(groupService.getById(group.getGroupId()));
-            list = new ArrayList<>(1);
-            list.add(groupVO);
+            GroupVO groupVO = GroupVOConverter.convert(groupService.getById(group.getGroupId()));
+            list = Collections.singletonList(groupVO);
         }
         PaginationVO<GroupVO> data = new PaginationVO<>(list, list.size());
         return ErrorEnum.SUCCESS.toApiResult(data);
@@ -66,7 +67,7 @@ public class SystemApiGroupController {
     public ApiResult<GroupVO> getForEdit(@RequestParam(required = false) Integer groupId, Group group) {
         groupId = CurbServerUtil.checkGroupId(groupId, group);
         GroupPO po = groupService.getById(groupId);
-        GroupVO data = toVO(po);
+        GroupVO data = GroupVOConverter.convert(po);
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
 
@@ -124,26 +125,4 @@ public class SystemApiGroupController {
         return ret;
     }
 
-    private static GroupVO toVO(GroupPO po) {
-        if (po == null) {
-            return null;
-        }
-        GroupVO ret = new GroupVO();
-        ret.setGroupId(po.getGroupId());
-        ret.setName(po.getName());
-        ret.setUrl(po.getUrl());
-        return ret;
-    }
-
-    private static List<GroupVO> toVO(List<GroupPO> list) {
-        if (list == null || list.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<GroupVO> ret = new ArrayList<>(list.size());
-        for (GroupPO po : list) {
-            GroupVO item = toVO(po);
-            ret.add(item);
-        }
-        return ret;
-    }
 }

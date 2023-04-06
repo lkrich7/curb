@@ -67,7 +67,6 @@ public class CurbWebMvcConfigurer implements WebMvcConfigurer {
         CurbHandlerExceptionResolver resolver = new CurbHandlerExceptionResolver();
         resolver.setOrder(1);
         resolvers.add(resolver);
-        LOGGER.info("{}", resolvers.size());
     }
 
     @Override
