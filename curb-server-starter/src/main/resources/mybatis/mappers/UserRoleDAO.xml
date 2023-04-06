@@ -44,8 +44,9 @@
     <insert id="insertForUserId">
         INSERT IGNORE INTO
         <include refid="tablename"/>
+        (user_id, role_id, create_time)
         VALUES
-        <foreach collection="roleIds" index="idx" item="roleId" open="" separator="," close="">
+        <foreach collection="roleIds" item="roleId" open="" separator="," close="">
             (#{userId}, #{roleId}, NOW())
         </foreach>
     </insert>
@@ -53,8 +54,9 @@
     <insert id="insertForRoleId">
         INSERT IGNORE INTO
         <include refid="tablename"/>
+        (user_id, role_id, create_time)
         VALUES
-        <foreach collection="userIds" index="idx" item="userId" open="" separator="," close="">
+        <foreach collection="userIds" item="userId" open="" separator="," close="">
             (#{userId}, #{roleId}, NOW())
         </foreach>
     </insert>

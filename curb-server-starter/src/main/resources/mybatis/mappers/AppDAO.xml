@@ -24,7 +24,7 @@
     <select id="getByUrl" resultMap="AppMap">
         SELECT * FROM
         <include refid="tablename"/>
-        WHERE `url` = LEFT(#{url}, LENGTH(`url`))
+        WHERE `url` = #{url}
     </select>
 
     <select id="listByGroupId" resultMap="AppMap">
@@ -33,6 +33,13 @@
         WHERE group_id = #{groupId}
         <if test="state != null">AND `state` = #{state}</if>
         ORDER BY `app_id` ASC
+    </select>
+
+    <select id="findLongestMatch" resultMap="AppMap">
+        SELECT * FROM
+        <include refid="tablename"/>
+        WHERE `url` = LEFT(#{url}, LENGTH(`url`))
+        ORDER BY LENGTH(`url`) DESC LIMIT 1
     </select>
 
     <insert id="insert" parameterType="curb.server.po.AppPO"

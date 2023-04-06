@@ -43,7 +43,7 @@ public class CurbServerDataProvider implements CurbDataProvider {
 
     private AppPO getAppPO(HttpServletRequest request) {
         String url = CurbUtil.getUrl(request);
-        AppPO appPO = appService.getByUrl(url);
+        AppPO appPO = appService.findLongestMatch(url);
         if (appPO == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }

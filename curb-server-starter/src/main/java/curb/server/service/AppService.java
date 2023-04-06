@@ -62,12 +62,17 @@ public class AppService {
         return appDAO.getByUrl(url);
     }
 
-    public String getSecret(int appId) {
-        return appSecretDAO.get(appId);
+    public AppPO findLongestMatch(String url) {
+        AppPO ret = appDAO.findLongestMatch(url);
+        return ret;
     }
 
     public List<AppPO> listByGroupId(int groupId, AppState state) {
         return appDAO.listByGroupId(groupId, state == null ? null : state.getCode());
+    }
+
+    public String getSecret(int appId) {
+        return appSecretDAO.get(appId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -123,6 +128,6 @@ public class AppService {
         if (app == null || app.getAppId().equals(appId)) {
             return;
         }
-        throw ErrorEnum.PARAM_ERROR.toCurbException("网址已存在");
+        throw ErrorEnum.PARAM_ERROR.toCurbException("应用网址已存在");
     }
 }

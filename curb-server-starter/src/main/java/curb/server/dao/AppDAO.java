@@ -23,6 +23,8 @@ public interface AppDAO {
      */
     List<AppPO> listByGroupId(@Param("groupId") int groupId, @Param("state") Integer state);
 
+    AppPO findLongestMatch(String url);
+
     int insert(AppPO app);
 
     int update(AppPO app);
@@ -30,5 +32,4 @@ public interface AppDAO {
     int updateState(@Param("appId") int appId, @Param("state") int state);
 
     int delete(@Param("appId") int appId);
-
 }

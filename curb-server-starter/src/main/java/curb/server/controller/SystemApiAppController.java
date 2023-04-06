@@ -180,6 +180,8 @@ public class SystemApiAppController {
         if (url == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("应用网址不能为空");
         }
+        // 去除末尾的斜杠
+        url = url.replaceAll("/+$", "");
 
         AppPO app = new AppPO();
         app.setAppId(appId);
