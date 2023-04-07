@@ -1,12 +1,9 @@
 package curb.server.vo;
 
-import curb.core.model.Menu;
-
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * 菜单编辑DTO
+ * 菜单编辑View Object
  *
  * @see curb.server.controller.SystemApiMenuController
  */
@@ -16,15 +13,13 @@ public class MenuEditVO implements Serializable {
 
     private String name;
 
-    private Integer version;
-
-    private List<Menu> menus;
+    private String menus;
 
     public MenuEditVO() {
         // for deserialization
     }
 
-    public MenuEditVO(int appId, String name, List<Menu> menus) {
+    public MenuEditVO(int appId, String name, String menus) {
         this.appId = appId;
         this.name = name;
         this.menus = menus;
@@ -46,11 +41,11 @@ public class MenuEditVO implements Serializable {
         this.name = name;
     }
 
-    public List<Menu> getMenus() {
+    public String getMenus() {
         return menus;
     }
 
-    public void setMenus(List<Menu> menus) {
+    public void setMenus(String menus) {
         this.menus = menus;
     }
 }

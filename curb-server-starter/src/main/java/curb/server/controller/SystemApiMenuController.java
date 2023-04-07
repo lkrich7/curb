@@ -41,17 +41,16 @@ public class SystemApiMenuController {
         appId = appPO.getAppId();
         String menus = appMenuService.getEditableStr(appId);
 
-        return ErrorEnum.SUCCESS.toApiResult(new MenuEditVO(appId, appPO.getName(), AppMenuUtil.parse(menus)));
+        return ErrorEnum.SUCCESS.toApiResult(new MenuEditVO(appId, appPO.getName(), menus));
     }
 
     @PostMapping(value = "edit/save")
     public ApiResult<Void> saveEdit(@RequestParam(required = false) Integer appId,
-                                    @RequestParam(required = false) Integer version,
                                     @RequestParam String menus,
                                     App app, Group group, User user) {
         AppPO appPO = appService.checkApp(appId, app, group);
         appId = appPO.getAppId();
-        appMenuService.saveEditable(appId, version, menus, user.getUserId());
+        appMenuService.saveEditable(appId, menus, user.getUserId());
 
         return ErrorEnum.SUCCESS.toApiResult();
     }

@@ -63,7 +63,7 @@ public class CurbApiController {
         AppPO appPO = appService.get(appId);
         GroupPO groupPO = groupService.getById(appPO.getGroupId());
         App app = toApp(appPO);
-        List<Menu> menu = appMenuService.list(appId, 0);
+        List<Menu> menu = appMenuService.list(appId);
         Group group = toGroup(groupPO);
         List<App> apps = listGroupApps(appPO.getGroupId());
 

@@ -55,24 +55,24 @@
                 alignItems: 'flex-end',
                 items: [
                     {
-                        "type": "dropdown-button",
-                        "label": "${curbApp.name}",
-                        "block": true,
-                        "buttons": ${curbApps},
-                        "closeOnClick": true,
-                        "level": "link"
+                        type: "dropdown-button",
+                        label: "${curbApp.name?json_string}",
+                        block: true,
+                        buttons: ${curbApps},
+                        closeOnClick: true,
+                        level: "link"
                     },
                     {
-                        type: 'avatar',
-                        icon: 'fa fa-user'
+                        type: "avatar",
+                        icon: "fa fa-user",
+                        size: 20,
                     },
                     {
                         type: 'tpl',
-                        tpl: '${(curbUser.name)!"匿名"} (${(curbUser.username)!"未登录"})'
+                        tpl: '${(curbUser.name?json_string)!"匿名"} (${(curbUser.username?json_string)!"未登录"}) '
                     },
                     {
                         type: 'link',
-                        icon: 'cloud',
                         href: '/logout',
                         body: '<i class="fa fa-sign-out"/>退出'
                     }
@@ -82,15 +82,6 @@
             // asideBefore: '<div class="p-2 text-center"><a href="/"><i class="fa fa-home"/>首页</a></div>',
             // asideAfter: '<div class="p-2 text-center">菜单后面区域</div>',
             pages: [
-                {
-                    url: '/',
-                    schema: {
-                        type: 'iframe',
-                        height: '768px',
-                        src: '${mainPage?json_string}'
-                    },
-                    visible: false
-                },
                 {
                 children: ${curbMenu}
                 }

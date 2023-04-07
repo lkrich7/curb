@@ -107,7 +107,7 @@ public class CurbPageRequestHandler extends AbstractController {
         App app = CurbUtil.getApp(request);
         User user = CurbUtil.getUser(request);
 
-        List<Menu> appMenu = appMenuService.listWithSystemMenu(app.getAppId(), 0);
+        List<Menu> appMenu = appMenuService.listWithSystemMenu(app.getAppId());
         UserAppPermissions userAppPermissions = getUserAppPermissions(user, app, group, request);
         List<Menu> userMenu = MenuUtil.buildUserMenu(appMenu, userAppPermissions);
         List<AmisMenuVo> curbMenu = new ArrayList<>(AmisMenuVo.fromMenuList(userMenu));

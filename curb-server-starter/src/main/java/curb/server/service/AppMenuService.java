@@ -29,16 +29,16 @@ public class AppMenuService {
         footers = CoreDataUtil.loadMenus("curb/core-data/menus-footer.json");
     }
 
-    public List<Menu> list(int appId, int version) {
-      AppMenuPO po = appMenuDAO.get(appId, version);
+    public List<Menu> list(int appId) {
+      AppMenuPO po = appMenuDAO.getLatest(appId);
       if (po == null) {
           return Collections.emptyList();
       }
         return AppMenuUtil.parse(po.getMenu());
     }
 
-    public List<Menu> listWithSystemMenu(int appId, int version) {
-        List<Menu> editables = list(appId, version);
+    public List<Menu> listWithSystemMenu(int appId) {
+        List<Menu> editables = list(appId);
         List<Menu> allMenu = new ArrayList<>(headers.size() + editables.size() + footers.size());
         allMenu.addAll(headers);
         allMenu.addAll(editables);
@@ -52,11 +52,11 @@ public class AppMenuService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void saveEditable(int appId, Integer version, String menuStr, int userId) {
+    public void saveEditable(int appId, String menuStr, int userId) {
         List<Menu> menu = AppMenuUtil.parse(menuStr);
         menuStr = AppMenuUtil.serialize(menu);
         AppMenuPO latest = appMenuDAO.getLatest(appId);
-        version = latest == null ? 0 : latest.getVersion() + 1;
+        Integer version = latest == null ? 0 : latest.getVersion() + 1;
         AppMenuPO po = new AppMenuPO();
         po.setAppId(appId);
         po.setVersion(version);
