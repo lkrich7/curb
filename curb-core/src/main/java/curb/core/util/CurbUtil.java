@@ -118,12 +118,13 @@ public final class CurbUtil {
     }
 
     public static String getUrl(HttpServletRequest request) {
-        String scheme = getScheme(request);
+//        String scheme = getScheme(request);
         String domain = getDomain(request);
         String path = request.getRequestURI();
         String query = StringUtils.trimToNull(request.getQueryString());
-        StringBuilder builder = new StringBuilder(scheme)
-                .append("://")
+        StringBuilder builder = new StringBuilder()
+//                .append(scheme).append(":")
+                .append("//")
                 .append(domain)
                 .append(path);
         if (query != null) {
