@@ -2,8 +2,10 @@ package curb.core.mvc.resolver;
 
 import curb.core.CurbException;
 import curb.core.ErrorEnum;
+import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.util.CurbUtil;
+import curb.core.util.ServletUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,7 +41,15 @@ public class CurbHandlerExceptionResolver extends AbstractHandlerExceptionResolv
             return null;
         }
         CurbException curbEx = (CurbException) e;
-
+        String url = CurbUtil.getUrl(request);
+        String ip = ServletUtil.getIp(request);
+        App app = CurbUtil.getApp(request);
+        Integer appId = app == null ? null : app.getAppId();
+        if (ErrorEnum.SERVER_ERROR.statusEquals(curbEx.getStatus())) {
+            LOGGER.error("{}|App{}|({} {})@{}", curbEx, appId, request.getMethod(), url, ip, curbEx);
+        } else {
+            LOGGER.warn("{}|App{}|({} {})@{}", curbEx, appId, request.getMethod(), url, ip);
+        }
         ModelAndView ret;
         if (shouldReturnJson(request, handler)) {
             MappingJackson2JsonView view = new MappingJackson2JsonView();
