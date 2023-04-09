@@ -35,7 +35,7 @@
         SELECT *
         FROM
         <include refid="tablename"/>
-        WHERE name = #{name}
+        WHERE username = #{username}
     </select>
 
     <select id="countByCondition" resultType="int">

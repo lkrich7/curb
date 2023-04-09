@@ -1,6 +1,7 @@
 package curb.server.service;
 
 import curb.core.CurbDataProvider;
+import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
@@ -8,10 +9,10 @@ import curb.core.model.UserAppPermissions;
 import curb.core.util.CurbUtil;
 import curb.server.bo.CurbToken;
 import curb.server.converter.GroupConverter;
-import curb.core.ErrorEnum;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import java.net.URI;
  * 服务端数据服务
  */
 @Service
+@ConditionalOnMissingBean(CurbDataProvider.class)
 public class CurbServerDataProvider implements CurbDataProvider {
 
     @Autowired

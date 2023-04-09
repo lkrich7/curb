@@ -9,7 +9,6 @@ import org.springframework.web.context.request.RequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
 
 /**
  * 工具类
@@ -109,12 +108,6 @@ public final class CurbUtil {
 
     public static PermissionResult getPermissionResult() {
         return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_PERMISSION_RESULT);
-    }
-
-    public static String buildLoginUrl(HttpServletRequest request, URI url) {
-        String targetUrl = getUrl(request);
-        String targetUrlEncoded = UrlCodec.encodeUtf8(targetUrl);
-        return String.format("%s/login?targetUrl=%s", url, targetUrlEncoded);
     }
 
     public static String getUrl(HttpServletRequest request) {

@@ -3,9 +3,9 @@ package curb.core.mvc.resolver;
 import curb.core.CurbException;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
-import curb.core.model.Group;
 import curb.core.util.CurbUtil;
 import curb.core.util.ServletUtil;
+import curb.core.util.UrlCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -70,8 +70,9 @@ public class CurbHandlerExceptionResolver extends AbstractHandlerExceptionResolv
     }
 
     private ModelAndView redirectToLogin(HttpServletRequest request) {
-        Group group = CurbUtil.getGroup(request);
-        String redirectUrl = CurbUtil.buildLoginUrl(request, group.getUrl());
+        String targetUrl = CurbUtil.getUrl(request);
+        String targetUrlEncoded = UrlCodec.encodeUtf8(targetUrl);
+        String redirectUrl = String.format("/login?targetUrl=%s", targetUrlEncoded);
         return new ModelAndView("redirect:" + redirectUrl);
     }
 
