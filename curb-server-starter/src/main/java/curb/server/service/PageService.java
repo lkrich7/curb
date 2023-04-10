@@ -194,8 +194,33 @@ public class PageService {
         pageBodyDAO.insert(bodyPO);
     }
 
+    /**
+     * 页面回滚到指定版本
+     *
+     * @param pageId 页面ID
+     * @param version 回滚目标版本号
+     * @param userId 操作用户ID
+     */
     @Transactional(rollbackFor = Exception.class)
-    public void rollback(int pageId, int version) {
+    public void rollback(int pageId, int version, Integer appId, int userId) {
+        PagePO page = checkPage(pageId, appId);
+        if (page.getVersion().equals(version)) {
+            return;
+        }
+        PageBodyPO body = pageBodyDAO.get(pageId, version);
+        if (body == null) {
+            throw ErrorEnum.NOT_FOUND.toCurbException("未找到页面指定版本数据");
+        }
+        int newVersion = page.getVersion() + 1;
+        if (pageDAO.updateVersion(pageId, newVersion, page.getVersion()) != 1) {
+            throw ErrorEnum.PARAM_ERROR.toCurbException("数据已发生变化，请重试");
+        }
+        body.setVersion(newVersion);
+        body.setUserId(userId);
+        int row = pageBodyDAO.insert(body);
+        if (row != 1) {
+            throw ErrorEnum.SERVER_ERROR.toCurbException();
+        }
     }
 
     /**

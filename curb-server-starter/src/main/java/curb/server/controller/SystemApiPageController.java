@@ -215,10 +215,9 @@ public class SystemApiPageController {
     public ApiResult<Void> rollbackPageBody(@RequestParam(required = false) Integer appId,
                                             @RequestParam int pageId,
                                             @RequestParam int version,
-                                            App app, Group group) {
+                                            App app, Group group, User user) {
         appId = appService.checkApp(appId, app, group).getAppId();
-        pageService.checkPage(pageId, appId);
-        pageService.rollback(pageId, version);
+        pageService.rollback(pageId, version, appId, user.getUserId());
         return ErrorEnum.SUCCESS.toApiResult();
     }
 
@@ -304,7 +303,7 @@ public class SystemApiPageController {
      * @return
      */
     @GetMapping("schema/get")
-    @CurbMethod(level = AccessLevel.LOGIN)
+    @CurbMethod(level = AccessLevel.ANONYMOUS)
     public ApiResult<Object> getPageSchema(@RequestParam String url,
                                            @RequestParam(required = false) Integer version,
                                            App app) {
