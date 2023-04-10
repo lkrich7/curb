@@ -21,8 +21,6 @@ import java.net.URI;
 /**
  * 服务端数据服务
  */
-@Service
-@ConditionalOnMissingBean(CurbDataProvider.class)
 public class CurbServerDataProvider implements CurbDataProvider {
 
     @Autowired

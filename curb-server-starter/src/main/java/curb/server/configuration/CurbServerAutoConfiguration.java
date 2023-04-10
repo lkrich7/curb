@@ -1,11 +1,13 @@
 package curb.server.configuration;
 
+import curb.core.CurbDataProvider;
 import curb.core.configuration.CurbProperties;
 import curb.core.mvc.CurbWebMvcConfigurer;
 import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.server.api.configuration.CurbApiConfiguration;
 import curb.server.interceptor.CurbServerInterceptor;
 import curb.server.page.CurbPageConfiguration;
+import curb.server.service.CurbServerDataProvider;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -32,6 +34,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @MapperScan(basePackages = {"curb.server.dao"})
 @Import({CurbWebMvcConfigurer.class, CurbApiConfiguration.class, CurbPageConfiguration.class})
 public class CurbServerAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(CurbDataProvider.class)
+    public CurbServerDataProvider curbServerDataProvider() {
+        return new CurbServerDataProvider();
+    }
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
