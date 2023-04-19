@@ -14,12 +14,13 @@ public class CurbServerProperties extends CurbProperties {
                 "/**",
         });
         this.setExcludePathPatterns(new String[]{
+                "/favicon.ico",
+                "/amis/**",
+                "/amis-editor/**",
+                "/static/**",
                 "/login",
                 "/logout",
                 "/api/**",
-                "/static/**",
-                "/amis/**",
-                "/amis-editor/**",
         });
     }
 
