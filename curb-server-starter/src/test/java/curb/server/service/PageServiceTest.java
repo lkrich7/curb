@@ -19,7 +19,7 @@ public class PageServiceTest {
 
     @Test
     public void getPage() {
-        CurbPage page = pageService.getPage(1, "/system/menus");
+        CurbPage page = pageService.getPage(1, "/system/users");
         System.err.println(JsonUtil.toJSONString(JsonUtil.parseObject(page.getBody()), true));
     }
 }

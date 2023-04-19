@@ -58,6 +58,7 @@ public class SystemApiUserController {
     @GetMapping("list")
     public ApiResult<PaginationVO<User>> list(@RequestParam(required = false) String keyword,
                                               @RequestParam(required = false) Integer type,
+                                              @RequestParam(required = false) Integer state,
                                               @RequestParam(required = false, defaultValue = "1") Integer pageNo,
                                               @RequestParam(required = false, defaultValue = "15") Integer pageSize,
                                               Group group) {
@@ -69,6 +70,7 @@ public class SystemApiUserController {
         paramMap.put("groupId", group.getGroupId());
         paramMap.put("keyword", keyword);
         paramMap.put("type", type);
+        paramMap.put("state", state);
 
         Pagination<User> results = userService.search(paramMap, pageNo, pageSize);
         PaginationVO<User> data = results.toVO(e -> e);
