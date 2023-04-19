@@ -19,7 +19,7 @@
             cssLink.setAttribute('href', '/amis/' + fileName + '.css');
             document.head.appendChild(cssLink);
         }
-        var theme = localStorage.getItem('theme') || 'default';
+        var theme = 'ang'
         var isIE = (window.navigator.userAgent.indexOf('Trident') >= 0);
         setAmisCss(theme, isIE);
     </script>
