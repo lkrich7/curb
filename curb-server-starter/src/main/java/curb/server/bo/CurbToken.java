@@ -119,7 +119,7 @@ public class CurbToken {
     }
 
     private static Key initKeyForAES(String keyStr) throws NoSuchAlgorithmException {
-        if (null == keyStr || keyStr.length() == 0) {
+        if (null == keyStr || keyStr.isEmpty()) {
             throw new IllegalArgumentException("keyStr should not be empty");
         }
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");

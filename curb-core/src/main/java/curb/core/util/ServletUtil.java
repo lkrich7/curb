@@ -1,6 +1,5 @@
 package curb.core.util;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestAttributes;
@@ -43,23 +42,23 @@ public final class ServletUtil {
 
     private static String getIpRaw(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
-        if (ip != null && ip.length() != 0 && !UNKNOWN.equalsIgnoreCase(ip)) {
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
             return ip;
         }
         ip = request.getHeader("X-Real-IP");
-        if (ip != null && ip.length() != 0 && !UNKNOWN.equalsIgnoreCase(ip)) {
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
             return ip;
         }
         ip = request.getHeader("Proxy-Client-IP");
-        if (ip != null && ip.length() != 0 && !UNKNOWN.equalsIgnoreCase(ip)) {
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
             return ip;
         }
         ip = request.getHeader("WL-Proxy-Client-IP");
-        if (ip != null && ip.length() != 0 && !UNKNOWN.equalsIgnoreCase(ip)) {
+        if (ip != null && !ip.isEmpty() && !UNKNOWN.equalsIgnoreCase(ip)) {
             return ip;
         }
         ip = request.getRemoteAddr();
-        if (ip != null && ip.length() != 0) {
+        if (ip != null && !ip.isEmpty()) {
             return ip;
         }
         return null;
