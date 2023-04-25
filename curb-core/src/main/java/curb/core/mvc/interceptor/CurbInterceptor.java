@@ -81,15 +81,13 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     private static String buildLogMessage(HttpServletRequest request, AccessLevel accessLevel,
                                           Group group, App app, User user, UserState userState, TestMode testMode) {
-        String queryString = request.getQueryString();
-        return String.format("T(%s) %s G(%s) A(%s) (%s %s%s) %s(%s)@%s",
+        return String.format("T(%s) G(%s) A(%s) %s (%s %s) %s(%s)@%s",
                 testMode.getEnabled(),
-                accessLevel,
                 group.getGroupId(),
                 app.getAppId(),
+                accessLevel,
                 request.getMethod(),
-                request.getRequestURL().toString(),
-                queryString == null || queryString.isEmpty() ? "" : "?" + queryString,
+                CurbUtil.getUrl(request),
                 user == null ? null : user.getUsername(),
                 userState,
                 ServletUtil.getIp(request));
