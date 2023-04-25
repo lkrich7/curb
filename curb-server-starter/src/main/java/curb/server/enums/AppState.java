@@ -20,6 +20,11 @@ public enum AppState implements CodedEnum<AppState> {
     }
 
     @Override
+    public String toString() {
+        return stringify();
+    }
+
+    @Override
     public int getCode() {
         return code;
     }

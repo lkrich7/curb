@@ -62,6 +62,11 @@ public enum PageType implements CodedEnum<PageType> {
     }
 
     @Override
+    public String toString() {
+        return stringify();
+    }
+
+    @Override
     public int getCode() {
         return code;
     }

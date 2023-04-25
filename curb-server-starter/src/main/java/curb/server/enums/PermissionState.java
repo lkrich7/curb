@@ -20,6 +20,11 @@ public enum PermissionState implements CodedEnum<PermissionState> {
     }
 
     @Override
+    public String toString() {
+        return stringify();
+    }
+
+    @Override
     public int getCode() {
         return code;
     }

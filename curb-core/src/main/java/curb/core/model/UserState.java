@@ -31,11 +31,9 @@ public enum UserState implements CodedEnum<UserState> {
         this.name = name;
     }
 
-    public static UserState check(User user) {
-        if (null == user) {
-            return NOT_EXISTED;
-        }
-        return CodedEnum.valueOfCode(UserState.class, user.getState(), NOT_EXISTED);
+    @Override
+    public String toString() {
+        return stringify();
     }
 
     @Override
@@ -51,8 +49,11 @@ public enum UserState implements CodedEnum<UserState> {
         return this == OK;
     }
 
-    @Override
-    public String toString() {
-        return "UserState-" + name();
+    public static UserState check(User user) {
+        if (null == user) {
+            return NOT_EXISTED;
+        }
+        return CodedEnum.valueOfCode(UserState.class, user.getState(), NOT_EXISTED);
     }
+
 }

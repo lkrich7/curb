@@ -20,6 +20,11 @@ public enum PageState implements CodedEnum<PageState> {
     }
 
     @Override
+    public String toString() {
+        return stringify();
+    }
+
+    @Override
     public int getCode() {
         return code;
     }

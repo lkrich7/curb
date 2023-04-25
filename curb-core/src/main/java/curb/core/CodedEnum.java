@@ -7,6 +7,23 @@ package curb.core;
  */
 public interface CodedEnum<E extends Enum<E>> {
 
+    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, Integer code, E defaultValue) {
+        if (code == null) {
+            return defaultValue;
+        }
+        return valueOfCode(clazz, code.intValue(), defaultValue);
+    }
+
+    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, int code, E defaultValue) {
+        E[] values = clazz.getEnumConstants();
+        for (E ret : values) {
+            if (ret.codeEquals(code)) {
+                return ret;
+            }
+        }
+        return defaultValue;
+    }
+
     /**
      * 获取代码值
      *
@@ -22,20 +39,13 @@ public interface CodedEnum<E extends Enum<E>> {
         return code != null && code.intValue() == getCode();
     }
 
-    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, Integer code, E defaultValue) {
-        if (code == null) {
-            return defaultValue;
-        }
-        return valueOfCode(clazz, code.intValue(), defaultValue);
-    }
-    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, int code, E defaultValue) {
-        E[] values = clazz.getEnumConstants();
-        for (E ret : values) {
-            if (ret.codeEquals(code)) {
-                return ret;
-            }
-        }
-        return defaultValue;
+    /**
+     * 缺省的字符串化方法
+     *
+     * @return
+     */
+    default String stringify() {
+        return String.format("%s(%d)", ((E) this).name(), getCode());
     }
 
 }

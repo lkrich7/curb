@@ -32,12 +32,13 @@ public enum AccessLevel implements CodedEnum<AccessLevel> {
         return CodedEnum.valueOfCode(AccessLevel.class, code, defaultValue);
     }
 
+    @Override
+    public String toString() {
+        return stringify();
+    }
+    @Override
     public int getCode() {
         return code;
     }
 
-    @Override
-    public String toString() {
-        return "AccessLevel(" + code + ')';
-    }
 }

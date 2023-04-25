@@ -19,6 +19,12 @@ public enum RoleState implements CodedEnum<RoleState> {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return stringify();
+    }
+
+    @Override
     public int getCode() {
         return code;
     }
