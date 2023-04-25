@@ -45,8 +45,8 @@ public class DemoController {
     @CurbMethod(resolver = DemoPermissionResolver.class)
     @ResponseBody
     @PostMapping("/ajax/hello_with_request_body")
-    public ApiResult ajaxHelloWithRequestBody(@RequestBody DemoRequestBody requestBody) {
-        return new ApiResult(0, null, requestBody);
+    public ApiResult<DemoRequestBody> ajaxHelloWithRequestBody(@RequestBody DemoRequestBody requestBody) {
+        return new ApiResult<>(0, null, requestBody);
     }
 
     /**
@@ -62,7 +62,7 @@ public class DemoController {
     @CurbMethod(resolver = DemoPermissionResolver.class, ignoreParamNames = {"dspIds", "agentIds"})
     @ResponseBody
     @PostMapping("/ajax/complex_case")
-    public ApiResult ajaxComplexCase(@RequestBody DemoComplexRequestBody requestBody) {
+    public ApiResult<Map<String, Object>> ajaxComplexCase(@RequestBody DemoComplexRequestBody requestBody) {
         PermissionResult result = CurbUtil.getPermissionResult();
         // 取得用户请求的agentIds 中所有有权限的值
         Set<String> agentIds = result.intersectParamSet("agentIds");
@@ -76,7 +76,7 @@ public class DemoController {
 
         // 返回通过验证的所有权限串，仅用于进行权限判断结果的验证；
         data.put("matchedPermission", result.getAllowed());
-        return new ApiResult(0, null, data);
+        return new ApiResult<>(0, null, data);
     }
 
 //    @ExceptionHandler(CurbException.class)
