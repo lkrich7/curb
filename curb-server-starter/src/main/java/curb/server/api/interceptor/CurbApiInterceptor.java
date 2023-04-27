@@ -1,6 +1,6 @@
 package curb.server.api.interceptor;
 
-import curb.core.util.ApiTokenUtil;
+import curb.core.util.ApiSignUtil;
 import curb.core.ErrorEnum;
 import curb.server.po.AppPO;
 import curb.server.service.AppService;
@@ -50,7 +50,7 @@ public class CurbApiInterceptor extends HandlerInterceptorAdapter {
         }
         String appSecret = appService.getSecret(appId);
 
-        boolean success = ApiTokenUtil.checkTokenMatched(request, appSecret);
+        boolean success = ApiSignUtil.checkSignMatched(request, appSecret);
         if (!success) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("apiToken 错误");
         }

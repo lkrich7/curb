@@ -5,9 +5,8 @@ import curb.core.ErrorEnum;
 import curb.core.model.AppDetail;
 import curb.core.model.User;
 import curb.core.model.UserPermission;
-import curb.core.util.ApiTokenUtil;
+import curb.core.util.ApiSignUtil;
 import curb.core.util.JsonUtil;
-import curb.core.util.URLBuilderUtil;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -102,8 +101,7 @@ public class CurbApiHttpClient implements CurbApi {
 
         paramsMap.put("appId", appid);
         paramsMap.put("t", String.valueOf(System.currentTimeMillis()));
-        ApiTokenUtil.buildTokenAndPutMap(paramsMap, secret);
-        String url = URLBuilderUtil.joinToGet(api.path, paramsMap, StandardCharsets.UTF_8.name());
+        String url = ApiSignUtil.signAndJoinToUrl(api.path, paramsMap, secret);
         HttpGet request = new HttpGet(url);
 
         try {
