@@ -27,7 +27,7 @@ logging:
 curb:
   enabled: true
   client:
-    server: 127.0.0.1:8080
+    server: http://127.0.0.1:8080
     appid: 1
     secret: 7f279a4d-bfbd-11ed-a782-0242ac110002
   reverse-proxy: # 客户端反向代理功能配置，该功能可将部分路径请求代理到logincenter服务端，在客户端实现logincenter的其他功能（应用权限管理、LEGO等）
