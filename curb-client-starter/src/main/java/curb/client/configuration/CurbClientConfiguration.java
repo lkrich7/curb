@@ -54,10 +54,12 @@ public class CurbClientConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "curb.reverse-proxy.enabled", havingValue = "true", matchIfMissing = false)
-    public CurbClientProxyRequestHandler curbReverseProxyRequestHandler(CurbClientProperties properties) {
+    public CurbClientProxyRequestHandler curbReverseProxyRequestHandler(
+            @Qualifier("curbClientRestTemplate") RestTemplate curbClientRestTemplate,
+            CurbClientProperties properties) {
         String server = properties.getClient().getServer();
         String[] urlMappings = properties.getReverseProxy().getUrlMappings();
-        return new CurbClientProxyRequestHandler(server, urlMappings);
+        return new CurbClientProxyRequestHandler(curbClientRestTemplate, server, urlMappings);
     }
 
 }

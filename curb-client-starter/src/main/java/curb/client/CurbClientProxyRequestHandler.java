@@ -1,44 +1,31 @@
 package curb.client;
 
 
-import curb.core.CurbDataProvider;
-import curb.core.model.App;
 import curb.core.util.ServletUtil;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.message.HeaderGroup;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.HttpRequestHandler;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.CodingErrorAction;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 客户端反向代理转发请求处理器，用于将Curb客户服务中的其余非业务接口请求（系统管理页面等）
@@ -47,28 +34,15 @@ import java.util.Enumeration;
 public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping implements HttpRequestHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CurbClientProxyRequestHandler.class);
-
-    @Autowired
-    private CurbDataProvider dataProvider;
-
-    private final CloseableHttpClient proxyClient;
-
-    private final HttpHost httpHost;
-
-    private final String[] urlMappings;
-
     /**
      * These are the "hop-by-hop" headers that should not be copied.
      * http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html
-     * I use an HttpClient HeaderGroup class instead of Set&lt;String&gt; because this
-     * approach does case insensitive lookup faster.
      */
-    private static final HeaderGroup IGNORED_HEADERS;
+    private static final Set<String> IGNORED_HEADERS;
 
     static {
-        IGNORED_HEADERS = new HeaderGroup();
+        IGNORED_HEADERS = new HashSet<>();
         String[] headers = new String[]{
-                HttpHeaders.CONTENT_LENGTH,
                 HttpHeaders.CONNECTION,
                 HttpHeaders.PROXY_AUTHENTICATE,
                 HttpHeaders.PROXY_AUTHORIZATION,
@@ -78,13 +52,17 @@ public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping imp
                 "Trailers",
         };
         for (String header : headers) {
-            IGNORED_HEADERS.addHeader(new BasicHeader(header, null));
+            IGNORED_HEADERS.add(header.toLowerCase());
         }
     }
 
-    public CurbClientProxyRequestHandler(String server, String[] urlMappings) {
-        proxyClient = createHttpClient();
-        httpHost = HttpHost.create(server);
+    private final RestTemplate restTemplate;
+    private final String server;
+    private final String[] urlMappings;
+
+    public CurbClientProxyRequestHandler(RestTemplate restTemplate, String server, String[] urlMappings) {
+        this.restTemplate = restTemplate;
+        this.server = server;
         this.urlMappings = urlMappings;
 
         //默认设设置顺序排在静态资源之后
@@ -102,126 +80,53 @@ public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping imp
     }
 
     @Override
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String uri = parseUrlFromRequest(request);
-        HttpRequest proxyRequest = newProxyRequest(request, uri);
-        copyRequestHeaders(request, proxyRequest);
-        setRealIpHeader(request, proxyRequest);
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
+        HttpMethod method = HttpMethod.resolve(request.getMethod());
+        String uri = parseUriFromRequest(request);
+        String url = server + uri;
+        log.info("proxy request: {} {} {} upstream to: {}", request.getMethod(), uri, request.getProtocol(), url);
+        restTemplate.execute(url, method, req -> forwardRequest(request, req), res -> forwardResponse(response, res));
+    }
 
-        App app = dataProvider.getApp(request);
-        proxyRequest.setHeader("X-CURB-HOST", app.getUrl().getHost());
+    private String parseUriFromRequest(HttpServletRequest request) {
+        String query = request.getQueryString();
+        if (query == null || query.isEmpty()) {
+            return request.getRequestURI();
+        }
+        return request.getRequestURI() + "?" + query;
+    }
 
-        log.info("proxy request: {} {} {} upstream: {}", request.getMethod(), uri, request.getProtocol(), httpHost);
-        final CloseableHttpResponse proxyResponse = proxyClient.execute(httpHost, proxyRequest);
-        try {
-            int statusCode = proxyResponse.getStatusLine().getStatusCode();
-            response.setStatus(statusCode);
-            copyResponseHeaders(proxyResponse, response);
-            copyResponseEntity(proxyResponse, response);
-        } catch (ClientProtocolException e1) {
-            final HttpEntity entity = proxyResponse.getEntity();
-            try {
-                EntityUtils.consume(entity);
-            } catch (Exception e2) {
-                log.warn("Error consuming content after an exception. {}", e2.getMessage(), e2);
-            }
-            throw e1;
-        } finally {
-            proxyResponse.close();
+    private void forwardRequest(HttpServletRequest request, ClientHttpRequest upstreamRequest) throws IOException {
+        copyRequestHeaders(request, upstreamRequest);
+        try (
+                ServletInputStream is = request.getInputStream();
+                OutputStream os = upstreamRequest.getBody()
+        ) {
+            StreamUtils.copy(is, os);
         }
     }
 
-    private static CloseableHttpClient createHttpClient() {
-        SocketConfig defaultSocketConfig = SocketConfig.custom()
-                .setTcpNoDelay(true)
-                .setSoTimeout(1000)
-                .build();
-
-        ConnectionConfig defaultConnectionConfig = ConnectionConfig.custom()
-                .setMalformedInputAction(CodingErrorAction.IGNORE)
-                .setUnmappableInputAction(CodingErrorAction.IGNORE)
-                .build();
-
-        PoolingHttpClientConnectionManager defaultConnectionManager = new PoolingHttpClientConnectionManager();
-        defaultConnectionManager.setDefaultSocketConfig(defaultSocketConfig);
-        defaultConnectionManager.setDefaultConnectionConfig(defaultConnectionConfig);
-        defaultConnectionManager.setDefaultMaxPerRoute(100);
-        defaultConnectionManager.setMaxTotal(100);
-
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(2000)
-                .setConnectTimeout(1000)
-                .setSocketTimeout(4000)
-                .setRedirectsEnabled(false)
-                .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
-                .build();
-
-        return HttpClients.custom()
-                .setConnectionManager(defaultConnectionManager)
-                .setDefaultRequestConfig(defaultRequestConfig)
-                .setKeepAliveStrategy(WrapDefaultConnectionKeepAliveStrategy.INSTANCE)
-                .disableCookieManagement()
-                .disableDefaultUserAgent()
-                .build();
-    }
-
-    private HttpRequest newProxyRequest(HttpServletRequest request, String proxyRequestUri) throws IOException {
-        String method = request.getMethod();
-        if (request.getHeader(HttpHeaders.CONTENT_LENGTH) != null ||
-                request.getHeader(HttpHeaders.TRANSFER_ENCODING) != null) {
-            //spec: RFC 2616, sec 4.3: either of these two headers signal that there is a message body.
-            HttpEntityEnclosingRequest proxyRequest = new BasicHttpEntityEnclosingRequest(method, proxyRequestUri);
-            // Add the input entity (streamed)
-            // note: we don't bother ensuring we close the servletInputStream since the container handles it
-            proxyRequest.setEntity(new InputStreamEntity(request.getInputStream(), getContentLength(request)));
-            return proxyRequest;
-        } else {
-            return new BasicHttpRequest(method, proxyRequestUri);
-        }
-    }
-
-    private String parseUrlFromRequest(HttpServletRequest request) {
-        StringBuilder uri = new StringBuilder(500);
-        String path = request.getRequestURI();
-        String queryString = request.getQueryString();
-        uri.append(path);
-        if (queryString != null && !queryString.isEmpty()) {
-            uri.append('?');
-            uri.append(queryString);
-        }
-        return uri.toString();
-    }
-
-    private long getContentLength(HttpServletRequest request) {
-        String contentLengthHeader = request.getHeader(HttpHeaders.CONTENT_LENGTH);
-        if (contentLengthHeader != null) {
-            return Long.parseLong(contentLengthHeader);
-        }
-        return -1L;
-    }
-
-    private void copyRequestHeaders(HttpServletRequest request, HttpRequest proxyRequest) {
-        Enumeration<String> enumerationOfHeaderNames = request.getHeaderNames();
-        while (enumerationOfHeaderNames.hasMoreElements()) {
-            String headerName = enumerationOfHeaderNames.nextElement();
-            if (IGNORED_HEADERS.containsHeader(headerName)
-                    || headerName.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
+    private void copyRequestHeaders(HttpServletRequest request, ClientHttpRequest upstreamRequest) {
+        HttpHeaders upstreamHeaders = upstreamRequest.getHeaders();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            if (IGNORED_HEADERS.contains(headerName.toLowerCase())) {
                 continue;
             }
             if (headerName.equalsIgnoreCase(HttpHeaders.HOST)) {
-                String headerValue = httpHost.toHostString();
-                proxyRequest.addHeader(headerName, headerValue);
-            } else {
-                Enumeration<String> headers = request.getHeaders(headerName);
-                while (headers.hasMoreElements()) {
-                    String headerValue = headers.nextElement();
-                    proxyRequest.addHeader(headerName, headerValue);
-                }
+                continue;
+            }
+            Enumeration<String> headers = request.getHeaders(headerName);
+            while (headers.hasMoreElements()) {
+                String headerValue = headers.nextElement();
+                upstreamHeaders.add(headerName, headerValue);
             }
         }
+        setRealIpHeader(request, upstreamHeaders);
     }
 
-    private void setRealIpHeader(HttpServletRequest request, HttpRequest proxyRequest) {
+    private void setRealIpHeader(HttpServletRequest request, HttpHeaders upstreamHeaders) {
         String ip = ServletUtil.getIp(request);
         if ("127.0.0.1".equals(ip)) {
             return;
@@ -233,27 +138,27 @@ public class CurbClientProxyRequestHandler extends AbstractUrlHandlerMapping imp
         } else {
             existingForHeader = existingForHeader + ", " + ip;
         }
-        proxyRequest.setHeader(xForwardedFor, existingForHeader);
-        proxyRequest.setHeader("X-Real-IP", ip);
+        upstreamHeaders.set(xForwardedFor, existingForHeader);
     }
 
-    private void copyResponseHeaders(HttpResponse proxyResponse, HttpServletResponse response) {
-        for (Header header : proxyResponse.getAllHeaders()) {
-            String headerName = header.getName();
-            if (IGNORED_HEADERS.containsHeader(headerName)) {
-                continue;
+    private Void forwardResponse(HttpServletResponse response, ClientHttpResponse clientHttpResponse) throws IOException {
+        response.setStatus(clientHttpResponse.getRawStatusCode());
+        HttpHeaders headers = clientHttpResponse.getHeaders();
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            String headerName = entry.getKey();
+            for (String headerValue : entry.getValue()) {
+                response.addHeader(headerName, headerValue);
             }
-            String headerValue = header.getValue();
-            response.addHeader(headerName, headerValue);
         }
+        try (
+                InputStream source = clientHttpResponse.getBody();
+                ServletOutputStream target = response.getOutputStream();
+        ) {
+            StreamUtils.copy(source, target);
+        }
+
+        return null;
     }
 
-    private void copyResponseEntity(HttpResponse proxyResponse, HttpServletResponse response) throws IOException {
-        HttpEntity entity = proxyResponse.getEntity();
-        if (entity != null) {
-            OutputStream servletOutputStream = response.getOutputStream();
-            entity.writeTo(servletOutputStream);
-        }
-    }
 
 }
