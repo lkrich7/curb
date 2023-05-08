@@ -1,7 +1,7 @@
 package curb.server.enums;
 
 import curb.core.model.Permission;
-import org.apache.commons.lang3.StringUtils;
+import curb.core.util.StringUtil;
 
 /**
  * 权限模版
@@ -91,7 +91,8 @@ public enum SystemPermissions {
     }
 
     public Permission toPermission(Integer groupId) {
-        return Permission.build(StringUtils.replace(sign, "{{groupId}}", String.valueOf(groupId)));
+        String localSign = StringUtil.replace(sign, "{{groupId}}", String.valueOf(groupId));
+        return Permission.build(localSign);
     }
 
 }

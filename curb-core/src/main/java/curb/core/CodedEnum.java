@@ -5,16 +5,16 @@ package curb.core;
  *
  * @param <E> 枚举类型
  */
-public interface CodedEnum<E extends Enum<E>> {
+public interface CodedEnum<E extends Enum<E> & CodedEnum<E>> {
 
-    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, Integer code, E defaultValue) {
+    static <E extends Enum<E> & CodedEnum<E>> E valueOfCode(Class<E> clazz, Integer code, E defaultValue) {
         if (code == null) {
             return defaultValue;
         }
         return valueOfCode(clazz, code.intValue(), defaultValue);
     }
 
-    static <E extends CodedEnum> E valueOfCode(Class<E> clazz, int code, E defaultValue) {
+    static <E extends Enum<E> & CodedEnum<E>> E valueOfCode(Class<E> clazz, int code, E defaultValue) {
         E[] values = clazz.getEnumConstants();
         for (E ret : values) {
             if (ret.codeEquals(code)) {
@@ -44,6 +44,7 @@ public interface CodedEnum<E extends Enum<E>> {
      *
      * @return
      */
+    @SuppressWarnings("unchecked")
     default String stringify() {
         return String.format("%s(%d)", ((E) this).name(), getCode());
     }

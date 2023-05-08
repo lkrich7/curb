@@ -6,6 +6,7 @@ import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
+import curb.core.util.StringUtil;
 import curb.server.converter.RoleVOConverter;
 import curb.server.enums.RoleState;
 import curb.server.po.PermissionPO;
@@ -20,7 +21,6 @@ import curb.server.vo.OptionVO;
 import curb.server.vo.PaginationVO;
 import curb.server.vo.RoleUserListVO;
 import curb.server.vo.RoleVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -252,9 +252,9 @@ public class SystemApiRoleController {
     }
 
     private RolePO checkParam(Integer roleId, String sign, String name, String description, Group group) {
-        name = StringUtils.trimToNull(name);
-        sign = StringUtils.trimToNull(sign);
-        description = StringUtils.trimToNull(description);
+        name = StringUtil.trimToNull(name);
+        sign = StringUtil.trimToNull(sign);
+        description = StringUtil.trimToNull(description);
 
         if (name == null || sign == null || description == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException();

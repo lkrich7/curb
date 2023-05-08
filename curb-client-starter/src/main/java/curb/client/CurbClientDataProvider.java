@@ -16,7 +16,7 @@ import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserPermission;
 import curb.core.util.CurbUtil;
-import org.apache.commons.lang3.StringUtils;
+import curb.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class CurbClientDataProvider implements CurbDataProvider {
     @Override
     public User getUser(HttpServletRequest request) {
         String token = CurbUtil.getToken(request);
-        if (StringUtils.isBlank(token)) {
+        if (StringUtil.isBlank(token)) {
             return null;
         }
         return curbApiHttpClient.getUser(token).getData();

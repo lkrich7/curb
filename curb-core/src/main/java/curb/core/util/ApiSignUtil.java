@@ -1,6 +1,5 @@
 package curb.core.util;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.DigestUtils;
@@ -43,7 +42,7 @@ public enum ApiSignUtil {
     public static String signAndJoinToUrl(String path, Map<String, String> paramsMap, String secret) {
         signAndPutMap(paramsMap, secret);
         String paramStr = joinParams(paramsMap);
-        if (StringUtils.isBlank(paramStr)) {
+        if (StringUtil.isBlank(paramStr)) {
             return path;
         }
         return path + "?" + paramStr;

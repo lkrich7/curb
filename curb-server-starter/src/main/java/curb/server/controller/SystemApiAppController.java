@@ -4,6 +4,7 @@ import curb.core.ApiResult;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
+import curb.core.util.StringUtil;
 import curb.server.enums.AppState;
 import curb.server.po.AppPO;
 import curb.server.service.AppService;
@@ -12,7 +13,6 @@ import curb.server.util.CurbServerUtil;
 import curb.server.vo.AppSecretVO;
 import curb.server.vo.AppVO;
 import curb.server.vo.PaginationVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -172,11 +172,11 @@ public class SystemApiAppController {
     }
 
     private AppPO checkParam(Integer appId, String url, String name, Group group) {
-        name = StringUtils.trimToNull(name);
+        name = StringUtil.trimToNull(name);
         if (name == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("应用名称不能为空");
         }
-        url = StringUtils.trimToNull(url);
+        url = StringUtil.trimToNull(url);
         if (url == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("应用网址不能为空");
         }

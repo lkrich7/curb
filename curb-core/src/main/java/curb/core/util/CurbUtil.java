@@ -4,7 +4,6 @@ import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.PermissionResult;
 import curb.core.model.User;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -114,7 +113,7 @@ public final class CurbUtil {
 //        String scheme = getScheme(request);
         String domain = getDomain(request);
         String path = request.getRequestURI();
-        String query = StringUtils.trimToNull(request.getQueryString());
+        String query = StringUtil.trimToNull(request.getQueryString());
         StringBuilder builder = new StringBuilder()
 //                .append(scheme).append(":")
                 .append("//")
@@ -149,11 +148,11 @@ public final class CurbUtil {
      */
     private static String getDomain(HttpServletRequest request) {
         String domain = request.getHeader("X-CURB-HOST");
-        if (StringUtils.isNotBlank(domain)) {
+        if (StringUtil.isNotBlank(domain)) {
             return domain;
         }
         domain = request.getHeader("Host");
-        if (StringUtils.isNotBlank(domain)) {
+        if (StringUtil.isNotBlank(domain)) {
             return domain;
         }
         int port = request.getServerPort();

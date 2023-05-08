@@ -3,14 +3,13 @@ package curb.server.controller;
 import curb.core.ApiResult;
 import curb.core.ErrorEnum;
 import curb.core.model.Group;
+import curb.core.util.StringUtil;
 import curb.server.converter.GroupVOConverter;
-import curb.server.converter.ListConverter;
 import curb.server.po.GroupPO;
 import curb.server.service.GroupService;
 import curb.server.util.CurbServerUtil;
 import curb.server.vo.GroupVO;
 import curb.server.vo.PaginationVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,13 +108,13 @@ public class SystemApiGroupController {
     private GroupPO checkParam(Integer groupId, String url, String name, Group group) {
         CurbServerUtil.checkGroupId(groupId, group);
 
-        url = StringUtils.trimToNull(url);
-        name = StringUtils.trimToNull(name);
+        url = StringUtil.trimToNull(url);
+        name = StringUtil.trimToNull(name);
 
-        if (StringUtils.isBlank(name)) {
+        if (StringUtil.isBlank(name)) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("项目组名称不能为空");
         }
-        if (StringUtils.isBlank(url)) {
+        if (StringUtil.isBlank(url)) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("项目组网址不能为空");
         }
         GroupPO ret = new GroupPO();

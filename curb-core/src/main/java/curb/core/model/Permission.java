@@ -3,7 +3,7 @@ package curb.core.model;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
+import curb.core.util.StringUtil;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -53,7 +53,7 @@ public final class Permission implements Comparable<Permission>, Serializable {
     }
 
     public static Permission build(String sign) {
-        sign = StringUtils.trimToNull(sign);
+        sign = StringUtil.trimToNull(sign);
         if (sign == null) {
             return null;
         }
@@ -215,11 +215,11 @@ public final class Permission implements Comparable<Permission>, Serializable {
         }
         List<String> parts = PARAM_SPLITTER.splitToList(param);
         for (String part : parts) {
-            String[] kv = StringUtils.split(part, PARAM_KV_TOKEN);
+            String[] kv = StringUtil.split(part, PARAM_KV_TOKEN);
             if (kv.length < 1) {
                 continue;
             }
-            String key = StringUtils.trimToEmpty(kv[0]);
+            String key = StringUtil.trimToEmpty(kv[0]);
             TreeSet<String> valueSet = ret.get(key);
             if (valueSet == null) {
                 valueSet = new TreeSet<>();

@@ -7,6 +7,7 @@ import curb.core.annotation.CurbMethod;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
+import curb.core.util.StringUtil;
 import curb.server.bo.Pagination;
 import curb.server.converter.AppVOConverter;
 import curb.server.enums.PageState;
@@ -24,7 +25,6 @@ import curb.server.vo.PageBodyHistoryVO;
 import curb.server.vo.PageEditVO;
 import curb.server.vo.PageListVO;
 import curb.server.vo.PaginationVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -317,7 +317,7 @@ public class SystemApiPageController {
     private PagePO checkParams(PageEditVO vo, Integer appId) {
         String path = checkAndFixPath(vo.getPath());
 
-        String name = StringUtils.trimToNull(vo.getName());
+        String name = StringUtil.trimToNull(vo.getName());
         if (name == null) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("页面名称不能为空");
         }
@@ -332,7 +332,7 @@ public class SystemApiPageController {
         }
         String sign = "";
         if (accessLevel == AccessLevel.PERMISSION) {
-            sign = StringUtils.trimToEmpty(vo.getSign());
+            sign = StringUtil.trimToEmpty(vo.getSign());
             if (sign.isEmpty()) {
                 throw ErrorEnum.PARAM_ERROR.toCurbException("页面访问权限标识不能为空");
             }

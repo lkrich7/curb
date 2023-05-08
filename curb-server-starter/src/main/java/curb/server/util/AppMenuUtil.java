@@ -2,7 +2,7 @@ package curb.server.util;
 
 import curb.core.model.Menu;
 import curb.core.util.JsonUtil;
-import org.apache.commons.lang3.StringUtils;
+import curb.core.util.StringUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +16,7 @@ public final class AppMenuUtil {
     }
 
     public static List<Menu> parse(String str) {
-        if (StringUtils.isBlank(str)) {
+        if (StringUtil.isBlank(str)) {
             return Collections.emptyList();
         }
         List<Menu> ret = JsonUtil.parseArray(str, Menu.class);

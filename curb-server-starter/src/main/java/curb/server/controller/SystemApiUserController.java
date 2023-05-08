@@ -5,6 +5,7 @@ import curb.core.ErrorEnum;
 import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserState;
+import curb.core.util.StringUtil;
 import curb.server.bo.Pagination;
 import curb.server.enums.SystemRole;
 import curb.server.po.RolePO;
@@ -14,7 +15,6 @@ import curb.server.service.UserService;
 import curb.server.converter.OptionVOConverter;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.PaginationVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,7 +65,7 @@ public class SystemApiUserController {
         if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
             pageSize = DEFAULT_PAGE_SIZE;
         }
-        keyword = StringUtils.trimToNull(keyword);
+        keyword = StringUtil.trimToNull(keyword);
         Map<String, Object> paramMap = new LinkedHashMap<>();
         paramMap.put("groupId", group.getGroupId());
         paramMap.put("keyword", keyword);

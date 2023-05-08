@@ -5,6 +5,7 @@ import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.Permission;
+import curb.core.util.StringUtil;
 import curb.server.converter.AppVOConverter;
 import curb.server.converter.OptionVOConverter;
 import curb.server.converter.PermissionVOConverter;
@@ -20,7 +21,6 @@ import curb.server.vo.AppVO;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.PermissionListVO;
 import curb.server.vo.PermissionVO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -264,12 +264,12 @@ public class SystemApiPermissionController {
     }
 
     private PermissionPO checkParam(Integer permId, int appId, String name, String sign) {
-        name = StringUtils.trimToNull(name);
+        name = StringUtil.trimToNull(name);
 
-        if (StringUtils.isBlank(name)) {
+        if (StringUtil.isBlank(name)) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("权限名称不能为空");
         }
-        if (StringUtils.isBlank(sign)) {
+        if (StringUtil.isBlank(sign)) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("权限标识不能为空");
         }
         Permission p = Permission.build(sign);

@@ -1,12 +1,10 @@
 package curb.demo;
 
 import curb.core.CurbAccessConfig;
-import curb.core.CurbException;
 import curb.core.ErrorEnum;
 import curb.core.PermissionResolver;
 import curb.core.model.Permission;
-import curb.core.util.JsonUtil;
-import org.apache.commons.lang3.StringUtils;
+import curb.core.util.StringUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +12,6 @@ import org.springframework.web.method.HandlerMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * 自定义权限解析器
@@ -47,8 +44,8 @@ public class DemoPermissionResolver implements PermissionResolver {
             }
             if (body instanceof DemoComplexRequestBody) {
                 DemoComplexRequestBody requestBody = (DemoComplexRequestBody) body;
-                builder.addParams("agentIds", StringUtils.split(requestBody.getAgentIds(), ','));
-                builder.addParams("dspIds", StringUtils.split(requestBody.getDspIds(), ','));
+                builder.addParams("agentIds", StringUtil.split(requestBody.getAgentIds(), ','));
+                builder.addParams("dspIds", StringUtil.split(requestBody.getDspIds(), ','));
                 builder.addParam("myId", requestBody.getMyId());
                 return builder.build();
             }
