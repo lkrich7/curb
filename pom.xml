@@ -72,6 +72,19 @@
                 <artifactId>curb-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>curb</groupId>
+                <artifactId>curb-client-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>curb</groupId>
+                <artifactId>curb-server-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

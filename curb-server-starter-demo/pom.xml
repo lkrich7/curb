@@ -21,7 +21,6 @@
         <dependency>
             <groupId>curb</groupId>
             <artifactId>curb-server-starter</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
 <!--        <dependency>-->
