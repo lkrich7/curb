@@ -9,7 +9,6 @@ import curb.server.interceptor.CurbServerInterceptor;
 import curb.server.page.CurbPageConfiguration;
 import curb.server.service.CurbServerDataProvider;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,9 +42,8 @@ public class CurbServerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
-    public CurbServerInterceptor curbServerInterceptor(@Autowired CurbProperties properties) {
+    public CurbServerInterceptor curbServerInterceptor(CurbProperties properties) {
         return new CurbServerInterceptor(properties);
     }
-
 
 }

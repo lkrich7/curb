@@ -22,8 +22,11 @@ public class CurbApiInterceptor extends HandlerInterceptorAdapter {
 
     private static final String TIMESTAMP_PARAM_NAME = "t";
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
+
+    public CurbApiInterceptor(AppService appService) {
+        this.appService = appService;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
