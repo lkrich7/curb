@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,10 +61,10 @@ public class CurbApiRestClient implements CurbApi {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ApiResult<T> invoke(final API api, Map<String, String> paramsMap) {
+    protected <T> ApiResult<T> invoke(RestApi api, Map<String, String> paramsMap) {
         paramsMap.put("appId", appid);
         paramsMap.put("t", String.valueOf(System.currentTimeMillis()));
-        String url = ApiSignUtil.signAndJoinToUrl(server + api.path, paramsMap, secret);
+        String url = ApiSignUtil.signAndJoinToUrl(server + api.getPath(), paramsMap, secret);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -71,7 +72,7 @@ public class CurbApiRestClient implements CurbApi {
         HttpEntity request = new HttpEntity(headers);
 
         try {
-            ResponseEntity<? extends ApiResult> response = restTemplate.exchange(url, HttpMethod.GET, request, api.genericType);
+            ResponseEntity<? extends ApiResult> response = restTemplate.exchange(URI.create(url), HttpMethod.GET, request, api.getGenericType());
             ApiResult<T> ret = response.getBody();
             return ret;
         } catch (Exception e) {
@@ -79,7 +80,12 @@ public class CurbApiRestClient implements CurbApi {
         }
     }
 
-    enum API {
+    public interface RestApi {
+        String getPath();
+        ParameterizedTypeReference<? extends ApiResult<?>> getGenericType();
+    }
+
+    enum API implements RestApi {
         GET_APP_DETAIL("/api/app/detail", new ParameterizedTypeReference<ApiResult<AppDetail>>() {
         }),
         GET_USER_INFO("/api/user/info", new ParameterizedTypeReference<ApiResult<User>>() {
@@ -88,12 +94,21 @@ public class CurbApiRestClient implements CurbApi {
         }),
         ;
         private final String path;
-        private final ParameterizedTypeReference<? extends ApiResult> genericType;
+        private final ParameterizedTypeReference<? extends ApiResult<?>> genericType;
 
-        API(String path, ParameterizedTypeReference<? extends ApiResult> genericType) {
+        API(String path, ParameterizedTypeReference<? extends ApiResult<?>> genericType) {
             this.path = path;
             this.genericType = genericType;
         }
 
+        @Override
+        public String getPath() {
+            return this.path;
+        }
+
+        @Override
+        public ParameterizedTypeReference<? extends ApiResult<?>> getGenericType() {
+            return this.genericType;
+        }
     }
 }
