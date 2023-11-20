@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>curb</groupId>
-    <artifactId>curb</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <groupId>io.github.lkrich7.curb</groupId>
+    <artifactId>curb-parent</artifactId>
+    <version>0.2.0-SNAPSHOT</version>
 
     <modules>
         <module>curb-core</module>
@@ -68,19 +68,19 @@
             </dependency>
 
             <dependency>
-                <groupId>curb</groupId>
+                <groupId>io.github.lkrich7.curb</groupId>
                 <artifactId>curb-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>curb</groupId>
+                <groupId>io.github.lkrich7.curb</groupId>
                 <artifactId>curb-client-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>curb</groupId>
+                <groupId>io.github.lkrich7.curb</groupId>
                 <artifactId>curb-server-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>

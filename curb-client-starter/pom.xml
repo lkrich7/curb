@@ -3,16 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>curb</artifactId>
-        <groupId>curb</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <artifactId>curb-parent</artifactId>
+        <groupId>io.github.lkrich7.curb</groupId>
+        <version>0.2.0-SNAPSHOT</version>
     </parent>
     <artifactId>curb-client-starter</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>curb</groupId>
+            <groupId>io.github.lkrich7.curb</groupId>
             <artifactId>curb-core</artifactId>
         </dependency>
 
