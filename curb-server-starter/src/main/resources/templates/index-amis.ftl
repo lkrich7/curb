@@ -172,7 +172,10 @@
                     console.log("updateLocation:" + to + "====" + replace);
                     window.history.pushState(to, document.title, to);
                 },
-
+                responseAdaptor(api, payload, query, request, response) {
+                    payload.status = typeof payload.status === 'undefined' ? payload.code : payload.status;
+                    return payload;
+                },
                 theme: theme
             }
         );

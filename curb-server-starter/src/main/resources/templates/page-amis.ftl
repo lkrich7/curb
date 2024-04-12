@@ -53,6 +53,10 @@
                 },
                 {
                     affixOffsetTop: 0,
+                    responseAdaptor(api, payload, query, request, response) {
+                        payload.status = typeof payload.status === 'undefined' ? payload.code : payload.status;
+                        return payload;
+                    },
                     theme: theme
                 }
         );
