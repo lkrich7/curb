@@ -1,6 +1,5 @@
 package curb.server.bo;
 
-import curb.server.po.PagePO;
 import curb.server.vo.PaginationVO;
 
 import java.util.ArrayList;
@@ -18,12 +17,12 @@ public class Pagination<T> {
     /**
      * 分页大小
      */
-    private int size;
+    private int ps;
 
     /**
      * 当前页号
      */
-    private int no;
+    private int pn;
 
     /**
      * 数据总条数
@@ -35,42 +34,41 @@ public class Pagination<T> {
      */
     private List<T> items;
 
-    public Pagination(int no, int size) {
-        this(no, size, 0);
+    public Pagination(int pn, int ps) {
+        this(pn, ps, 0);
     }
 
-    public Pagination(int no, int size, int total) {
-        this(no, size, total, Collections.emptyList());
+    public Pagination(int pn, int ps, int total) {
+        this(pn, ps, total, Collections.emptyList());
     }
 
-    public Pagination(int no, int size, int total, List<T> items) {
-        if (no < 1) {
+    public Pagination(int pn, int ps, int total, List<T> items) {
+        if (pn < 1) {
             throw new IllegalArgumentException("\"no\" should be greater than 0");
         }
-        if (size < 1) {
+        if (ps < 1) {
             throw new IllegalArgumentException("\"size\" should be greater than 0");
         }
-        this.no = no;
-        this.size = size;
+        this.pn = pn;
+        this.ps = ps;
         this.total = total;
         this.items = items;
     }
 
-
-    public int getNo() {
-        return no;
+    public int getPn() {
+        return pn;
     }
 
-    public void setNo(int no) {
-        this.no = no;
+    public void setPn(int pn) {
+        this.pn = pn;
     }
 
-    public int getSize() {
-        return size;
+    public int getPs() {
+        return ps;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public void setPs(int ps) {
+        this.ps = ps;
     }
 
     public int getTotal() {
@@ -98,7 +96,7 @@ public class Pagination<T> {
         if (total <= 0) {
             return 0;
         } else {
-            return total / size + (total % size == 0 ? 0 : 1);
+            return total / ps + (total % ps == 0 ? 0 : 1);
         }
     }
 
@@ -108,7 +106,7 @@ public class Pagination<T> {
      * @return 当前分页的数据偏移量
      */
     public int offset() {
-        return (no - 1) * size;
+        return (pn - 1) * ps;
     }
 
     public <V> PaginationVO<V> toVO(Function<T, V> function) {
@@ -129,8 +127,8 @@ public class Pagination<T> {
     @Override
     public String toString() {
         return "Pagination{" +
-                "size=" + size +
-                ", no=" + no +
+                "size=" + ps +
+                ", no=" + pn +
                 ", total=" + total +
                 ", rows=" + items +
                 '}';

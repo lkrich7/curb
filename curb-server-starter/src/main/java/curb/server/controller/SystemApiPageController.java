@@ -45,13 +45,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/system/api/page/")
 public class SystemApiPageController {
 
-    private AppService appService;
+    private final AppService appService;
 
-    private PageService pageService;
+    private final PageService pageService;
 
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
     public SystemApiPageController(AppService appService, PageService pageService, UserService userService) {
         this.appService = appService;
         this.pageService = pageService;

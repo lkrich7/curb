@@ -25,16 +25,16 @@ public class OpLogService {
         return change == 1;
     }
 
-    public Pagination<OpLogPO> search(Map<String, Object> paramMap, int pageNo, int pageSize) {
+    public Pagination<OpLogPO> search(Map<String, Object> paramMap, int pn, int ps) {
         int totalCount = opLogDAO.countByParam(paramMap);
-        int totalPage = new Pagination<>(pageNo, pageSize, totalCount).pages();
-        if (pageNo > totalPage) {
-            pageNo = totalPage <= 0 ? 1 : totalPage;
+        int totalPage = new Pagination<>(pn, ps, totalCount).pages();
+        if (pn > totalPage) {
+            pn = totalPage <= 0 ? 1 : totalPage;
         }
-        paramMap.put("start", pageSize * (pageNo - 1));
-        paramMap.put("limit", pageSize);
+        paramMap.put("start", ps * (pn - 1));
+        paramMap.put("limit", ps);
         List<OpLogPO> results = opLogDAO.getByParam(paramMap);
-        Pagination<OpLogPO> pagination = new Pagination<>(pageNo, pageSize, totalCount);
+        Pagination<OpLogPO> pagination = new Pagination<>(pn, ps, totalCount);
         pagination.setItems(results);
         return pagination;
     }

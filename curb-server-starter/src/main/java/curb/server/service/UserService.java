@@ -5,7 +5,6 @@ import curb.core.model.User;
 import curb.core.model.UserState;
 import curb.server.bo.Pagination;
 import curb.server.dao.UserDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +19,10 @@ import java.util.Map;
 @Service
 public class UserService {
 
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
 
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
-    @Autowired
     public UserService(UserDAO userDAO, UserRoleService userRoleService) {
         this.userDAO = userDAO;
         this.userRoleService = userRoleService;
@@ -34,18 +32,18 @@ public class UserService {
      * 分页查询接口
      *
      * @param paramMap
-     * @param pageNo
-     * @param pageSize
+     * @param pn
+     * @param ps
      * @return
      */
-    public Pagination<User> search(Map<String, Object> paramMap, Integer pageNo, Integer pageSize) {
+    public Pagination<User> search(Map<String, Object> paramMap, Integer pn, Integer ps) {
         int totalCount = userDAO.countByCondition(paramMap);
-        Pagination<User> pagination = new Pagination<>(pageNo, pageSize, totalCount);
-        if (pageNo < 1 || pageNo > pagination.pages()) {
+        Pagination<User> pagination = new Pagination<>(pn, ps, totalCount);
+        if (pn < 1 || pn > pagination.pages()) {
             return pagination;
         }
         paramMap.put("start", pagination.offset());
-        paramMap.put("limit", pageSize);
+        paramMap.put("limit", ps);
 
         List<User> results = userDAO.listByCondition(paramMap);
         pagination.setItems(results);

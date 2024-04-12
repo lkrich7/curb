@@ -13,7 +13,6 @@ import curb.server.po.PageBodyPO;
 import curb.server.po.PagePO;
 import curb.server.util.CoreDataUtil;
 import curb.server.vo.PageBodyEditVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +26,15 @@ import java.util.Map;
 @Service
 public class PageService {
 
+    private final PageDAO pageDAO;
+
+    private final PageBodyDAO pageBodyDAO;
+
     /**
      * 系统内置页面
      */
     private final Map<String, CurbPage> innerPages;
 
-    private PageDAO pageDAO;
-
-    private PageBodyDAO pageBodyDAO;
-
-    @Autowired
     public PageService(PageDAO pageDAO, PageBodyDAO pageBodyDAO) {
         this.pageDAO = pageDAO;
         this.pageBodyDAO = pageBodyDAO;

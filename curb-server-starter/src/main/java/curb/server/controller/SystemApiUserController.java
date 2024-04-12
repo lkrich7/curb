@@ -7,12 +7,12 @@ import curb.core.model.User;
 import curb.core.model.UserState;
 import curb.core.util.StringUtil;
 import curb.server.bo.Pagination;
+import curb.server.converter.OptionVOConverter;
 import curb.server.enums.SystemRole;
 import curb.server.po.RolePO;
 import curb.server.service.RoleService;
 import curb.server.service.UserRoleService;
 import curb.server.service.UserService;
-import curb.server.converter.OptionVOConverter;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.PaginationVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,22 +48,22 @@ public class SystemApiUserController {
     /**
      * 用户列表
      *
-     * @param keyword  搜索关键词
-     * @param type     用户类型
-     * @param pageNo   分页页号
-     * @param pageSize 分页大小
-     * @param group    项目组对象
+     * @param keyword 搜索关键词
+     * @param type    用户类型
+     * @param pn      分页页号
+     * @param ps      分页大小
+     * @param group   项目组对象
      * @return
      */
     @GetMapping("list")
     public ApiResult<PaginationVO<User>> list(@RequestParam(required = false) String keyword,
                                               @RequestParam(required = false) Integer type,
                                               @RequestParam(required = false) Integer state,
-                                              @RequestParam(required = false, defaultValue = "1") Integer pageNo,
-                                              @RequestParam(required = false, defaultValue = "15") Integer pageSize,
+                                              @RequestParam(required = false, defaultValue = "1") Integer pn,
+                                              @RequestParam(required = false, defaultValue = "15") Integer ps,
                                               Group group) {
-        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
-            pageSize = DEFAULT_PAGE_SIZE;
+        if (ps < 1 || ps > MAX_PAGE_SIZE) {
+            ps = DEFAULT_PAGE_SIZE;
         }
         keyword = StringUtil.trimToNull(keyword);
         Map<String, Object> paramMap = new LinkedHashMap<>();
@@ -72,7 +72,7 @@ public class SystemApiUserController {
         paramMap.put("type", type);
         paramMap.put("state", state);
 
-        Pagination<User> results = userService.search(paramMap, pageNo, pageSize);
+        Pagination<User> results = userService.search(paramMap, pn, ps);
         PaginationVO<User> data = results.toVO(e -> e);
 
         return ErrorEnum.SUCCESS.toApiResult(data);
