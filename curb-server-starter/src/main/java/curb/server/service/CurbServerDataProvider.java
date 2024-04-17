@@ -12,8 +12,6 @@ import curb.server.converter.GroupConverter;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -23,17 +21,33 @@ import java.net.URI;
  */
 public class CurbServerDataProvider implements CurbDataProvider {
 
-    @Autowired
-    private GroupService groupService;
+    private final GroupService groupService;
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private UserPermissionService userPermissionService;
+    private final UserPermissionService userPermissionService;
+
+    public CurbServerDataProvider(GroupService groupService,
+                                  AppService appService,
+                                  UserService userService,
+                                  UserPermissionService userPermissionService) {
+        this.groupService = groupService;
+        this.appService = appService;
+        this.userService = userService;
+        this.userPermissionService = userPermissionService;
+    }
+
+    @Override
+    public String toString() {
+        return "CurbServerDataProvider{" +
+                "groupService=" + groupService +
+                ", appService=" + appService +
+                ", userService=" + userService +
+                ", userPermissionService=" + userPermissionService +
+                '}';
+    }
 
     @Override
     public App getApp(HttpServletRequest request) {

@@ -21,7 +21,6 @@ import curb.server.vo.OptionVO;
 import curb.server.vo.PaginationVO;
 import curb.server.vo.RoleUserListVO;
 import curb.server.vo.RoleVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,20 +40,27 @@ import java.util.Set;
 @RequestMapping("/system/api/role/")
 public class SystemApiRoleController {
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
 
-    @Autowired
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
+    private final RolePermissionService rolePermissionService;
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
+
+    public SystemApiRoleController(RoleService roleService,
+                                   AppService appService,
+                                   UserRoleService userRoleService,
+                                   RolePermissionService rolePermissionService,
+                                   PermissionService permissionService) {
+        this.roleService = roleService;
+        this.appService = appService;
+        this.userRoleService = userRoleService;
+        this.rolePermissionService = rolePermissionService;
+        this.permissionService = permissionService;
+    }
 
     /**
      * 角色列表

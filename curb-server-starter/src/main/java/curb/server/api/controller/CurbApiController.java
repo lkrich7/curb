@@ -20,7 +20,6 @@ import curb.server.service.UserPermissionService;
 import curb.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,20 +36,25 @@ public class CurbApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CurbApiController.class);
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
 
-    @Autowired
-    private GroupService groupService;
+    private final GroupService groupService;
 
-    @Autowired
-    private UserPermissionService userPermissionService;
+    private final UserPermissionService userPermissionService;
 
-    @Autowired
-    private AppMenuService appMenuService;
+    private final AppMenuService appMenuService;
+
+    public CurbApiController(UserService userService,
+                             AppService appService, GroupService groupService,
+                             UserPermissionService userPermissionService, AppMenuService appMenuService) {
+        this.userService = userService;
+        this.appService = appService;
+        this.groupService = groupService;
+        this.userPermissionService = userPermissionService;
+        this.appMenuService = appMenuService;
+    }
 
     /**
      * 查询应用详细信息

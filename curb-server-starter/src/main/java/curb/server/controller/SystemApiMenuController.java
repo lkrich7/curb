@@ -8,9 +8,7 @@ import curb.core.model.User;
 import curb.server.po.AppPO;
 import curb.server.service.AppMenuService;
 import curb.server.service.AppService;
-import curb.server.util.AppMenuUtil;
 import curb.server.vo.MenuEditVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/system/api/menu/")
 public class SystemApiMenuController {
 
-    private AppService appService;
+    private final AppService appService;
 
-    private AppMenuService appMenuService;
+    private final AppMenuService appMenuService;
 
-    @Autowired
     public SystemApiMenuController(AppService appService, AppMenuService appMenuService) {
         this.appService = appService;
         this.appMenuService = appMenuService;

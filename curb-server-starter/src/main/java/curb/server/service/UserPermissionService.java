@@ -1,15 +1,14 @@
 package curb.server.service;
 
-import curb.server.enums.PermissionState;
-import curb.server.enums.SystemRole;
-import curb.server.dao.PermissionDAO;
-import curb.server.po.PermissionPO;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.Permission;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserPermission;
-import org.springframework.beans.factory.annotation.Autowired;
+import curb.server.dao.PermissionDAO;
+import curb.server.enums.PermissionState;
+import curb.server.enums.SystemRole;
+import curb.server.po.PermissionPO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,14 +19,19 @@ import java.util.Set;
 @Service
 public class UserPermissionService {
 
-    @Autowired
-    private PermissionDAO permissionDAO;
+    private final PermissionDAO permissionDAO;
 
-    @Autowired
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
+    private final RolePermissionService rolePermissionService;
+
+    public UserPermissionService(PermissionDAO permissionDAO,
+                                 UserRoleService userRoleService,
+                                 RolePermissionService rolePermissionService) {
+        this.permissionDAO = permissionDAO;
+        this.userRoleService = userRoleService;
+        this.rolePermissionService = rolePermissionService;
+    }
 
     public List<UserPermission> listUserPermission(Integer appId, Integer userId) {
         List<PermissionPO> appPermList = permissionDAO.listByAppIdState(appId, PermissionState.ENABLED.getCode());

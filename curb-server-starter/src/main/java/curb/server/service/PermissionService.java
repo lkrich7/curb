@@ -1,10 +1,9 @@
 package curb.server.service;
 
 import curb.core.ErrorEnum;
-import curb.server.enums.PermissionState;
 import curb.server.dao.PermissionDAO;
+import curb.server.enums.PermissionState;
 import curb.server.po.PermissionPO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,15 +11,19 @@ import java.util.List;
 
 
 /**
+ *
  */
 @Service
 public class PermissionService {
 
-    @Autowired
-    private PermissionDAO permissionDAO;
+    private final PermissionDAO permissionDAO;
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
+    private final RolePermissionService rolePermissionService;
+
+    public PermissionService(PermissionDAO permissionDAO, RolePermissionService rolePermissionService) {
+        this.permissionDAO = permissionDAO;
+        this.rolePermissionService = rolePermissionService;
+    }
 
     public PermissionPO checkPermission(int permId, int appId) {
         PermissionPO permission = permissionDAO.get(permId);

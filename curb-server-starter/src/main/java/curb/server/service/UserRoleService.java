@@ -3,15 +3,14 @@ package curb.server.service;
 import com.google.common.collect.Sets;
 import curb.core.ErrorEnum;
 import curb.core.model.User;
-import curb.server.enums.SystemRole;
 import curb.server.dao.RoleDAO;
 import curb.server.dao.UserDAO;
 import curb.server.dao.UserRoleDAO;
 import curb.server.dao.UserRoleSystemDAO;
+import curb.server.enums.SystemRole;
 import curb.server.po.RolePO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +27,23 @@ public class UserRoleService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserRoleService.class);
 
-    @Autowired
-    private UserRoleDAO userRoleDAO;
+    private final UserRoleDAO userRoleDAO;
 
-    @Autowired
-    private UserRoleSystemDAO userRoleSystemDAO;
+    private final UserRoleSystemDAO userRoleSystemDAO;
 
-    @Autowired
-    private RoleDAO roleDAO;
+    private final RoleDAO roleDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+
+    public UserRoleService(UserRoleDAO userRoleDAO,
+                           UserRoleSystemDAO userRoleSystemDAO,
+                           RoleDAO roleDAO,
+                           UserDAO userDAO) {
+        this.userRoleDAO = userRoleDAO;
+        this.userRoleSystemDAO = userRoleSystemDAO;
+        this.roleDAO = roleDAO;
+        this.userDAO = userDAO;
+    }
 
     public List<User> listUserByRoleId(int roleId, int groupId) {
         List<Integer> userIds;

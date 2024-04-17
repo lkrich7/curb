@@ -5,15 +5,14 @@ import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.util.StringUtil;
+import curb.server.converter.AppVOConverter;
 import curb.server.enums.AppState;
 import curb.server.po.AppPO;
 import curb.server.service.AppService;
-import curb.server.converter.AppVOConverter;
 import curb.server.util.CurbServerUtil;
 import curb.server.vo.AppSecretVO;
 import curb.server.vo.AppVO;
 import curb.server.vo.PaginationVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +29,8 @@ import java.util.List;
 @RequestMapping("/system/api/app/")
 public class SystemApiAppController {
 
-    private AppService appService;
+    private final AppService appService;
 
-    @Autowired
     public SystemApiAppController(AppService appService) {
         this.appService = appService;
     }

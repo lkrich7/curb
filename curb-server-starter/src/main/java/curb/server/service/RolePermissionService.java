@@ -8,7 +8,6 @@ import curb.server.dao.RolePermissionDAO;
 import curb.server.po.PermissionPO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,14 +24,17 @@ public class RolePermissionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RolePermissionService.class);
 
-    @Autowired
-    private RolePermissionDAO rolePermissionDAO;
+    private final RolePermissionDAO rolePermissionDAO;
 
-    @Autowired
-    private PermissionDAO permissionDAO;
+    private final PermissionDAO permissionDAO;
 
-    @Autowired
-    private RoleDAO roleDAO;
+    private final RoleDAO roleDAO;
+
+    public RolePermissionService(RolePermissionDAO rolePermissionDAO, PermissionDAO permissionDAO, RoleDAO roleDAO) {
+        this.rolePermissionDAO = rolePermissionDAO;
+        this.permissionDAO = permissionDAO;
+        this.roleDAO = roleDAO;
+    }
 
     public Set<Integer> listRoleId(int permId) {
         return Sets.newTreeSet(rolePermissionDAO.listRoleIdByPermId(permId));

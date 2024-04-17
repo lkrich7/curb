@@ -38,12 +38,20 @@ public class SystemApiUserController {
 
     private static final int MAX_PAGE_SIZE = 200;
     private static final int DEFAULT_PAGE_SIZE = 15;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private RoleService roleService;
-    @Autowired
-    private UserRoleService userRoleService;
+
+    private final UserService userService;
+
+    private final RoleService roleService;
+
+    private final UserRoleService userRoleService;
+
+    public SystemApiUserController(UserService userService,
+                                   RoleService roleService,
+                                   UserRoleService userRoleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+        this.userRoleService = userRoleService;
+    }
 
     /**
      * 用户列表

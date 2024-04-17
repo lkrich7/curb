@@ -46,12 +46,12 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     private static final CurbAccessConfig DEFAULT_REQUEST_CONFIG = new CurbMethodAccessConfig();
 
-    private ApplicationContext applicationContext;
-
     /**
      * 数据提供者
      */
     private CurbDataProvider dataProvider;
+
+    private final CurbProperties curbProperties;
 
     /**
      * 默认的权限解析器
@@ -70,13 +70,14 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     private TestMode testMode = new TestMode();
 
-    public CurbInterceptor() {
-    }
+    private ApplicationContext applicationContext;
 
-    public CurbInterceptor(CurbProperties curbProperties) {
-        setIncludeDispatcherTypes(curbProperties.getIncludeDispatcherTypes());
-        setExcludeStaticResource(curbProperties.isExcludeStaticResource());
-        setTestMode(curbProperties.getTestMode());
+    public CurbInterceptor(CurbDataProvider dataProvider, CurbProperties properties) {
+        this.dataProvider = dataProvider;
+        this.curbProperties = properties;
+        setIncludeDispatcherTypes(properties.getIncludeDispatcherTypes());
+        setExcludeStaticResource(properties.isExcludeStaticResource());
+        setTestMode(properties.getTestMode());
     }
 
     private static String buildLogMessage(HttpServletRequest request, AccessLevel accessLevel,
@@ -96,11 +97,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-    }
-
-    @Autowired
-    public void setDataProvider(CurbDataProvider dataProvider) {
-        this.dataProvider = dataProvider;
     }
 
     public PermissionResolver getDefaultResolver() {
