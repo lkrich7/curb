@@ -26,7 +26,7 @@ public class CoreDataUtil {
         try (InputStream is = CoreDataUtil.class.getClassLoader().getResourceAsStream(path)) {
             String menuStr = StreamUtils.copyToString(is, StandardCharsets.UTF_8);
             List<Menu> ret = AppMenuUtil.parse(menuStr);
-            LOGGER.info("core-data loaded : {}", path);
+            LOGGER.info("Curb core menu data loaded: {}", path);
             return ret;
         } catch (IOException e) {
             throw new MissingResourceException(e.getMessage(), "loadMenus", path);
@@ -40,7 +40,7 @@ public class CoreDataUtil {
             if (ret == null) {
                 ret = Collections.emptyList();
             }
-            LOGGER.info("core-data loaded : {}", path);
+            LOGGER.info("Curb core page data loaded: {}", path);
             return ret;
         } catch (IOException e) {
             throw new MissingResourceException(e.getMessage(), "loadPages", path);
