@@ -5,7 +5,7 @@
 
     <groupId>io.github.lkrich7.curb</groupId>
     <artifactId>curb-parent</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
 
     <modules>
         <module>curb-core</module>

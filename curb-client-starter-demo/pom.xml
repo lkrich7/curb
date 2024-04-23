@@ -6,7 +6,7 @@
     <parent>
         <artifactId>curb-parent</artifactId>
         <groupId>io.github.lkrich7.curb</groupId>
-        <version>0.4.0</version>
+        <version>0.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>curb-client-starter-demo</artifactId>
