@@ -6,7 +6,6 @@ import curb.server.enums.RoleState;
 import curb.server.enums.SystemRole;
 import curb.server.po.RolePO;
 import curb.server.util.CurbServerUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,14 +17,17 @@ import java.util.List;
 @Service
 public class RoleService {
 
-    @Autowired
-    private RoleDAO roleDAO;
+    private final RoleDAO roleDAO;
 
-    @Autowired
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
+    private final RolePermissionService rolePermissionService;
+
+    public RoleService(RoleDAO roleDAO, UserRoleService userRoleService, RolePermissionService rolePermissionService) {
+        this.roleDAO = roleDAO;
+        this.userRoleService = userRoleService;
+        this.rolePermissionService = rolePermissionService;
+    }
 
     /**
      * 检查角色状态是否正常以及是否属于项目组

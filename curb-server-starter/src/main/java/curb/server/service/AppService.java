@@ -1,36 +1,41 @@
 package curb.server.service;
 
-import curb.server.dao.AppSecretDAO;
-import curb.server.enums.AppState;
 import curb.core.ErrorEnum;
-import curb.server.dao.AppDAO;
-import curb.server.po.AppPO;
 import curb.core.model.App;
 import curb.core.model.Group;
+import curb.server.dao.AppDAO;
+import curb.server.dao.AppSecretDAO;
+import curb.server.enums.AppState;
+import curb.server.po.AppPO;
 import curb.server.util.CurbServerUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
 import java.util.List;
 
 /**
+ *
  */
 @Service
 public class AppService {
 
-    @Autowired
-    private AppDAO appDAO;
+    private final AppDAO appDAO;
 
-    @Autowired
-    private AppSecretDAO appSecretDAO;
+    private final AppSecretDAO appSecretDAO;
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
-    @Autowired
-    private PageService pageService;
+    private final PageService pageService;
+
+    public AppService(AppDAO appDAO,
+                      AppSecretDAO appSecretDAO,
+                      PermissionService permissionService,
+                      PageService pageService) {
+        this.appDAO = appDAO;
+        this.appSecretDAO = appSecretDAO;
+        this.permissionService = permissionService;
+        this.pageService = pageService;
+    }
 
     public AppPO checkApp(Integer appId, App app, Group group) {
         if (appId == null || app.getAppId().equals(appId)) {

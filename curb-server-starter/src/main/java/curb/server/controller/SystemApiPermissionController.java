@@ -21,7 +21,6 @@ import curb.server.vo.AppVO;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.PermissionListVO;
 import curb.server.vo.PermissionVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,17 +34,23 @@ import java.util.Set;
 @RequestMapping("/system/api/permission/")
 public class SystemApiPermissionController {
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
-    @Autowired
-    private RoleService roleService;
+    private final RoleService roleService;
 
-    @Autowired
-    private RolePermissionService rolePermissionService;
+    private final RolePermissionService rolePermissionService;
+
+    public SystemApiPermissionController(AppService appService,
+                                         PermissionService permissionService,
+                                         RoleService roleService,
+                                         RolePermissionService rolePermissionService) {
+        this.appService = appService;
+        this.permissionService = permissionService;
+        this.roleService = roleService;
+        this.rolePermissionService = rolePermissionService;
+    }
 
     /**
      * 应用权限列表

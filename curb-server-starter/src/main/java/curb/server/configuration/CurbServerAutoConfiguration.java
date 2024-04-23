@@ -7,7 +7,13 @@ import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.server.api.configuration.CurbApiConfiguration;
 import curb.server.interceptor.CurbServerInterceptor;
 import curb.server.page.CurbPageConfiguration;
+import curb.server.service.AppMenuService;
+import curb.server.service.AppService;
 import curb.server.service.CurbServerDataProvider;
+import curb.server.service.GroupService;
+import curb.server.service.PageService;
+import curb.server.service.UserPermissionService;
+import curb.server.service.UserService;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,14 +42,21 @@ public class CurbServerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbDataProvider.class)
-    public CurbServerDataProvider curbServerDataProvider() {
-        return new CurbServerDataProvider();
+    public CurbServerDataProvider curbServerDataProvider(GroupService groupService,
+                                                         AppService appService,
+                                                         UserService userService,
+                                                         UserPermissionService userPermissionService) {
+        return new CurbServerDataProvider(groupService, appService, userService, userPermissionService);
     }
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
-    public CurbServerInterceptor curbServerInterceptor(CurbProperties properties) {
-        return new CurbServerInterceptor(properties);
+    public CurbServerInterceptor curbServerInterceptor(CurbDataProvider dataProvider,
+                                                       CurbServerProperties properties,
+                                                       PageService pageService,
+                                                       AppService appService,
+                                                       AppMenuService appMenuService) {
+        return new CurbServerInterceptor(dataProvider, properties);
     }
 
 }

@@ -9,7 +9,6 @@ import curb.core.mvc.resolver.CurbPermissionResultArgumentResolver;
 import curb.core.mvc.resolver.CurbUserArgumentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -26,11 +25,14 @@ public class CurbWebMvcConfigurer implements WebMvcConfigurer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CurbWebMvcConfigurer.class);
 
-    @Autowired
-    private CurbProperties curbProperties;
+    private final CurbInterceptor curbInterceptor;
 
-    @Autowired
-    private CurbInterceptor curbInterceptor;
+    private final CurbProperties curbProperties;
+
+    public CurbWebMvcConfigurer(CurbInterceptor curbInterceptor, CurbProperties curbProperties) {
+        this.curbInterceptor = curbInterceptor;
+        this.curbProperties = curbProperties;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -6,7 +6,6 @@ import curb.server.dao.GroupSecretDAO;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
 import curb.server.util.CurbServerUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,14 +17,17 @@ import java.util.List;
 @Service
 public class GroupService {
 
-    @Autowired
-    private GroupDAO groupDAO;
+    private final GroupDAO groupDAO;
 
-    @Autowired
-    private GroupSecretDAO groupSecretDAO;
+    private final GroupSecretDAO groupSecretDAO;
 
-    @Autowired
-    private AppService appService;
+    private final AppService appService;
+
+    public GroupService(GroupDAO groupDAO, GroupSecretDAO groupSecretDAO, AppService appService) {
+        this.groupDAO = groupDAO;
+        this.groupSecretDAO = groupSecretDAO;
+        this.appService = appService;
+    }
 
     public GroupPO getById(Integer groupId) {
         return groupDAO.get(groupId);

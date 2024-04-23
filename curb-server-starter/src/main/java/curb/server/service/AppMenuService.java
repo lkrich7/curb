@@ -5,7 +5,6 @@ import curb.server.dao.AppMenuDAO;
 import curb.server.po.AppMenuPO;
 import curb.server.util.AppMenuUtil;
 import curb.server.util.CoreDataUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,19 +20,19 @@ public class AppMenuService {
 
     private final List<Menu> headers;
     private final List<Menu> footers;
-    @Autowired
-    private AppMenuDAO appMenuDAO;
+    private final AppMenuDAO appMenuDAO;
 
-    public AppMenuService() {
+    public AppMenuService(AppMenuDAO appMenuDAO) {
+        this.appMenuDAO = appMenuDAO;
         headers = CoreDataUtil.loadMenus("curb/core-data/menus-header.json");
         footers = CoreDataUtil.loadMenus("curb/core-data/menus-footer.json");
     }
 
     public List<Menu> list(int appId) {
-      AppMenuPO po = appMenuDAO.getLatest(appId);
-      if (po == null) {
-          return Collections.emptyList();
-      }
+        AppMenuPO po = appMenuDAO.getLatest(appId);
+        if (po == null) {
+            return Collections.emptyList();
+        }
         return AppMenuUtil.parse(po.getMenu());
     }
 

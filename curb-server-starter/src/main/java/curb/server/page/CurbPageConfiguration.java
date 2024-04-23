@@ -1,20 +1,27 @@
 package curb.server.page;
 
+import curb.core.CurbDataProvider;
+import curb.server.configuration.CurbServerProperties;
+import curb.server.service.AppMenuService;
+import curb.server.service.AppService;
+import curb.server.service.PageService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.springframework.web.util.UrlPathHelper;
 
 public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
 
     @Bean
-    public CurbPageRequestHandler amisPageRequestHandler() {
-        return new CurbPageRequestHandler();
+    public CurbPageRequestHandler amisPageRequestHandler(CurbServerProperties properties,
+                                                         CurbDataProvider dataProvider,
+                                                         PageService pageService,
+                                                         AppService appService,
+                                                         AppMenuService appMenuService) {
+        return new CurbPageRequestHandler(properties, dataProvider, pageService, appService, appMenuService);
     }
 
     @Bean

@@ -10,14 +10,12 @@ import curb.server.service.GroupService;
 import curb.server.util.CurbServerUtil;
 import curb.server.vo.GroupVO;
 import curb.server.vo.PaginationVO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,9 +26,8 @@ import java.util.List;
 @RequestMapping("/system/api/group/")
 public class SystemApiGroupController {
 
-    private GroupService groupService;
+    private final GroupService groupService;
 
-    @Autowired
     public SystemApiGroupController(GroupService groupService) {
         this.groupService = groupService;
     }

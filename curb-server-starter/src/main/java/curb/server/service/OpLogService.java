@@ -1,24 +1,28 @@
 package curb.server.service;
 
 import curb.core.ErrorEnum;
-import curb.server.enums.OpType;
-import curb.server.dao.OpLogDAO;
-import curb.server.po.OpLogPO;
-import curb.server.bo.Pagination;
 import curb.core.util.JsonUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import curb.server.bo.Pagination;
+import curb.server.dao.OpLogDAO;
+import curb.server.enums.OpType;
+import curb.server.po.OpLogPO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
 /**
+ * 操作日志服务
  */
 @Service
 public class OpLogService {
 
-    @Autowired
-    OpLogDAO opLogDAO;
+    private final OpLogDAO opLogDAO;
+
+    public OpLogService(OpLogDAO opLogDAO) {
+        this.opLogDAO = opLogDAO;
+    }
+
 
     public boolean create(OpLogPO opLogPO) {
         int change = opLogDAO.insert(opLogPO);

@@ -8,7 +8,6 @@ import curb.core.CurbDataProvider;
 import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.core.DefaultPermissionResolver;
 import curb.core.PermissionResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,14 +41,14 @@ public class CurbClientConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbDataProvider.class)
-    public CurbDataProvider curbDataProvider(@Autowired CurbApi curbClient) {
+    public CurbDataProvider curbDataProvider(CurbApi curbClient) {
         return new CurbClientDataProvider(curbClient);
     }
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
-    public CurbInterceptor curbInterceptor(@Autowired CurbClientProperties properties) {
-        return new CurbInterceptor(properties);
+    public CurbInterceptor curbInterceptor(CurbDataProvider dataProvider, CurbClientProperties properties) {
+        return new CurbInterceptor(dataProvider, properties);
     }
 
     @Bean

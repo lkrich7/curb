@@ -28,6 +28,17 @@ public class App implements Serializable {
      */
     private URI url;
 
+    public String parsePath(String path) {
+        if (path == null) {
+            return null;
+        }
+        if (path.startsWith(this.url.getPath())) {
+            return path.substring(this.url.getPath().length());
+        } else {
+            return null;
+        }
+    }
+
     public Integer getAppId() {
         return appId;
     }

@@ -7,7 +7,7 @@
     <parent>
         <artifactId>curb-parent</artifactId>
         <groupId>io.github.lkrich7.curb</groupId>
-        <version>0.3.0</version>
+        <version>0.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>curb-server-starter</artifactId>
@@ -62,10 +62,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
