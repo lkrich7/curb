@@ -48,7 +48,7 @@ public enum SystemPermissions {
     SYSTEM_API_PAGE_BODY_GET("/system/api/page/body/get", "查看页面内容"),
     SYSTEM_API_PAGE_BODY_UPDATE("/system/api/page/body/update", "修改页面内容"),
     SYSTEM_API_PAGE_BODY_HISTORY_LIST("/system/api/page/body/history/list", "查看页面历史版本"),
-    SYSTEM_API_PAGE_BODY_HISTORY_UPDATE("/system/api/page/body/history/update", "查看页面历史版本"),
+    SYSTEM_API_PAGE_BODY_HISTORY_ROLLBACK("/system/api/page/body/history/rollback", "回滚页面历史版本"),
 
     SYSTEM_API_PAGE_CONFIG_GET("/system/api/page/config/get", "查看页面配置"),
     SYSTEM_API_PAGE_CONFIG_UPDATE("/system/api/page/config/update", "修改页面配置"),

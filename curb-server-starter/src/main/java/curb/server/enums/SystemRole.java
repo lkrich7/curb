@@ -26,7 +26,7 @@ import static curb.server.enums.SystemPermissions.SYSTEM_API_GROUP_UPDATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_MENU_EDIT_GET;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_MENU_EDIT_SAVE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_BODY_HISTORY_LIST;
-import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_BODY_HISTORY_UPDATE;
+import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_BODY_HISTORY_ROLLBACK;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CONFIG_GET;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CONFIG_UPDATE;
 import static curb.server.enums.SystemPermissions.SYSTEM_API_PAGE_CREATE;
@@ -121,7 +121,7 @@ public enum SystemRole {
             SYSTEM_API_PAGE_BODY_GET,
             SYSTEM_API_PAGE_BODY_UPDATE,
             SYSTEM_API_PAGE_BODY_HISTORY_LIST,
-            SYSTEM_API_PAGE_BODY_HISTORY_UPDATE,
+            SYSTEM_API_PAGE_BODY_HISTORY_ROLLBACK,
             SYSTEM_API_PAGE_CONFIG_GET,
             SYSTEM_API_PAGE_CONFIG_UPDATE,
             SYSTEM_API_PAGE_ENABLE,
@@ -191,7 +191,7 @@ public enum SystemRole {
             SYSTEM_API_PAGE_BODY_GET,
             SYSTEM_API_PAGE_BODY_UPDATE,
             SYSTEM_API_PAGE_BODY_HISTORY_LIST,
-            SYSTEM_API_PAGE_BODY_HISTORY_UPDATE,
+            SYSTEM_API_PAGE_BODY_HISTORY_ROLLBACK,
             SYSTEM_API_PAGE_CONFIG_GET,
             SYSTEM_API_PAGE_CONFIG_UPDATE,
             SYSTEM_API_PAGE_ENABLE,
