@@ -1,15 +1,14 @@
 package curb.core.model;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import curb.core.util.StringUtil;
 
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -24,15 +23,11 @@ public final class Permission implements Comparable<Permission>, Serializable {
 
     public static final String WILDCARD_TOKEN = "*";
 
-    private static final char PATH_PART_DIVIDER = '/';
-    private static final char SUB_PART_DIVIDER = ',';
-    private static final char PARAM_LEAD_TOKEN = '?';
-    private static final char PARAM_DIV_TOKEN = '&';
-    private static final char PARAM_KV_TOKEN = '=';
-
-    private static final Splitter PATH_PART_SPLITTER = Splitter.on(PATH_PART_DIVIDER).omitEmptyStrings().trimResults();
-    private static final Splitter SUB_PART_SPLITTER = Splitter.on(SUB_PART_DIVIDER).omitEmptyStrings().trimResults();
-    private static final Splitter PARAM_SPLITTER = Splitter.on(PARAM_DIV_TOKEN).omitEmptyStrings().trimResults();
+    private static final String PATH_PART_DIVIDER = "/";
+    private static final String SUB_PART_DIVIDER = ",";
+    private static final String PARAM_LEAD_TOKEN = "?";
+    private static final String PARAM_DIV_TOKEN = "&";
+    private static final String PARAM_KV_TOKEN = "=";
 
     private final ArrayList<TreeSet<String>> path;
     private final TreeMap<String, TreeSet<String>> params;
@@ -169,7 +164,7 @@ public final class Permission implements Comparable<Permission>, Serializable {
         if (ignoreParamNames == null || ignoreParamNames.length < 1) {
             ignoreParamSet = Collections.emptySet();
         } else {
-            ignoreParamSet = Sets.newHashSet(ignoreParamNames);
+            ignoreParamSet = new HashSet<>(Arrays.asList(ignoreParamNames));
         }
 
         for (Map.Entry<String, TreeSet<String>> param : this.params.entrySet()) {
@@ -198,10 +193,10 @@ public final class Permission implements Comparable<Permission>, Serializable {
     }
 
     private static ArrayList<TreeSet<String>> parsePath(String path) {
-        List<String> parts = PATH_PART_SPLITTER.splitToList(path);
+        List<String> parts = StringUtil.splitToList(path, PATH_PART_DIVIDER, true, true);
         ArrayList<TreeSet<String>> ret = new ArrayList<>(parts.size());
         for (String part : parts) {
-            List<String> subParts = SUB_PART_SPLITTER.splitToList(part);
+            List<String> subParts = StringUtil.splitToList(part, SUB_PART_DIVIDER, true, true);
             TreeSet<String> set = new TreeSet<>(subParts);
             ret.add(set);
         }
@@ -213,7 +208,7 @@ public final class Permission implements Comparable<Permission>, Serializable {
         if (param == null) {
             return ret;
         }
-        List<String> parts = PARAM_SPLITTER.splitToList(param);
+        List<String> parts = StringUtil.splitToList(param, PARAM_DIV_TOKEN, true, true);
         for (String part : parts) {
             String[] kv = StringUtil.split(part, PARAM_KV_TOKEN);
             if (kv.length < 1) {
@@ -226,7 +221,7 @@ public final class Permission implements Comparable<Permission>, Serializable {
                 ret.put(key, valueSet);
             }
             for (int i = 1; i < kv.length; i++) {
-                List<String> values = SUB_PART_SPLITTER.splitToList(kv[i]);
+                List<String> values = StringUtil.splitToList(kv[i], SUB_PART_DIVIDER, true, true);
                 if (values != null) {
                     valueSet.addAll(values);
                 }
@@ -236,22 +231,21 @@ public final class Permission implements Comparable<Permission>, Serializable {
     }
 
     private String buildSign() {
-        Joiner setJoiner = Joiner.on(SUB_PART_DIVIDER).skipNulls();
         StringBuilder builder = new StringBuilder();
         for (Set<String> subParts : path) {
             builder.append(PATH_PART_DIVIDER);
-            setJoiner.appendTo(builder, subParts);
+            builder.append(String.join(SUB_PART_DIVIDER, subParts));
         }
-        if (params != null) {
+        if (params != null && !params.isEmpty()) {
             Iterator<Map.Entry<String, TreeSet<String>>> iter = params.entrySet().iterator();
-            for (char token = PARAM_LEAD_TOKEN; iter.hasNext(); token = PARAM_DIV_TOKEN) {
+            for (String token = PARAM_LEAD_TOKEN; iter.hasNext(); token = PARAM_DIV_TOKEN) {
                 Map.Entry<String, TreeSet<String>> entry = iter.next();
                 TreeSet<String> value = entry.getValue();
                 if (value != null && !value.isEmpty()) {
                     builder.append(token);
                     builder.append(entry.getKey());
                     builder.append(PARAM_KV_TOKEN);
-                    setJoiner.appendTo(builder, entry.getValue());
+                    builder.append(String.join(SUB_PART_DIVIDER, value));
                 }
             }
         }

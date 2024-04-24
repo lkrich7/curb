@@ -1,6 +1,6 @@
 package curb.core.model;
 
-import com.google.common.collect.Sets;
+import curb.core.util.SetUtil;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -161,11 +161,11 @@ public class PermissionResult {
      */
     public Set<String> intersectParamSet(String name, Collection<String> values) {
         Set<String> set1 = getParamSet(name);
-        Set<String> set2 = values == null ? Collections.<String>emptySet() : new TreeSet<>(values);
+        Set<String> set2 = values == null ? Collections.emptySet() : new TreeSet<>(values);
         if (set1 == null || set1.isEmpty() || set1.contains(Permission.WILDCARD_TOKEN)) {
             return set2;
         }
-        return Sets.intersection(set1, set2);
+        return SetUtil.intersection(set1, set2);
     }
 
 }

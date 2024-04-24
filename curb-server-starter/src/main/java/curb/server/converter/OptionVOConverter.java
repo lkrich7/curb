@@ -1,6 +1,6 @@
 package curb.server.converter;
 
-import com.google.common.base.Joiner;
+import curb.core.util.StringUtil;
 import curb.server.po.RolePO;
 import curb.server.vo.OptionSelectVO;
 import curb.server.vo.OptionVO;
@@ -16,7 +16,7 @@ public enum OptionVOConverter {
 
     public static OptionSelectVO convert(Collection<RolePO> roles, Collection<Integer> roleIds) {
         Collection<OptionVO> options = convert(roles);
-        String value = Joiner.on(',').skipNulls().join(roleIds);
+        String value = StringUtil.join(",", true, roleIds);
 
         OptionSelectVO ret = new OptionSelectVO();
         ret.setOptions(options);

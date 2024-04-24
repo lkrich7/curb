@@ -1,6 +1,5 @@
 package curb.server.controller;
 
-import com.google.common.base.Joiner;
 import curb.core.ApiResult;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
@@ -229,7 +228,7 @@ public class SystemApiRoleController {
 
         OptionSelectVO data = new OptionSelectVO();
         data.setOptions(toOptions(poList));
-        data.setValue(Joiner.on(',').skipNulls().join(permIds));
+        data.setValue(StringUtil.join(",", true, permIds));
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }

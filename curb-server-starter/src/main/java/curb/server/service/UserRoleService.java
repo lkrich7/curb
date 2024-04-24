@@ -1,8 +1,8 @@
 package curb.server.service;
 
-import com.google.common.collect.Sets;
 import curb.core.ErrorEnum;
 import curb.core.model.User;
+import curb.core.util.SetUtil;
 import curb.server.dao.RoleDAO;
 import curb.server.dao.UserDAO;
 import curb.server.dao.UserRoleDAO;
@@ -111,7 +111,7 @@ public class UserRoleService {
         if (userIds == null || userIds.isEmpty()) {
             return;
         }
-        TreeSet<Integer> news = Sets.newTreeSet(userIds);
+        TreeSet<Integer> news = new TreeSet<>(userIds);
         List<User> users = userDAO.listByUserIds(news);
         if (users.size() != news.size()) {
             throw ErrorEnum.PARAM_ERROR.toCurbException("用户不存在");
@@ -166,8 +166,8 @@ public class UserRoleService {
             olds.addAll(userRoleDAO.listRoleIdByUserId(userId, groupNormalRoleIds));
         }
 
-        Set<Integer> delete = Sets.difference(olds, news);
-        Set<Integer> insert = Sets.difference(news, olds);
+        Set<Integer> delete = SetUtil.difference(olds, news);
+        Set<Integer> insert = SetUtil.difference(news, olds);
 
         if (!delete.isEmpty()) {
             int deleteRows = userRoleDAO.deleteForUserId(userId, delete);
@@ -187,8 +187,8 @@ public class UserRoleService {
     private void saveUserSystemRoles(int userId, int groupId, Set<SystemRole> news, int operUserId) {
         EnumSet<SystemRole> olds = getUserSystemRoles(groupId, userId);
 
-        Set<SystemRole> delete = Sets.difference(olds, news);
-        Set<SystemRole> insert = Sets.difference(news, olds);
+        Set<SystemRole> delete = SetUtil.difference(olds, news);
+        Set<SystemRole> insert = SetUtil.difference(news, olds);
 
         if (delete.isEmpty() && insert.isEmpty()) {
             //没有系统权限需要修改 直接返回
@@ -221,9 +221,9 @@ public class UserRoleService {
     }
 
     private void saveNormalRoleUsers(int roleId, int groupId, TreeSet<Integer> news) {
-        Set<Integer> olds = Sets.newTreeSet(userRoleDAO.listUserIdByRoleId(roleId));
-        Set<Integer> delete = Sets.difference(olds, news);
-        Set<Integer> insert = Sets.difference(news, olds);
+        Set<Integer> olds = new TreeSet<>(userRoleDAO.listUserIdByRoleId(roleId));
+        Set<Integer> delete = SetUtil.difference(olds, news);
+        Set<Integer> insert = SetUtil.difference(news, olds);
         if (!delete.isEmpty()) {
             userRoleDAO.deleteForRoleId(roleId, delete);
         }
@@ -237,9 +237,9 @@ public class UserRoleService {
     private void saveSystemRoleUsers(SystemRole systemRole, int groupId, TreeSet<Integer> news, int operUserId) {
         int roleId = systemRole.getRoleId();
         EnumSet<SystemRole> operSystemRoles = getUserSystemRoles(groupId, operUserId);
-        Set<Integer> olds = Sets.newTreeSet(userRoleSystemDAO.listUserId(groupId, roleId));
-        Set<Integer> delete = Sets.difference(olds, news);
-        Set<Integer> insert = Sets.difference(news, olds);
+        Set<Integer> olds = new TreeSet<>(userRoleSystemDAO.listUserId(groupId, roleId));
+        Set<Integer> delete = SetUtil.difference(olds, news);
+        Set<Integer> insert = SetUtil.difference(news, olds);
         if (!delete.isEmpty()) {
             boolean isSelf = delete.size() == 1 && delete.contains(operUserId);
             if (!SystemRole.canRevoke(operSystemRoles, systemRole, isSelf)) {

@@ -1,7 +1,7 @@
 package curb.server.service;
 
-import com.google.common.collect.Sets;
 import curb.core.ErrorEnum;
+import curb.core.util.SetUtil;
 import curb.server.dao.PermissionDAO;
 import curb.server.dao.RoleDAO;
 import curb.server.dao.RolePermissionDAO;
@@ -37,7 +37,7 @@ public class RolePermissionService {
     }
 
     public Set<Integer> listRoleId(int permId) {
-        return Sets.newTreeSet(rolePermissionDAO.listRoleIdByPermId(permId));
+        return new TreeSet<>(rolePermissionDAO.listRoleIdByPermId(permId));
     }
 
     public Set<Integer> listPermId(int roleId, Collection<PermissionPO> permissions) {
@@ -62,14 +62,13 @@ public class RolePermissionService {
 
     @Transactional(rollbackFor = Exception.class)
     public void savePermissionRoles(int permId, int groupId, Collection<Integer> newRoleIds) {
-        Set<Integer> newSet = new TreeSet<>();
-        newSet.addAll(roleDAO.listRoleIdByGroupId(groupId));
+        Set<Integer> newSet = new TreeSet<>(roleDAO.listRoleIdByGroupId(groupId));
         newSet.retainAll(newRoleIds);
 
         Set<Integer> oldSet = listRoleId(permId);
 
-        Set<Integer> delete = Sets.difference(oldSet, newSet);
-        Set<Integer> insert = Sets.difference(newSet, oldSet);
+        Set<Integer> delete = SetUtil.difference(oldSet, newSet);
+        Set<Integer> insert = SetUtil.difference(newSet, oldSet);
 
         if (!delete.isEmpty()) {
             int deleteRows = rolePermissionDAO.deletePermissionRoles(permId, delete);
@@ -90,14 +89,13 @@ public class RolePermissionService {
     public void saveRolePermissions(int roleId, int appId, Collection<Integer> newPermIds) {
         List<PermissionPO> perms = permissionDAO.listByAppId(appId);
         List<Integer> appAllPermIds = toPermIds(perms);
-        Set<Integer> newSet = new TreeSet<>();
-        newSet.addAll(newPermIds);
+        Set<Integer> newSet = new TreeSet<>(newPermIds);
         newSet.retainAll(appAllPermIds);
 
         Set<Integer> oldSet = listPermId(roleId, perms);
 
-        Set<Integer> delete = Sets.difference(oldSet, newSet);
-        Set<Integer> insert = Sets.difference(newSet, oldSet);
+        Set<Integer> delete = SetUtil.difference(oldSet, newSet);
+        Set<Integer> insert = SetUtil.difference(newSet, oldSet);
 
         if (!delete.isEmpty()) {
             int deleteRows = rolePermissionDAO.deleteRolePermissions(roleId, delete);
