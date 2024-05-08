@@ -1,8 +1,8 @@
 ;/*!node_modules/amis-ui/lib/node_modules/pdfjs-dist/build/pdf.worker.min.js*/
-amis.define('3e8ed0a', function(require, exports, module, define) {
+amis.define('b139730', function(require, exports, module, define) {
 
   /**
-   * amis-ui v6.3.0
+   * amis-ui v6.4.1
    * Copyright 2018-2024 fex
    */
   
@@ -10,8 +10,8 @@ amis.define('3e8ed0a', function(require, exports, module, define) {
   
   Object.defineProperty(exports, '__esModule', { value: true });
   
-  var _commonjsHelpers = require('4eacab6');
-  var pdf_worker_min = require('639d800');
+  var _commonjsHelpers = require('44a05ba');
+  var pdf_worker_min = require('8d95e70');
   
   /**
    * @licstart The following is the entire license notice for the
@@ -47,4 +47,4 @@ amis.define('3e8ed0a', function(require, exports, module, define) {
 });
 
 ;/*!node_modules/amis-ui/lib/components/PdfViewer.js*/
-amis.define("a40c8a1",(function(e,a,n,t){"use strict";Object.defineProperty(a,"__esModule",{value:!0});var l=e("b620e09"),u=e("bcf1232"),i=e("e0ab95e"),o=e("e8f784d"),r=e("8f48547"),c=e("7f79265"),f=e("2e4dce3"),d=e("3e8ed0a");function s(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var m=s(u),v=e("bcf1232"),g=(v.default||v).createElement;(v.default||v).Fragment,o.pdfjs.GlobalWorkerOptions.workerSrc=d.default;var N=i.themeable((function(e){var a=e.classnames,n=e.className,t=e.loading,u=e.width,i=void 0===u?300:u,d=l.__read(m.default.useState(e.file),2),s=d[0],v=d[1],N=l.__read(m.default.useState(!1),2),_=N[0],p=N[1],b=l.__read(m.default.useState(1),2),P=b[0],h=b[1],w=l.__read(m.default.useState(1),2),S=w[0],k=w[1],y=l.__read(m.default.useState(1),2),C=y[0],L=y[1],V=m.default.useRef(null),I=m.default.useRef();function j(e){var a=P+e;a<=0||a>C||h(a)}function D(e){var a=+e.target.value;isNaN(a)||a<=0||a>C?I.current&&(I.current.value=P+""):h(a)}function F(e){k(S*e)}function x(){return g("div",{className:a("PdfViewer-Loading")},g(f.default,null))}return m.default.useEffect((function(){e.file instanceof ArrayBuffer&&e.file.byteLength>0?v(e.file):v(void 0)}),[e.file]),g("div",{className:a(n,"PdfViewer"),ref:V},!s||t?x():g(m.default.Fragment,null,g("div",{className:a("PdfViewer-Content",{"is-loaded":_})},g(o.Document,{file:s,onLoadSuccess:function(e){var a=e.numPages;p(!0),L(a)},loading:x()},g(o.Page,{className:a("PdfViewer-Content-Page"),pageNumber:P,width:i,height:e.height,loading:x(),noData:g("div",null,"No PDF data"),scale:S,renderTextLayer:!1,renderAnnotationLayer:!1}))),_?g("div",{className:a("PdfViewer-Tool")},g(r.Icon,{className:"icon",icon:"prev",onClick:function(){return j(-1)}}),g(c.default,{className:"page-input",value:P,onBlur:D,ref:I}),g("span",{className:"gap"},"/"),g("span",null,C),g(r.Icon,{className:"icon",icon:"next",onClick:function(){return j(1)}}),g(r.Icon,{className:"icon",icon:"zoom-in",onClick:function(){return F(1.2)}}),g(r.Icon,{className:"icon",icon:"zoom-out",onClick:function(){return F(.8)}})):null))}));a.default=N}));
+amis.define("50af5a3",(function(e,a,n,t){"use strict";Object.defineProperty(a,"__esModule",{value:!0});var l=e("68b98b9"),u=e("ac704b9"),i=e("64ea6e0"),o=e("1b48286"),r=e("09ae5b9"),c=e("cd92eda"),f=e("d2712d3"),d=e("b139730");function s(e){return e&&"object"==typeof e&&"default"in e?e:{default:e}}var m=s(u),v=e("ac704b9"),g=(v.default||v).createElement;(v.default||v).Fragment,o.pdfjs.GlobalWorkerOptions.workerSrc=d.default;var N=i.themeable((function(e){var a=e.classnames,n=e.className,t=e.loading,u=e.width,i=void 0===u?300:u,d=l.__read(m.default.useState(e.file),2),s=d[0],v=d[1],N=l.__read(m.default.useState(!1),2),b=N[0],_=N[1],p=l.__read(m.default.useState(1),2),P=p[0],h=p[1],w=l.__read(m.default.useState(1),2),S=w[0],k=w[1],y=l.__read(m.default.useState(1),2),C=y[0],L=y[1],V=m.default.useRef(null),I=m.default.useRef();function j(e){var a=P+e;a<=0||a>C||h(a)}function D(e){var a=+e.target.value;isNaN(a)||a<=0||a>C?I.current&&(I.current.value=P+""):h(a)}function F(e){k(S*e)}function x(){return g("div",{className:a("PdfViewer-Loading")},g(f.default,null))}return m.default.useEffect((function(){e.file instanceof ArrayBuffer&&e.file.byteLength>0?v(e.file):v(void 0)}),[e.file]),g("div",{className:a(n,"PdfViewer"),ref:V},!s||t?x():g(m.default.Fragment,null,g("div",{className:a("PdfViewer-Content",{"is-loaded":b})},g(o.Document,{file:s,onLoadSuccess:function(e){var a=e.numPages;_(!0),L(a)},loading:x()},g(o.Page,{className:a("PdfViewer-Content-Page"),pageNumber:P,width:i,height:e.height,loading:x(),noData:g("div",null,"No PDF data"),scale:S,renderTextLayer:!1,renderAnnotationLayer:!1}))),b?g("div",{className:a("PdfViewer-Tool")},g(r.Icon,{className:"icon",icon:"prev",onClick:function(){return j(-1)}}),g(c.default,{className:"page-input",value:P,onBlur:D,ref:I}),g("span",{className:"gap"},"/"),g("span",null,C),g(r.Icon,{className:"icon",icon:"next",onClick:function(){return j(1)}}),g(r.Icon,{className:"icon",icon:"zoom-in",onClick:function(){return F(1.2)}}),g(r.Icon,{className:"icon",icon:"zoom-out",onClick:function(){return F(.8)}})):null))}));a.default=N}));
