@@ -16,7 +16,7 @@ public enum OptionVOConverter {
 
     public static OptionSelectVO convert(Collection<RolePO> roles, Collection<Integer> roleIds) {
         Collection<OptionVO> options = convert(roles);
-        String value = StringUtil.join(",", true, roleIds);
+        String value = StringUtil.join(roleIds, ",", true);
 
         OptionSelectVO ret = new OptionSelectVO();
         ret.setOptions(options);

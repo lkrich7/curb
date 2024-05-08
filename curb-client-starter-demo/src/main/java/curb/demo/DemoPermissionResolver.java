@@ -44,8 +44,8 @@ public class DemoPermissionResolver implements PermissionResolver {
             }
             if (body instanceof DemoComplexRequestBody) {
                 DemoComplexRequestBody requestBody = (DemoComplexRequestBody) body;
-                builder.addParams("agentIds", StringUtil.split(requestBody.getAgentIds(), ','));
-                builder.addParams("dspIds", StringUtil.split(requestBody.getDspIds(), ','));
+                builder.addParams("agentIds", StringUtil.split(requestBody.getAgentIds(), ","));
+                builder.addParams("dspIds", StringUtil.split(requestBody.getDspIds(), ","));
                 builder.addParam("myId", requestBody.getMyId());
                 return builder.build();
             }

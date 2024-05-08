@@ -228,7 +228,7 @@ public class SystemApiRoleController {
 
         OptionSelectVO data = new OptionSelectVO();
         data.setOptions(toOptions(poList));
-        data.setValue(StringUtil.join(",", true, permIds));
+        data.setValue(StringUtil.join(permIds, ",", true));
 
         return ErrorEnum.SUCCESS.toApiResult(data);
     }
