@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * 工具类
  */
-public final class CurbUtil {
+public enum CurbUtil {
+    ;
 
     private static final String TOKEN_COOKIE_KEY = "curb-token";
 
@@ -25,9 +26,6 @@ public final class CurbUtil {
     private static final String ATTRIBUTE_NAME_USER = "curbUser";
 
     private static final String ATTRIBUTE_NAME_PERMISSION_RESULT = "curbPermissionResult";
-
-    private CurbUtil() {
-    }
 
     public static String getToken(HttpServletRequest request) {
         return ServletUtil.getCookie(request, TOKEN_COOKIE_KEY);

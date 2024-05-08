@@ -7,10 +7,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
-public final class UrlCodec {
-
-    private UrlCodec() {
-    }
+public enum UrlCodec {
+    ;
 
     public static String encodeUtf8(String content) {
         return encode(content, StandardCharsets.UTF_8);

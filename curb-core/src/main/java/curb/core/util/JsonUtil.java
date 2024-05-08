@@ -19,7 +19,8 @@ import java.util.Map;
  * JSON 序列化/反序列化工具
  * 封装Jackson
  */
-public final class JsonUtil {
+public enum JsonUtil {
+    ;
 
     private static final ObjectMapper MAPPER;
     private static final GenericType<Map<String, Object>> MAP_TYPE_REFERENCE = new GenericType<Map<String, Object>>() {
@@ -31,9 +32,6 @@ public final class JsonUtil {
         MAPPER.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         MAPPER.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
-
-    private JsonUtil() {
     }
 
     public static Map<String, Object> parseObject(String jsonStr) {

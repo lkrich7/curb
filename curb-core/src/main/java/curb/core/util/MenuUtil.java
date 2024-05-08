@@ -11,10 +11,8 @@ import java.util.List;
 /**
  * 菜单结构构造工具类
  */
-public final class MenuUtil {
-
-    private MenuUtil() {
-    }
+public enum MenuUtil {
+    ;
 
     /**
      * 根据用户的应用权限过滤应用菜单

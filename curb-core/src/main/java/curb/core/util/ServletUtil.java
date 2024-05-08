@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * 与HttpServletRequest/HttpServletResponse 相关的工具类
  */
-public final class ServletUtil {
+public enum ServletUtil {
+    ;
 
     private static final Logger logger = LoggerFactory.getLogger(ServletUtil.class);
 
