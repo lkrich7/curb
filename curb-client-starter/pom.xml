@@ -5,7 +5,7 @@
     <parent>
         <artifactId>curb-parent</artifactId>
         <groupId>io.github.lkrich7.curb</groupId>
-        <version>0.4.1-SNAPSHOT</version>
+        <version>0.4.1</version>
     </parent>
     <artifactId>curb-client-starter</artifactId>
     <packaging>jar</packaging>
