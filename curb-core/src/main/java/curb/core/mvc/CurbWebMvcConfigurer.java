@@ -47,13 +47,7 @@ public class CurbWebMvcConfigurer implements WebMvcConfigurer {
             registration.excludePathPatterns(excludePath);
         }
 
-        LOGGER.info("{} registered: includePath={}, excludePath={}, defaultResolver={}, includeDispatcherType={}, excludeStaticResource={}, testMode={}",
-                curbInterceptor.getClass(),
-                includePath, excludePath,
-                curbInterceptor.getDefaultResolver(),
-                curbInterceptor.getIncludeDispatcherTypes(),
-                curbInterceptor.isExcludeStaticResource(),
-                curbInterceptor.getTestMode());
+        LOGGER.info("curb interceptor registered: {}, includePath={}, excludePath={}", curbInterceptor, includePath, excludePath);
     }
 
     @Override

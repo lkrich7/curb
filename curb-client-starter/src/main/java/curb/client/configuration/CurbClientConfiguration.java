@@ -1,13 +1,13 @@
 package curb.client.configuration;
 
+import curb.client.CurbApi;
 import curb.client.CurbApiRestClient;
 import curb.client.CurbClientDataProvider;
-import curb.client.CurbApi;
 import curb.client.CurbClientProxyRequestHandler;
 import curb.core.CurbDataProvider;
-import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.core.DefaultPermissionResolver;
 import curb.core.PermissionResolver;
+import curb.core.mvc.interceptor.CurbInterceptor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,8 +20,8 @@ import org.springframework.web.client.RestTemplate;
 public class CurbClientConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(name = "defaultRequestPermissionParser")
-    public PermissionResolver defaultRequestPermissionParser() {
+    @ConditionalOnMissingBean(name = "defaultPermissionResolver")
+    public PermissionResolver defaultPermissionResolver() {
         return new DefaultPermissionResolver();
     }
 
@@ -47,8 +47,10 @@ public class CurbClientConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
-    public CurbInterceptor curbInterceptor(CurbDataProvider dataProvider, CurbClientProperties properties) {
-        return new CurbInterceptor(dataProvider, properties);
+    public CurbInterceptor curbInterceptor(CurbDataProvider dataProvider,
+                                           PermissionResolver defaultPermissionResolver,
+                                           CurbClientProperties properties) {
+        return new CurbInterceptor(dataProvider, defaultPermissionResolver, properties);
     }
 
     @Bean

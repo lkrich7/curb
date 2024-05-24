@@ -2,6 +2,7 @@ package curb.server.interceptor;
 
 import curb.core.CurbAccessConfig;
 import curb.core.CurbDataProvider;
+import curb.core.PermissionResolver;
 import curb.core.configuration.CurbProperties;
 import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.server.page.CurbPageRequestHandler;
@@ -13,8 +14,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class CurbServerInterceptor extends CurbInterceptor {
 
-    public CurbServerInterceptor(CurbDataProvider dataProvider, CurbProperties properties) {
-        super(dataProvider, properties);
+    public CurbServerInterceptor(CurbDataProvider dataProvider,
+                                 PermissionResolver defaultPermissionResolver,
+                                 CurbProperties properties) {
+        super(dataProvider, defaultPermissionResolver, properties);
     }
 
     @Override

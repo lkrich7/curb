@@ -1,17 +1,16 @@
 package curb.server.configuration;
 
 import curb.core.CurbDataProvider;
-import curb.core.configuration.CurbProperties;
+import curb.core.DefaultPermissionResolver;
+import curb.core.PermissionResolver;
 import curb.core.mvc.CurbWebMvcConfigurer;
 import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.server.api.configuration.CurbApiConfiguration;
 import curb.server.interceptor.CurbServerInterceptor;
 import curb.server.page.CurbPageConfiguration;
-import curb.server.service.AppMenuService;
 import curb.server.service.AppService;
 import curb.server.service.CurbServerDataProvider;
 import curb.server.service.GroupService;
-import curb.server.service.PageService;
 import curb.server.service.UserPermissionService;
 import curb.server.service.UserService;
 import org.mybatis.spring.annotation.MapperScan;
@@ -50,13 +49,17 @@ public class CurbServerAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "defaultPermissionResolver")
+    public PermissionResolver defaultPermissionResolver() {
+        return new DefaultPermissionResolver();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
     public CurbServerInterceptor curbServerInterceptor(CurbDataProvider dataProvider,
-                                                       CurbServerProperties properties,
-                                                       PageService pageService,
-                                                       AppService appService,
-                                                       AppMenuService appMenuService) {
-        return new CurbServerInterceptor(dataProvider, properties);
+                                                       PermissionResolver defaultPermissionResolver,
+                                                       CurbServerProperties properties) {
+        return new CurbServerInterceptor(dataProvider, defaultPermissionResolver, properties);
     }
 
 }

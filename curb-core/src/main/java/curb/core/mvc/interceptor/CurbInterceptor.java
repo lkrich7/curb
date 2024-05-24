@@ -4,7 +4,6 @@ import curb.core.AccessLevel;
 import curb.core.CurbAccessConfig;
 import curb.core.CurbDataProvider;
 import curb.core.CurbMethodAccessConfig;
-import curb.core.DefaultPermissionResolver;
 import curb.core.ErrorEnum;
 import curb.core.PermissionResolver;
 import curb.core.annotation.CurbMethod;
@@ -21,8 +20,6 @@ import curb.core.util.CurbUtil;
 import curb.core.util.ServletUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.method.HandlerMethod;
@@ -42,42 +39,26 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(CurbInterceptor.class);
 
-    private static final PermissionResolver DEFAULT_PERMISSION_RESOLVER = new DefaultPermissionResolver();
-
     private static final CurbAccessConfig DEFAULT_REQUEST_CONFIG = new CurbMethodAccessConfig();
 
     /**
      * 数据提供者
      */
-    private CurbDataProvider dataProvider;
-
-    private final CurbProperties curbProperties;
+    private final CurbDataProvider dataProvider;
 
     /**
      * 默认的权限解析器
      */
-    private PermissionResolver defaultResolver = DEFAULT_PERMISSION_RESOLVER;
+    private final PermissionResolver defaultPermissionResolver;
 
-    /**
-     * 参与执行检查的请求的DispatcherType集合
-     */
-    private Set<DispatcherType> includeDispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
-
-    /**
-     * 是否排除对静态资源请求的检查
-     */
-    private boolean excludeStaticResource = false;
-
-    private TestMode testMode = new TestMode();
+    private final CurbProperties curbProperties;
 
     private ApplicationContext applicationContext;
 
-    public CurbInterceptor(CurbDataProvider dataProvider, CurbProperties properties) {
+    public CurbInterceptor(CurbDataProvider dataProvider, PermissionResolver defaultPermissionResolver, CurbProperties properties) {
         this.dataProvider = dataProvider;
+        this.defaultPermissionResolver = defaultPermissionResolver;
         this.curbProperties = properties;
-        setIncludeDispatcherTypes(properties.getIncludeDispatcherTypes());
-        setExcludeStaticResource(properties.isExcludeStaticResource());
-        setTestMode(properties.getTestMode());
     }
 
     private static String buildLogMessage(HttpServletRequest request, AccessLevel accessLevel,
@@ -94,63 +75,56 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
                 ServletUtil.getIp(request));
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
-    public PermissionResolver getDefaultResolver() {
-        return defaultResolver;
-    }
-
-    @Qualifier("defaultRequestPermissionParser")
-    @Autowired(required = false)
-    public void setDefaultResolver(PermissionResolver defaultResolver) {
-        this.defaultResolver = defaultResolver;
-    }
-
-    public Set<DispatcherType> getIncludeDispatcherTypes() {
-        return includeDispatcherTypes;
-    }
-
-    public void setIncludeDispatcherTypes(Set<DispatcherType> includeDispatcherTypes) {
+    /**
+     * 参与执行检查的请求的DispatcherType集合
+     */
+    private Set<DispatcherType> includeDispatcherTypes() {
+        Set<DispatcherType> includeDispatcherTypes = curbProperties.getIncludeDispatcherTypes();
         if (includeDispatcherTypes != null && !includeDispatcherTypes.isEmpty()) {
-            this.includeDispatcherTypes = EnumSet.copyOf(includeDispatcherTypes);
+            return EnumSet.copyOf(includeDispatcherTypes);
         }
+        return EnumSet.of(DispatcherType.REQUEST);
     }
 
-    public boolean isExcludeStaticResource() {
-        return excludeStaticResource;
+    /**
+     * 是否排除对静态资源请求的检查
+     */
+    private boolean excludeStaticResource() {
+        return curbProperties.isExcludeStaticResource();
     }
 
-    public void setExcludeStaticResource(boolean excludeStaticResource) {
-        this.excludeStaticResource = excludeStaticResource;
-    }
-
-    public TestMode getTestMode() {
-        return testMode;
-    }
-
-    public void setTestMode(TestMode testMode) {
-        this.testMode = testMode;
+    private TestMode testMode() {
+        TestMode testMode = curbProperties.getTestMode();
         if (testMode != null) {
             User testUser = testMode.getUser();
             if (testUser != null && testUser.getState() == null) {
                 testUser.setState(UserState.OK.getCode());
             }
         }
+        return testMode;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(testMode=%s, defaultResolver=%s, includeDispatcherTypes=%s, excludeStaticResource=%s)",
+                getClass(), testMode(), defaultPermissionResolver, includeDispatcherTypes(), excludeStaticResource());
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!includeDispatcherTypes.contains(request.getDispatcherType())) {
+        if (!includeDispatcherTypes().contains(request.getDispatcherType())) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Passed for DispatcherType({}): {} {}?{}, ", request.getDispatcherType(),
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
             }
             return true;
         }
-        if (excludeStaticResource && isStaticResourceRequest(request, handler)) {
+        if (excludeStaticResource() && isStaticResourceRequest(request, handler)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Passed for static resource request: {} {}?{}",
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
@@ -175,7 +149,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         }
         AccessLevel accessLevel = config.getLevel();
 
-        String msg = buildLogMessage(request, accessLevel, group, app, user, userState, testMode);
+        String msg = buildLogMessage(request, accessLevel, group, app, user, userState, testMode());
 
         if (accessLevel == AccessLevel.ANONYMOUS) {
             // 允许匿名访问，直接返回
@@ -255,10 +229,8 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         }
         Class<? extends PermissionResolver> resolverClass = config.getResolverClass();
         PermissionResolver resolver;
-        if (resolverClass == null || resolverClass == PermissionResolver.class) {
-            resolver = defaultResolver;
-        } else if (resolverClass == DEFAULT_PERMISSION_RESOLVER.getClass()) {
-            resolver = DEFAULT_PERMISSION_RESOLVER;
+        if (resolverClass == null || resolverClass == defaultPermissionResolver.getClass()) {
+            resolver = defaultPermissionResolver;
         } else {
             resolver = applicationContext.getBean(resolverClass);
         }
@@ -298,7 +270,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      */
     protected User getUser(HttpServletRequest request) {
         if (isInTestMode()) {
-            return testMode.getUser();
+            return testMode().getUser();
         }
         return dataProvider.getUser(request);
     }
@@ -411,6 +383,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     protected boolean isInTestMode() {
+        TestMode testMode = testMode();
         return testMode != null && testMode.getEnabled() != null && testMode.getEnabled();
     }
 }
