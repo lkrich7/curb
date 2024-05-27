@@ -53,6 +53,17 @@ logging:
     org.apache.catalina: info
     org.springframework: info
 curb:
+  reverse-proxy:  # 反向代理配置
+    enabled: true # 启用反向代理
+    prefix: /other-service/
+    routes:
+      - server: http://service1/
+        path-patterns:
+          - /service1/**
+      - server: http://service2/
+        path-patterns:
+          - /r1/**
+          - /r2/**
   test-mode:
     enabled: true
     user:

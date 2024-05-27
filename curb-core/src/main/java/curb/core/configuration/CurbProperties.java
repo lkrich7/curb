@@ -38,6 +38,11 @@ public class CurbProperties {
     private boolean excludeStaticResource = false;
 
     /**
+     * 反向代理配置
+     */
+    private ReverseProxyProperties reverseProxy = new ReverseProxyProperties();
+
+    /**
      * 测试模式设置
      */
     private TestModeProperties testMode = new TestModeProperties();
@@ -88,6 +93,14 @@ public class CurbProperties {
 
     public void setExcludeStaticResource(boolean excludeStaticResource) {
         this.excludeStaticResource = excludeStaticResource;
+    }
+
+    public ReverseProxyProperties getReverseProxy() {
+        return reverseProxy;
+    }
+
+    public void setReverseProxy(ReverseProxyProperties reverseProxy) {
+        this.reverseProxy = reverseProxy;
     }
 
     public TestModeProperties getTestMode() {

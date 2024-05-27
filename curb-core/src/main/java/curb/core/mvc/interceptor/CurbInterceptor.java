@@ -15,6 +15,7 @@ import curb.core.model.PermissionResult;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserState;
+import curb.core.mvc.proxy.CurbReverseProxyHandlerMapping;
 import curb.core.util.CurbUtil;
 import curb.core.util.ServletUtil;
 import org.slf4j.Logger;
@@ -176,10 +177,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 判断当前请求是否是静态资源请求
-     *
-     * @param request
-     * @param handler
-     * @return
      */
     protected boolean isStaticResourceRequest(HttpServletRequest request, Object handler) {
         return handler instanceof ResourceHttpRequestHandler;
@@ -187,10 +184,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 获取当前请求的配置数据
-     *
-     * @param request
-     * @param handler
-     * @return
      */
     protected CurbAccessConfig resolveAccessConfig(HttpServletRequest request, Object handler) {
         if (handler instanceof HandlerMethod) {
@@ -199,8 +192,11 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
             if (annotation != null) {
                 return new CurbMethodAccessConfig(annotation);
             }
+        } else if (handler instanceof CurbReverseProxyHandlerMapping.RouteHandler) {
+            CurbReverseProxyHandlerMapping.RouteHandler proxyHandler = (CurbReverseProxyHandlerMapping.RouteHandler) handler;
+            return proxyHandler.resolveAccessConfig(request);
         }
-        return DEFAULT_REQUEST_CONFIG;
+        return null;
     }
 
     /**

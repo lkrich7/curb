@@ -1,6 +1,8 @@
 package curb.server.configuration;
 
+import curb.core.AccessLevel;
 import curb.core.configuration.CurbProperties;
+import curb.core.configuration.ReverseProxyProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -22,6 +24,11 @@ public class CurbServerProperties extends CurbProperties {
                 "/logout",
                 "/api/**",
         });
+
+        ReverseProxyProperties reverseProxy = new ReverseProxyProperties();
+        reverseProxy.setAccessLevel(AccessLevel.PERMISSION);
+        reverseProxy.setOrder(0);
+        this.setReverseProxy(reverseProxy);
     }
 
 }

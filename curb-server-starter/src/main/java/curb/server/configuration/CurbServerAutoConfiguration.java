@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableConfigurationProperties(CurbServerProperties.class)
 @ComponentScan(basePackages = {"curb.server"})
 @MapperScan(basePackages = {"curb.server.dao"})
-@Import({CurbWebMvcConfigurer.class, CurbApiConfiguration.class, CurbPageConfiguration.class})
+@Import({CurbWebMvcConfigurer.class, CurbApiConfiguration.class, CurbPageConfiguration.class, CurbServerReverseProxyConfiguration.class})
 public class CurbServerAutoConfiguration {
 
     @Bean
@@ -56,7 +56,7 @@ public class CurbServerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbInterceptor.class)
-    public CurbServerInterceptor curbServerInterceptor(CurbDataProvider dataProvider,
+    public CurbServerInterceptor curbServerInterceptor(CurbServerDataProvider dataProvider,
                                                        PermissionResolver defaultPermissionResolver,
                                                        CurbServerProperties properties) {
         return new CurbServerInterceptor(dataProvider, defaultPermissionResolver, properties);

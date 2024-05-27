@@ -14,17 +14,8 @@ public class CurbClientProperties extends CurbProperties {
      */
     private final Client client = new Client();
 
-    /**
-     * 反向代理转发配置
-     */
-    private final ReverseProxy reverseProxy = new ReverseProxy();
-
     public Client getClient() {
         return client;
-    }
-
-    public ReverseProxy getReverseProxy() {
-        return reverseProxy;
     }
 
     public static class Client {
@@ -67,37 +58,6 @@ public class CurbClientProperties extends CurbProperties {
 
         public void setSecret(String secret) {
             this.secret = secret;
-        }
-    }
-
-    public static class ReverseProxy {
-
-        /**
-         * 是否启用反向代理转发
-         */
-        boolean enabled = false;
-
-        /**
-         * 转发url映射
-         */
-        private String[] urlMappings = new String[]{
-                "/**",
-        };
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public String[] getUrlMappings() {
-            return urlMappings;
-        }
-
-        public void setUrlMappings(String[] urlMappings) {
-            this.urlMappings = urlMappings;
         }
     }
 
