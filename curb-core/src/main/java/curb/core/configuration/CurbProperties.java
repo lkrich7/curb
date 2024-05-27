@@ -1,5 +1,9 @@
 package curb.core.configuration;
 
+import curb.core.model.User;
+import curb.core.model.UserAppPermissions;
+import curb.core.model.UserState;
+
 import javax.servlet.DispatcherType;
 import java.util.Set;
 
@@ -36,7 +40,7 @@ public class CurbProperties {
     /**
      * 测试模式设置
      */
-    private final TestMode testMode = new TestMode();
+    private TestModeProperties testMode = new TestModeProperties();
 
     public boolean isEnabled() {
         return enabled;
@@ -86,8 +90,34 @@ public class CurbProperties {
         this.excludeStaticResource = excludeStaticResource;
     }
 
-    public TestMode getTestMode() {
+    public TestModeProperties getTestMode() {
         return testMode;
+    }
+
+    public void setTestMode(TestModeProperties testMode) {
+        this.testMode = testMode;
+    }
+
+    public User testUser() {
+        if (inTestMode()) {
+            User testUser = testMode.getUser();
+            if (testUser != null && testUser.getState() == null) {
+                testUser.setState(UserState.OK.getCode());
+            }
+            return testUser;
+        }
+        return null;
+    }
+
+    public UserAppPermissions testUserAppPermissions() {
+        if (inTestMode()) {
+            return testMode.getUserAppPermissions();
+        }
+        return null;
+    }
+
+    public boolean inTestMode() {
+        return testMode != null && testMode.isEnabled();
     }
 
 }

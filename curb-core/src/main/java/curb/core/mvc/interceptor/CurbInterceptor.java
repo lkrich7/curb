@@ -8,7 +8,6 @@ import curb.core.ErrorEnum;
 import curb.core.PermissionResolver;
 import curb.core.annotation.CurbMethod;
 import curb.core.configuration.CurbProperties;
-import curb.core.configuration.TestMode;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.Permission;
@@ -62,9 +61,9 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     private static String buildLogMessage(HttpServletRequest request, AccessLevel accessLevel,
-                                          Group group, App app, User user, UserState userState, TestMode testMode) {
+                                          Group group, App app, User user, UserState userState, boolean inTestMode) {
         return String.format("T(%s) G(%s) A(%s) %s (%s %s) %s(%s)@%s",
-                testMode.getEnabled(),
+                inTestMode,
                 group.getGroupId(),
                 app.getAppId(),
                 accessLevel,
@@ -93,17 +92,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         return curbProperties.isExcludeStaticResource();
     }
 
-    private TestMode testMode() {
-        TestMode testMode = curbProperties.getTestMode();
-        if (testMode != null) {
-            User testUser = testMode.getUser();
-            if (testUser != null && testUser.getState() == null) {
-                testUser.setState(UserState.OK.getCode());
-            }
-        }
-        return testMode;
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -112,7 +100,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     @Override
     public String toString() {
         return String.format("%s(testMode=%s, defaultResolver=%s, includeDispatcherTypes=%s, excludeStaticResource=%s)",
-                getClass(), testMode(), defaultPermissionResolver, includeDispatcherTypes(), excludeStaticResource());
+                getClass(), curbProperties.getTestMode(), defaultPermissionResolver, includeDispatcherTypes(), excludeStaticResource());
     }
 
     @Override
@@ -149,7 +137,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         }
         AccessLevel accessLevel = config.getLevel();
 
-        String msg = buildLogMessage(request, accessLevel, group, app, user, userState, testMode());
+        String msg = buildLogMessage(request, accessLevel, group, app, user, userState, curbProperties.inTestMode());
 
         if (accessLevel == AccessLevel.ANONYMOUS) {
             // 允许匿名访问，直接返回
@@ -269,8 +257,10 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @return
      */
     protected User getUser(HttpServletRequest request) {
-        if (isInTestMode()) {
-            return testMode().getUser();
+        // 测试模式下取测试用户
+        User user = curbProperties.testUser();
+        if (user != null) {
+            return user;
         }
         return dataProvider.getUser(request);
     }
@@ -282,6 +272,11 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
      * @return
      */
     protected UserAppPermissions getUserAppPermissions(User user, App app, Group group, HttpServletRequest request) {
+        // 测试模式下取测试用户权限
+        UserAppPermissions ret = curbProperties.testUserAppPermissions();
+        if (ret != null) {
+            return ret;
+        }
         return dataProvider.getUserAppPermissions(user, app, group);
     }
 
@@ -382,8 +377,4 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         throw ErrorEnum.FORBIDDEN.toCurbException();
     }
 
-    protected boolean isInTestMode() {
-        TestMode testMode = testMode();
-        return testMode != null && testMode.getEnabled() != null && testMode.getEnabled();
-    }
 }

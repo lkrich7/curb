@@ -45,6 +45,17 @@ public class UserAppPermissions {
         return new UserAppPermissions(map);
     }
 
+    public static UserAppPermissions buildWithSigns(Collection<String> signs) {
+        if (signs == null) {
+            return NONE;
+        }
+        Map<Permission, Boolean> map = new TreeMap<>();
+        for (String sign : signs) {
+            map.put(Permission.build(sign), true);
+        }
+        return new UserAppPermissions(map);
+    }
+
     public static UserAppPermissions build(Collection<Permission> perms1, List<UserPermission> perms2) {
         UserAppPermissions ret = build(perms1);
         if (ret == NONE) {
