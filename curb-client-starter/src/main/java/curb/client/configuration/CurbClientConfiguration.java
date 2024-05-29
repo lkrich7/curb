@@ -46,8 +46,8 @@ public class CurbClientConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(CurbDataProvider.class)
-    public CurbDataProvider curbDataProvider(CurbApi curbClient) {
-        return new CurbClientDataProvider(curbClient);
+    public CurbDataProvider curbDataProvider(CurbApi curbClient, CurbClientProperties properties) {
+        return new CurbClientDataProvider(curbClient, properties);
     }
 
     @Bean

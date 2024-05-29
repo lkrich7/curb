@@ -38,6 +38,11 @@ public class CurbProperties {
     private boolean excludeStaticResource = false;
 
     /**
+     * 保存token的cookie字段名
+     */
+    private String tokenName = "curb-token";
+
+    /**
      * 反向代理配置
      */
     private ReverseProxyProperties reverseProxy = new ReverseProxyProperties();
@@ -93,6 +98,14 @@ public class CurbProperties {
 
     public void setExcludeStaticResource(boolean excludeStaticResource) {
         this.excludeStaticResource = excludeStaticResource;
+    }
+
+    public String getTokenName() {
+        return tokenName;
+    }
+
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 
     public ReverseProxyProperties getReverseProxy() {

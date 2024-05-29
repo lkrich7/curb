@@ -10,6 +10,7 @@ import curb.core.model.User;
 import curb.core.model.UserPermission;
 import curb.core.model.UserState;
 import curb.server.bo.CurbToken;
+import curb.server.configuration.CurbServerProperties;
 import curb.server.enums.AppState;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
@@ -46,14 +47,19 @@ public class CurbApiController {
 
     private final AppMenuService appMenuService;
 
+    private final CurbServerProperties properties;
+
     public CurbApiController(UserService userService,
                              AppService appService, GroupService groupService,
-                             UserPermissionService userPermissionService, AppMenuService appMenuService) {
+                             UserPermissionService userPermissionService,
+                             AppMenuService appMenuService,
+                             CurbServerProperties properties) {
         this.userService = userService;
         this.appService = appService;
         this.groupService = groupService;
         this.userPermissionService = userPermissionService;
         this.appMenuService = appMenuService;
+        this.properties = properties;
     }
 
     /**
@@ -95,11 +101,16 @@ public class CurbApiController {
         }
         String groupSecret = groupService.getGroupSecret(app.getGroupId());
 
-        CurbToken curbToken = CurbToken.decrypt(token, groupSecret);
+        CurbServerProperties.TokenProperties tokenProperties = properties.getToken();;
+
+        CurbToken curbToken = CurbToken.decrypt(token, groupSecret, tokenProperties.getAlgorithm());
         if (curbToken == null) {
             return ErrorEnum.NEED_LOGIN.toApiResult();
         }
-        String username = curbToken.getUsername();
+        if (curbToken.isExpired(tokenProperties.getTtl())) {
+            return ErrorEnum.NEED_LOGIN.toApiResult();
+        }
+        String username = curbToken.getKey();
         User user = userService.getByUsername(username);
 
         UserState state = UserState.check(user);

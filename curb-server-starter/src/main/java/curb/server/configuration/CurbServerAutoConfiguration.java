@@ -44,8 +44,9 @@ public class CurbServerAutoConfiguration {
     public CurbServerDataProvider curbServerDataProvider(GroupService groupService,
                                                          AppService appService,
                                                          UserService userService,
-                                                         UserPermissionService userPermissionService) {
-        return new CurbServerDataProvider(groupService, appService, userService, userPermissionService);
+                                                         UserPermissionService userPermissionService,
+                                                         CurbServerProperties properties) {
+        return new CurbServerDataProvider(groupService, appService, userService, userPermissionService, properties);
     }
 
     @Bean

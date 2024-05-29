@@ -7,17 +7,12 @@ import curb.core.model.User;
 import org.springframework.web.context.request.RequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 工具类
  */
 public enum CurbUtil {
     ;
-
-    private static final String TOKEN_COOKIE_KEY = "curb-token";
-
-    private static final int TOKEN_COOKIE_EXPIRE = 60 * 60 * 24 * 14;
 
     private static final String ATTRIBUTE_NAME_GROUP = "curbGroup";
 
@@ -26,22 +21,6 @@ public enum CurbUtil {
     private static final String ATTRIBUTE_NAME_USER = "curbUser";
 
     private static final String ATTRIBUTE_NAME_PERMISSION_RESULT = "curbPermissionResult";
-
-    public static String getToken(HttpServletRequest request) {
-        return ServletUtil.getCookie(request, TOKEN_COOKIE_KEY);
-    }
-
-    public static void saveToken(HttpServletResponse response, String token, String domain) {
-        ServletUtil.saveCookie(response, TOKEN_COOKIE_KEY, token, TOKEN_COOKIE_EXPIRE, "/", domain);
-    }
-
-    public static void clearToken(HttpServletResponse response, String domain) {
-        ServletUtil.deleteCookie(response, TOKEN_COOKIE_KEY, domain);
-    }
-
-    public static boolean isTokenExpired(Long ts) {
-        return Math.abs(System.currentTimeMillis() - ts) > TOKEN_COOKIE_EXPIRE * 1000;
-    }
 
     public static void setGroup(HttpServletRequest request, Group group) {
         request.setAttribute(ATTRIBUTE_NAME_GROUP, group);

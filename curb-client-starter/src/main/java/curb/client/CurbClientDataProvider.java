@@ -6,6 +6,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import curb.client.configuration.CurbClientProperties;
 import curb.core.ApiResult;
 import curb.core.CurbDataProvider;
 import curb.core.ErrorEnum;
@@ -15,7 +16,7 @@ import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserPermission;
-import curb.core.util.CurbUtil;
+import curb.core.util.ServletUtil;
 import curb.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +35,15 @@ public class CurbClientDataProvider implements CurbDataProvider {
 
     private final CurbApi curbApiHttpClient;
 
+    private final CurbClientProperties properties;
+
     private final Supplier<AppDetail> appDetailCache;
 
     private final LoadingCache<Integer, UserAppPermissions> userAppPermissionsCache;
 
-    public CurbClientDataProvider(CurbApi curbApiHttpClient) {
+    public CurbClientDataProvider(CurbApi curbApiHttpClient, CurbClientProperties properties) {
         this.curbApiHttpClient = curbApiHttpClient;
+        this.properties = properties;
 
         this.appDetailCache = Suppliers.memoizeWithExpiration(newAppDetailSupplier(), 60, TimeUnit.SECONDS);
 
@@ -61,7 +65,7 @@ public class CurbClientDataProvider implements CurbDataProvider {
 
     @Override
     public User getUser(HttpServletRequest request) {
-        String token = CurbUtil.getToken(request);
+        String token = ServletUtil.getCookie(request, properties.getTokenName());
         if (StringUtil.isBlank(token)) {
             return null;
         }

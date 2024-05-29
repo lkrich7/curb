@@ -7,11 +7,12 @@ import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.util.CurbUtil;
+import curb.core.util.ServletUtil;
 import curb.server.bo.CurbToken;
+import curb.server.configuration.CurbServerProperties;
 import curb.server.converter.GroupConverter;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -29,14 +30,18 @@ public class CurbServerDataProvider implements CurbDataProvider {
 
     private final UserPermissionService userPermissionService;
 
+    private final CurbServerProperties properties;
+
     public CurbServerDataProvider(GroupService groupService,
                                   AppService appService,
                                   UserService userService,
-                                  UserPermissionService userPermissionService) {
+                                  UserPermissionService userPermissionService,
+                                  CurbServerProperties properties) {
         this.groupService = groupService;
         this.appService = appService;
         this.userService = userService;
         this.userPermissionService = userPermissionService;
+        this.properties = properties;
     }
 
     @Override
@@ -80,7 +85,7 @@ public class CurbServerDataProvider implements CurbDataProvider {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
         GroupPO groupPO = groupService.getById(app.getGroupId());
-        if (app == null) {
+        if (groupPO == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
         return GroupConverter.convert(groupPO);
@@ -88,14 +93,15 @@ public class CurbServerDataProvider implements CurbDataProvider {
 
     @Override
     public User getUser(HttpServletRequest request) {
-        String encrypted = CurbUtil.getToken(request);
+        String encryptedToken = ServletUtil.getCookie(request, properties.getTokenName());
         Group group = CurbUtil.getGroup(request);
         String groupSecret = groupService.getGroupSecret(group.getGroupId());
-        CurbToken token = CurbToken.decrypt(encrypted, groupSecret);
-        if (token == null || CurbUtil.isTokenExpired(token.getTs())) {
+        CurbServerProperties.TokenProperties tokenProperties = properties.getToken();
+        CurbToken token = CurbToken.decrypt(encryptedToken, groupSecret, tokenProperties.getAlgorithm());
+        if (token == null || token.isExpired(tokenProperties.getTtl())) {
             return null;
         }
-        return userService.getByUsername(token.getUsername());
+        return userService.getByUsername(token.getKey());
     }
 
     @Override

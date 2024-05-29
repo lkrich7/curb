@@ -15,12 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 public enum ServletUtil {
     ;
 
-    private static final Logger logger = LoggerFactory.getLogger(ServletUtil.class);
-
     private static final String UNKNOWN = "unknown";
-
-    private ServletUtil() {
-    }
 
     /**
      * 获取请求客户端真实IP
@@ -64,18 +59,6 @@ public enum ServletUtil {
         }
         return null;
     }
-
-    public static boolean isHttps(HttpServletRequest request) {
-        try {
-            String value = request.getHeader("X-Forwarded-Proto");
-            logger.debug("X-Forwarded-Proto={}", value);
-            return "https".equalsIgnoreCase(value);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
 
     @SuppressWarnings("unchecked")
     public static <T> T getObjectFromRequest(HttpServletRequest request, String name) {
