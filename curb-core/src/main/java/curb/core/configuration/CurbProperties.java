@@ -5,6 +5,7 @@ import curb.core.model.UserAppPermissions;
 import curb.core.model.UserState;
 
 import javax.servlet.DispatcherType;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public class CurbProperties {
     /**
      * 参与执行检查的请求的DispatcherType集合
      */
-    private Set<DispatcherType> includeDispatcherTypes;
+    private Set<DispatcherType> includeDispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
     /**
      * 是否排除对静态资源请求的检查
      */
@@ -144,6 +145,17 @@ public class CurbProperties {
 
     public boolean inTestMode() {
         return testMode != null && testMode.isEnabled();
+    }
+
+    /**
+     * 是否排除DispatcherType
+     */
+    public boolean excludeDispatcherType(DispatcherType dispatcherType) {
+        Set<DispatcherType> types = this.includeDispatcherTypes;
+        if (types == null || types.isEmpty()) {
+            types = EnumSet.of(DispatcherType.REQUEST);
+        }
+        return !types.contains(dispatcherType);
     }
 
 }

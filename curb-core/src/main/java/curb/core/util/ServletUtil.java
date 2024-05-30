@@ -1,7 +1,5 @@
 package curb.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -60,6 +58,61 @@ public enum ServletUtil {
         return null;
     }
 
+    /**
+     * 返回客户端请求的网络协议名
+     *
+     * @param request 请求对象
+     * @return 协议名
+     */
+    public static String getScheme(HttpServletRequest request) {
+        String scheme = request.getHeader("X-Forwarded-Proto");
+        scheme = StringUtil.trimToEmpty(scheme);
+        if (scheme.isEmpty()) {
+            scheme = StringUtil.trimToEmpty(request.getScheme());
+        }
+        return scheme.toLowerCase();
+    }
+
+    /**
+     * 返回客户端请求的域名
+     *
+     * @param request 请求对象
+     * @return 请求的域名
+     */
+    public static String getDomain(HttpServletRequest request) {
+        String domain = request.getHeader("Host");
+        if (StringUtil.isNotBlank(domain)) {
+            return domain;
+        }
+        int port = request.getServerPort();
+        String scheme = ServletUtil.getScheme(request);
+        domain = buildDomain(request.getServerName(), port, scheme);
+        return domain;
+    }
+
+    private static String buildDomain(String host, int port, String scheme) {
+        if (("http".equalsIgnoreCase(scheme) && port != 80)
+                || ("https".equalsIgnoreCase(scheme) && port != 443)) {
+            return host + ":" + port;
+        }
+        return host;
+    }
+
+    /**
+     * 取得请求的URL 路径和参数
+     *
+     * @param request 请求对象
+     * @return 请求的URL路径和参数
+     */
+    public static String getUrlPathAndQuery(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String query = request.getQueryString();
+        if (query != null) {
+            path += "?" + query;
+        }
+        return path;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T getObjectFromRequest(HttpServletRequest request, String name) {
         Object obj = request.getAttribute(name);
@@ -77,45 +130,36 @@ public enum ServletUtil {
         return getObjectFromAttributes(requestAttributes, name);
     }
 
-
-    public static String getCookie(HttpServletRequest request, String key) {
+    public static String getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(key)) return cookie.getValue();
+            if (cookie.getName().equals(name)) return cookie.getValue();
         }
         return null;
     }
 
-    public static void saveCookie(HttpServletResponse response, String key, String value, int second, String path, String domain) {
-        domain = stripDomain(domain);
-        Cookie cookie = new Cookie(key, value);
+    public static void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        setCookie(response, name, value, maxAge, "/", null, false);
+    }
+
+    public static void setCookie(HttpServletResponse response, String name, String value, int maxAge, String path, String domain, boolean httpOnly) {
+        Cookie cookie = new Cookie(name, value);
         cookie.setPath(path);
-        cookie.setMaxAge(second);
-        cookie.setDomain(domain);
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
-    }
-
-    public static void clearCookie(HttpServletResponse response, String key, int second, String path, String domain) {
-        domain = stripDomain(domain);
-        Cookie cookie = new Cookie(key, null);
-        cookie.setPath(path);
-        cookie.setMaxAge(second);
-        cookie.setDomain(domain);
-        response.addCookie(cookie);
-    }
-
-    public static void deleteCookie(HttpServletResponse response, String key, String domain) {
-        clearCookie(response, key, 0, "/", domain);
-    }
-
-    private static String stripDomain(String domain) {
-        int idx = domain.indexOf(':');
-        if (idx < 0) {
-            return domain;
+        if (StringUtil.isNotBlank(domain)) {
+            cookie.setDomain(domain);
         }
-        return domain.substring(0, idx);
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(httpOnly);
+        response.addCookie(cookie);
+    }
+
+    public static void clearCookie(HttpServletResponse response, String key) {
+        clearCookie(response, key, null, null);
+    }
+
+    public static void clearCookie(HttpServletResponse response, String key, String path, String domain) {
+        setCookie(response, key, null, 0, path, domain, false);
     }
 
 }

@@ -22,15 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.Nullable;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.EnumSet;
-import java.util.Set;
 
 /**
  * Curb核心拦截器
@@ -76,17 +74,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     /**
-     * 参与执行检查的请求的DispatcherType集合
-     */
-    private Set<DispatcherType> includeDispatcherTypes() {
-        Set<DispatcherType> includeDispatcherTypes = curbProperties.getIncludeDispatcherTypes();
-        if (includeDispatcherTypes != null && !includeDispatcherTypes.isEmpty()) {
-            return EnumSet.copyOf(includeDispatcherTypes);
-        }
-        return EnumSet.of(DispatcherType.REQUEST);
-    }
-
-    /**
      * 是否排除对静态资源请求的检查
      */
     private boolean excludeStaticResource() {
@@ -100,20 +87,24 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     @Override
     public String toString() {
-        return String.format("%s(testMode=%s, defaultResolver=%s, includeDispatcherTypes=%s, excludeStaticResource=%s)",
-                getClass(), curbProperties.getTestMode(), defaultPermissionResolver, includeDispatcherTypes(), excludeStaticResource());
+        return String.format("%s(%s, defaultResolver=%s, includeDispatcherTypes=%s, excludeStaticResource=%s)",
+                getClass(),
+                curbProperties.getTestMode(),
+                defaultPermissionResolver,
+                curbProperties.getIncludeDispatcherTypes(),
+                curbProperties.isExcludeStaticResource());
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!includeDispatcherTypes().contains(request.getDispatcherType())) {
+        if (curbProperties.excludeDispatcherType(request.getDispatcherType())) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Passed for DispatcherType({}): {} {}?{}, ", request.getDispatcherType(),
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
             }
             return true;
         }
-        if (excludeStaticResource() && isStaticResourceRequest(request, handler)) {
+        if (curbProperties.isExcludeStaticResource() && isStaticResourceRequest(request, handler)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Passed for static resource request: {} {}?{}",
                         request.getMethod(), request.getRequestURI(), request.getQueryString());
@@ -173,6 +164,11 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
             LOGGER.info("Denied(Permission): {}", msg);
             return onUnauthorized(user, app, group, request, response, handler);
         }
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+                                 @Nullable Exception ex) {
     }
 
     /**

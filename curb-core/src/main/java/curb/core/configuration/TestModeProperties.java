@@ -58,9 +58,10 @@ public class TestModeProperties {
 
     @Override
     public String toString() {
-        return "TestMode{" +
+        return "TestModeProperties{" +
                 "enabled=" + enabled +
                 ", user=" + user +
+                ", permissions=" + permissions +
                 '}';
     }
 }

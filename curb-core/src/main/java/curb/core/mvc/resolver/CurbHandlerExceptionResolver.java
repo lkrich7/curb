@@ -5,15 +5,16 @@ import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.util.CurbUtil;
 import curb.core.util.ServletUtil;
-import curb.core.util.UrlCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -70,10 +71,12 @@ public class CurbHandlerExceptionResolver extends AbstractHandlerExceptionResolv
     }
 
     private ModelAndView redirectToLogin(HttpServletRequest request) {
-        String targetUrl = CurbUtil.getUrl(request);
-        String targetUrlEncoded = UrlCodec.encodeUtf8(targetUrl);
-        String redirectUrl = String.format("/login?targetUrl=%s", targetUrlEncoded);
-        return new ModelAndView("redirect:" + redirectUrl);
+        String targetUrl = ServletUtil.getUrlPathAndQuery(request);
+        RedirectView view = new RedirectView("/login");
+        view.setStatusCode(HttpStatus.FOUND);
+        view.setExposeModelAttributes(true);
+        ModelMap modelMap = new ModelMap("targetUrl", targetUrl);
+        return new ModelAndView(view, modelMap);
     }
 
     private HttpStatus toHttpStatus(int code) {

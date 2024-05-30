@@ -86,72 +86,30 @@ public enum CurbUtil {
         return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_PERMISSION_RESULT);
     }
 
-    public static String getUrl(HttpServletRequest request) {
-//        String scheme = getScheme(request);
-        String domain = getDomain(request);
-        String path = request.getRequestURI();
-        String query = StringUtil.trimToNull(request.getQueryString());
-        StringBuilder builder = new StringBuilder()
-//                .append(scheme).append(":")
-                .append("//")
-                .append(domain)
-                .append(path);
-        if (query != null) {
-            builder.append("?").append(query);
-        }
-        return builder.toString();
-    }
-
-
     /**
-     * 返回客户端请求的网络协议名
+     * 返回客户端请求的URL(不带协议
      *
-     * @param request
-     * @return
+     * @param request 请求对象
+     * @return 完整URL
      */
-    private static String getScheme(HttpServletRequest request) {
-        String scheme = request.getHeader("X-Forwarded-Proto");
-        if (scheme == null || scheme.trim().isEmpty()) {
-            scheme = request.getScheme();
-        }
-        return scheme.trim().toLowerCase();
+    public static String getUrl(HttpServletRequest request) {
+        String domain = getDomain(request);
+        String pathAndQuery = ServletUtil.getUrlPathAndQuery(request);
+        return "//" + domain + pathAndQuery;  // 为了同时兼容http和https，返回的url不带协议名
     }
 
     /**
      * 返回客户端请求的域
      *
-     * @param request
-     * @return
+     * @param request 请求对象
+     * @return 客户端请求的域
      */
-    private static String getDomain(HttpServletRequest request) {
+    public static String getDomain(HttpServletRequest request) {
         String domain = request.getHeader("X-CURB-HOST");
         if (StringUtil.isNotBlank(domain)) {
             return domain;
         }
-        domain = request.getHeader("Host");
-        if (StringUtil.isNotBlank(domain)) {
-            return domain;
-        }
-        int port = request.getServerPort();
-        String scheme = getScheme(request);
-        domain = buildDomain(request.getServerName(), port, scheme);
-        return domain;
-    }
-
-    /**
-     * 根据主机名、端口号和协议名构造域
-     *
-     * @param host
-     * @param port
-     * @param scheme
-     * @return
-     */
-    private static String buildDomain(String host, int port, String scheme) {
-        if (("http".equalsIgnoreCase(scheme) && port != 80)
-                || ("https".equalsIgnoreCase(scheme) && port != 443)) {
-            return host + ":" + port;
-        }
-        return host;
+        return ServletUtil.getDomain(request);
     }
 
 }
