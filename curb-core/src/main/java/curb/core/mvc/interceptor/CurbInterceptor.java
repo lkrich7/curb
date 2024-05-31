@@ -1,9 +1,11 @@
 package curb.core.mvc.interceptor;
 
 import curb.core.AccessLevel;
+import curb.core.AccessState;
 import curb.core.CurbAccessConfig;
 import curb.core.CurbDataProvider;
 import curb.core.CurbMethodAccessConfig;
+import curb.core.CurbRequestContext;
 import curb.core.ErrorEnum;
 import curb.core.PermissionResolver;
 import curb.core.annotation.CurbMethod;
@@ -22,13 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.lang.Nullable;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 /**
  * Curb核心拦截器
@@ -73,13 +75,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
                 ServletUtil.getIp(request));
     }
 
-    /**
-     * 是否排除对静态资源请求的检查
-     */
-    private boolean excludeStaticResource() {
-        return curbProperties.isExcludeStaticResource();
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -112,63 +107,81 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
             return true;
         }
 
+        CurbRequestContext context = CurbUtil.createContext(request);
+        context.setTestMode(curbProperties.inTestMode());
+
         App app = getApp(request);
-        CurbUtil.setApp(request, app);
+        context.setApp(app);
 
         Group group = getGroup(request);
-        CurbUtil.setGroup(request, group);
+        context.setGroup(group);
 
         User user = getUser(request);
-        CurbUtil.setUser(request, user);
-
-        UserState userState = checkUserState(user);
+        context.setUser(user);
 
         CurbAccessConfig config = resolveAccessConfig(request, handler);
         if (config == null) {
             config = DEFAULT_REQUEST_CONFIG;
         }
+        context.setAccessConfig(config);
         AccessLevel accessLevel = config.getLevel();
 
-        String msg = buildLogMessage(request, accessLevel, group, app, user, userState, curbProperties.inTestMode());
-
         if (accessLevel == AccessLevel.ANONYMOUS) {
-            // 允许匿名访问，直接返回
-            LOGGER.info("Passed(Anonymous): {}", msg);
+            // 允许匿名访问
+            context.setAccessState(AccessState.ANONYMOUS);
             return true;
         }
 
-        if (isAuthenticated(user, userState)) {
-            onAuthenticated(user, app, group, request, response, handler);
+        if (isAuthenticated(context)) {
+            onAuthenticated(context, request, response, handler);
         } else {
-            // 用户登录不正常
-            LOGGER.info("Denied(Unauthenticated): {}", msg);
-            return onUnauthenticated(user, userState, app, group, request, response, handler);
+            // 用户账号状态不正常
+            context.setAccessState(context.userState() == UserState.BLOCKED ? AccessState.USER_BLOCKED : AccessState.USER_NOT_EXISTED);
+            onUnauthenticated(context, request, response, handler);
+            return false;
         }
 
         if (accessLevel == AccessLevel.LOGIN) {
             // 允许登录用户访问，直接返回
-            LOGGER.info("Passed(Login): {}", msg);
+            context.setAccessState(AccessState.LOGIN);
             return true;
         }
 
         // 权限验证
         Permission requestPermission = parseRequestPermission(request, config, handler);
-        UserAppPermissions userAppPermissions = getUserAppPermissions(user, app, group, request);
+        UserAppPermissions userAppPermissions = getUserAppPermissions(context);
         PermissionResult permissionResult = userAppPermissions.check(requestPermission, config);
-        CurbUtil.setPermissionResult(request, permissionResult);
+        context.setPermissionResult(permissionResult);
 
-        if (isAuthorized(permissionResult)) {
-            LOGGER.info("Passed(Permission): {}", msg);
-            return onAuthorized(user, app, group, request, response, handler);
+        if (isAuthorized(context)) {
+            context.setAccessState(AccessState.AUTHORIZED);
+            onAuthorized(context, request, response, handler);
+            return true;
         } else {
-            LOGGER.info("Denied(Permission): {}", msg);
-            return onUnauthorized(user, app, group, request, response, handler);
+            context.setAccessState(AccessState.UNAUTHORIZED);
+            onUnauthorized(context, request, response, handler);
+            return false;
         }
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
-                                 @Nullable Exception ex) {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        CurbRequestContext context = CurbUtil.getContext(request);
+        if (context == null) {
+            return;
+        }
+        logRequest(context, request, response, handler, ex);
+    }
+
+    protected void logRequest(CurbRequestContext context,
+                              HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        AccessLevel level = context.getAccessConfig().getLevel();
+        String username = Optional.ofNullable(context.getUser()).map(User::getUsername).orElse(null);
+        LOGGER.info("{} T({}) G({}) A({}) {} {}ms: {} {} {}({})@{}",
+                context.getAccessState(), context.isTestMode(),
+                context.getGroup().getGroupId(), context.getApp().getAppId(),
+                level, context.totalTime(),
+                context.getMethod(), context.getUrl(), username, context.userState(), ServletUtil.getIp(request));
     }
 
     /**
@@ -262,69 +275,51 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     /**
      * 获取用户权限列表
      *
-     * @param user
-     * @return
+     * @param context 当前请求上下文对象
+     * @return 用户权限列表
      */
-    protected UserAppPermissions getUserAppPermissions(User user, App app, Group group, HttpServletRequest request) {
+    protected UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
         // 测试模式下取测试用户权限
         UserAppPermissions ret = curbProperties.testUserAppPermissions();
         if (ret != null) {
             return ret;
         }
-        return dataProvider.getUserAppPermissions(user, app, group);
+        return dataProvider.getUserAppPermissions(context.getUser(), context.getApp(), context.getGroup());
     }
 
     /**
-     * 检查用户信息是否正常登录
+     * 判断当前用户是否身份认证通过
      *
-     * @param user
-     * @return
+     * @param context 当前请求的上下文对象
+     * @return 是否身份认证通过
      */
-    protected UserState checkUserState(User user) {
-        return UserState.check(user);
+    protected boolean isAuthenticated(CurbRequestContext context) {
+        return context.isAuthenticated();
     }
 
     /**
-     * 判断当前用户是否登录态验证通过
+     * 身份认证通过时的回调方法
      *
-     * @param user
-     * @param userState
-     * @return
+     * @param context  当前请求上下文对象
+     * @param request  请求对象
+     * @param response 响应对象
+     * @param handler  当前请求的处理器对象
      */
-    protected boolean isAuthenticated(User user, UserState userState) {
-        return user != null && userState.isOk();
-    }
-
-    /**
-     * 登录态验证通过
-     *
-     * @param user     当前用户
-     * @param app
-     * @param group
-     * @param request
-     * @param response
-     * @param handler
-     */
-    protected void onAuthenticated(User user, App app, Group group, HttpServletRequest request, HttpServletResponse response, Object handler) {
+    protected void onAuthenticated(CurbRequestContext context, HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 身份验证通过默认不做处理
     }
 
     /**
      * 登录态验证不通过时的处理函数
      *
-     * @param user     当前用户
-     * @param state    当前用户状态
-     * @param request
-     * @param response
-     * @param handler
-     * @return
+     * @param context  当前请求上下文对象
+     * @param request  请求对象
+     * @param response 响应对象
+     * @param handler  当前请求的处理器对象
      */
-    protected boolean onUnauthenticated(User user, UserState state, App app, Group group,
-                                        HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (user == null) {
-            throw ErrorEnum.NEED_LOGIN.toCurbException();
-        }
-        if (state == UserState.NOT_EXISTED) {
+    protected void onUnauthenticated(CurbRequestContext context,
+                                     HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (context.userState() == UserState.NOT_EXISTED) {
             throw ErrorEnum.NEED_LOGIN.toCurbException();
         }
         throw ErrorEnum.USER_BLOCKED.toCurbException();
@@ -333,41 +328,36 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     /**
      * 判断是否通过权限验证
      *
-     * @param permissionResult
-     * @return
+     * @param context 当前请求上下文对象
+     * @return 是否通过权限验证
      */
-    protected boolean isAuthorized(PermissionResult permissionResult) {
-        return permissionResult.isAuthorized();
+    protected boolean isAuthorized(CurbRequestContext context) {
+        return context.isAuthorized();
     }
 
     /**
      * 权限验证通过时处理函数
      *
-     * @param user     当前用户
-     * @param app
-     * @param group
-     * @param request
-     * @param response
-     * @param handler
-     * @return
+     * @param context  当前请求上下文对象
+     * @param request  请求对象
+     * @param response 响应对象
+     * @param handler  当前请求的处理器对象
      */
-    protected boolean onAuthorized(User user, App app, Group group, HttpServletRequest request, HttpServletResponse response, Object handler) {
-        return true;
+    protected void onAuthorized(CurbRequestContext context,
+                                HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // 权限检查通过默认不做处理
     }
 
     /**
      * 处理无作权限情况
      *
-     * @param user     当前用户
-     * @param app
-     * @param group
-     * @param request
-     * @param response
-     * @param handler
-     * @return
+     * @param context  当前请求上下文对象
+     * @param request  请求对象
+     * @param response 响应对象
+     * @param handler  当前请求的处理器对象
      */
-    protected boolean onUnauthorized(User user, App app, Group group,
-                                     HttpServletRequest request, HttpServletResponse response, Object handler) {
+    protected void onUnauthorized(CurbRequestContext context,
+                                  HttpServletRequest request, HttpServletResponse response, Object handler) {
         throw ErrorEnum.FORBIDDEN.toCurbException();
     }
 

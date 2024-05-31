@@ -107,7 +107,7 @@ public enum ServletUtil {
     public static String getUrlPathAndQuery(HttpServletRequest request) {
         String path = request.getRequestURI();
         String query = request.getQueryString();
-        if (query != null) {
+        if (StringUtil.isNotEmpty(query)) {
             path += "?" + query;
         }
         return path;

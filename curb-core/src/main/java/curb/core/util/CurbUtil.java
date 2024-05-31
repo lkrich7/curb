@@ -1,5 +1,6 @@
 package curb.core.util;
 
+import curb.core.CurbRequestContext;
 import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.PermissionResult;
@@ -14,76 +15,92 @@ import javax.servlet.http.HttpServletRequest;
 public enum CurbUtil {
     ;
 
-    private static final String ATTRIBUTE_NAME_GROUP = "curbGroup";
+    private static final String ATTRIBUTE_NAME_CONTEXT = "curbContext";
 
-    private static final String ATTRIBUTE_NAME_APP = "curbApp";
+    public static CurbRequestContext createContext(HttpServletRequest request) {
+        long startTime = System.currentTimeMillis();
+        CurbRequestContext context = new CurbRequestContext();
+        context.setStartTime(startTime);
+        context.setMethod(request.getMethod());
+        context.setUrl(getUrl(request));
+        setContext(request, context);
+        return context;
+    }
 
-    private static final String ATTRIBUTE_NAME_USER = "curbUser";
+    public static void setContext(HttpServletRequest request, CurbRequestContext context) {
+        request.setAttribute(ATTRIBUTE_NAME_CONTEXT, context);
+    }
 
-    private static final String ATTRIBUTE_NAME_PERMISSION_RESULT = "curbPermissionResult";
+    public static CurbRequestContext getContext(HttpServletRequest request) {
+        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_CONTEXT);
+    }
 
-    public static void setGroup(HttpServletRequest request, Group group) {
-        request.setAttribute(ATTRIBUTE_NAME_GROUP, group);
+    public static CurbRequestContext getContext(RequestAttributes attributes) {
+        return ServletUtil.getObjectFromAttributes(attributes, ATTRIBUTE_NAME_CONTEXT);
+    }
+
+    public static CurbRequestContext getContext() {
+        return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_CONTEXT);
     }
 
     public static Group getGroup(HttpServletRequest request) {
-        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_GROUP);
+        CurbRequestContext context = getContext(request);
+        return context == null ? null : context.getGroup();
     }
 
     public static Group getGroup(RequestAttributes attributes) {
-        return ServletUtil.getObjectFromAttributes(attributes, ATTRIBUTE_NAME_GROUP);
+        CurbRequestContext context = getContext(attributes);
+        return context == null ? null : context.getGroup();
     }
 
     public static Group getGroup() {
-        return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_GROUP);
-    }
-
-    public static void setApp(HttpServletRequest request, App app) {
-        request.setAttribute(ATTRIBUTE_NAME_APP, app);
+        CurbRequestContext context = getContext();
+        return context == null ? null : context.getGroup();
     }
 
     public static App getApp(HttpServletRequest request) {
-        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_APP);
+        CurbRequestContext context = getContext(request);
+        return context == null ? null : context.getApp();
     }
 
     public static App getApp(RequestAttributes attributes) {
-        return ServletUtil.getObjectFromAttributes(attributes, ATTRIBUTE_NAME_APP);
+        CurbRequestContext context = getContext(attributes);
+        return context == null ? null : context.getApp();
     }
 
     public static App getApp() {
-        return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_APP);
-    }
-
-    public static void setUser(HttpServletRequest request, User user) {
-        request.setAttribute(ATTRIBUTE_NAME_USER, user);
+        CurbRequestContext context = getContext();
+        return context == null ? null : context.getApp();
     }
 
     public static User getUser(HttpServletRequest request) {
-        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_USER);
+        CurbRequestContext context = getContext(request);
+        return context == null ? null : context.getUser();
     }
 
     public static User getUser(RequestAttributes attributes) {
-        return ServletUtil.getObjectFromAttributes(attributes, ATTRIBUTE_NAME_USER);
+        CurbRequestContext context = getContext(attributes);
+        return context == null ? null : context.getUser();
     }
 
     public static User getUser() {
-        return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_USER);
-    }
-
-    public static void setPermissionResult(HttpServletRequest request, PermissionResult permissionResult) {
-        request.setAttribute(ATTRIBUTE_NAME_PERMISSION_RESULT, permissionResult);
+        CurbRequestContext context = getContext();
+        return context == null ? null : context.getUser();
     }
 
     public static PermissionResult getPermissionResult(HttpServletRequest request) {
-        return ServletUtil.getObjectFromRequest(request, ATTRIBUTE_NAME_PERMISSION_RESULT);
+        CurbRequestContext context = getContext(request);
+        return context == null ? null : context.getPermissionResult();
     }
 
     public static PermissionResult getPermissionResult(RequestAttributes attributes) {
-        return ServletUtil.getObjectFromAttributes(attributes, ATTRIBUTE_NAME_PERMISSION_RESULT);
+        CurbRequestContext context = getContext(attributes);
+        return context == null ? null : context.getPermissionResult();
     }
 
     public static PermissionResult getPermissionResult() {
-        return ServletUtil.getObjectFromRequestContext(ATTRIBUTE_NAME_PERMISSION_RESULT);
+        CurbRequestContext context = getContext();
+        return context == null ? null : context.getPermissionResult();
     }
 
     /**
@@ -111,5 +128,4 @@ public enum CurbUtil {
         }
         return ServletUtil.getDomain(request);
     }
-
 }
