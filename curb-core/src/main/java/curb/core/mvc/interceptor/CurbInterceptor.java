@@ -209,7 +209,9 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         }
         Class<? extends PermissionResolver> resolverClass = config.getResolverClass();
         PermissionResolver resolver;
-        if (resolverClass == null || resolverClass == defaultPermissionResolver.getClass()) {
+        if (resolverClass == null
+                || resolverClass == PermissionResolver.class
+                || resolverClass == defaultPermissionResolver.getClass()) {
             resolver = defaultPermissionResolver;
         } else {
             resolver = applicationContext.getBean(resolverClass);
