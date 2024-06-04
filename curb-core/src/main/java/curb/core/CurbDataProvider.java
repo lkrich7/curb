@@ -5,45 +5,42 @@ import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
  * Curb 数据提供者接口
  */
 public interface CurbDataProvider {
 
     /**
-     * 根据用户请求获取应用信息
+     * 根据请求URL查询应用信息
      *
-     * @param request
-     * @return
+     * @param url 当前请求
+     * @return 应用对象
      */
-    App getApp(HttpServletRequest request);
+    App getApp(String url);
 
     /**
-     * 根据用户请求获取项目组信息
+     * 根据请求上下文查询项目组信息
      *
-     * @param request
-     * @return
+     * @param context 当前请求上下文对象
+     * @return 应用对象
      */
-    Group getGroup(HttpServletRequest request);
+    Group getGroup(CurbRequestContext context);
 
     /**
-     * 根据用户请求获取用户信息
+     * 根据请求上下文 解析token，查询当前用户信息
      *
-     * @param request
-     * @return
+     * @param encryptedToken 待解析token
+     * @param context        当前请求上下文对象
+     * @return 用户对象
      */
-    User getUser(HttpServletRequest request);
+    User getUser(String encryptedToken, CurbRequestContext context);
 
     /**
-     * 获取用户的应用权限
+     * 根据请求上下文 获取用户的应用权限
      *
-     * @param user
-     * @param app
-     * @param group
-     * @return
+     * @param context 当前请求上下文对象
+     * @return 用户应用权限对象
      */
-    UserAppPermissions getUserAppPermissions(User user, App app, Group group);
+    UserAppPermissions getUserAppPermissions(CurbRequestContext context);
 
 }

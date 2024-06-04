@@ -94,15 +94,13 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (curbProperties.excludeDispatcherType(request.getDispatcherType())) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Passed for DispatcherType({}): {} {}?{}, ", request.getDispatcherType(),
-                        request.getMethod(), request.getRequestURI(), request.getQueryString());
+                LOGGER.debug("Skipped for DispatcherType({}): {} {}", request.getDispatcherType(), request.getMethod(), CurbUtil.getUrl(request));
             }
             return true;
         }
         if (curbProperties.isExcludeStaticResource() && isStaticResourceRequest(request, handler)) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Passed for static resource request: {} {}?{}",
-                        request.getMethod(), request.getRequestURI(), request.getQueryString());
+                LOGGER.debug("Skipped for static resource request: {} {}", request.getMethod(), CurbUtil.getUrl(request));
             }
             return true;
         }
@@ -110,13 +108,13 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         CurbRequestContext context = CurbUtil.createContext(request);
         context.setTestMode(curbProperties.inTestMode());
 
-        App app = getApp(request);
+        App app = getApp(context);
         context.setApp(app);
 
-        Group group = getGroup(request);
+        Group group = getGroup(context);
         context.setGroup(group);
 
-        User user = getUser(request);
+        User user = getUser(request, context);
         context.setUser(user);
 
         CurbAccessConfig config = resolveAccessConfig(request, handler);
@@ -148,8 +146,8 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         }
 
         // 权限验证
-        Permission requestPermission = parseRequestPermission(request, config, handler);
         UserAppPermissions userAppPermissions = getUserAppPermissions(context);
+        Permission requestPermission = parseRequestPermission(request, config, handler);
         PermissionResult permissionResult = userAppPermissions.check(requestPermission, config);
         context.setPermissionResult(permissionResult);
 
@@ -170,11 +168,22 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         if (context == null) {
             return;
         }
-        logRequest(context, request, response, handler, ex);
+        recordRequest(context, request, response, handler, ex);
     }
 
-    protected void logRequest(CurbRequestContext context,
-                              HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+    /**
+     * 判断当前请求是否是静态资源请求
+     */
+    protected boolean isStaticResourceRequest(HttpServletRequest request, Object handler) {
+        return handler instanceof ResourceHttpRequestHandler;
+    }
+
+    /**
+     * 记录请求日志
+     */
+    protected void recordRequest(CurbRequestContext context,
+                                 HttpServletRequest request, HttpServletResponse response,
+                                 Object handler, Exception ex) {
         AccessLevel level = context.getAccessConfig().getLevel();
         String username = Optional.ofNullable(context.getUser()).map(User::getUsername).orElse(null);
         LOGGER.info("{} T({}) G({}) A({}) {} {}ms: {} {} {}({})@{}",
@@ -185,10 +194,42 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     /**
-     * 判断当前请求是否是静态资源请求
+     * 获取应用基本信息
      */
-    protected boolean isStaticResourceRequest(HttpServletRequest request, Object handler) {
-        return handler instanceof ResourceHttpRequestHandler;
+    protected App getApp(CurbRequestContext context) {
+        return dataProvider.getApp(context.getUrl());
+    }
+
+    /**
+     * 获取项目组信息
+     */
+    protected Group getGroup(CurbRequestContext request) {
+        return dataProvider.getGroup(request);
+    }
+
+    /**
+     * 根据请求中的登录态获取用户信息
+     */
+    protected User getUser(HttpServletRequest request, CurbRequestContext context) {
+        // 测试模式下取测试用户
+        User user = curbProperties.testUser();
+        if (user != null) {
+            return user;
+        }
+        String encryptedToken = ServletUtil.getCookie(request, curbProperties.getTokenName());
+        return dataProvider.getUser(encryptedToken, context);
+    }
+
+    /**
+     * 获取用户权限列表
+     */
+    protected UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
+        // 测试模式下取测试用户权限
+        UserAppPermissions ret = curbProperties.testUserAppPermissions();
+        if (ret != null) {
+            return ret;
+        }
+        return dataProvider.getUserAppPermissions(context);
     }
 
     /**
@@ -210,11 +251,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 解析请求权限对象
-     *
-     * @param request
-     * @param config
-     * @param handler
-     * @return
      */
     protected Permission parseRequestPermission(HttpServletRequest request, CurbAccessConfig config, Object handler) {
         if (config.getSign() != null && !config.getSign().isEmpty()) {
@@ -238,60 +274,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
     }
 
     /**
-     * 获取项目组信息
-     *
-     * @param request
-     * @return
-     */
-    protected Group getGroup(HttpServletRequest request) {
-        return dataProvider.getGroup(request);
-    }
-
-    /**
-     * 获取应用基本信息
-     *
-     * @param request
-     * @return
-     */
-    protected App getApp(HttpServletRequest request) {
-        return dataProvider.getApp(request);
-    }
-
-    /**
-     * 根据请求中的登录态获取用户信息
-     *
-     * @param request
-     * @return
-     */
-    protected User getUser(HttpServletRequest request) {
-        // 测试模式下取测试用户
-        User user = curbProperties.testUser();
-        if (user != null) {
-            return user;
-        }
-        return dataProvider.getUser(request);
-    }
-
-    /**
-     * 获取用户权限列表
-     *
-     * @param context 当前请求上下文对象
-     * @return 用户权限列表
-     */
-    protected UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
-        // 测试模式下取测试用户权限
-        UserAppPermissions ret = curbProperties.testUserAppPermissions();
-        if (ret != null) {
-            return ret;
-        }
-        return dataProvider.getUserAppPermissions(context.getUser(), context.getApp(), context.getGroup());
-    }
-
-    /**
      * 判断当前用户是否身份认证通过
-     *
-     * @param context 当前请求的上下文对象
-     * @return 是否身份认证通过
      */
     protected boolean isAuthenticated(CurbRequestContext context) {
         return context.isAuthenticated();
@@ -299,11 +282,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 身份认证通过时的回调方法
-     *
-     * @param context  当前请求上下文对象
-     * @param request  请求对象
-     * @param response 响应对象
-     * @param handler  当前请求的处理器对象
      */
     protected void onAuthenticated(CurbRequestContext context, HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 身份验证通过默认不做处理
@@ -311,11 +289,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 登录态验证不通过时的处理函数
-     *
-     * @param context  当前请求上下文对象
-     * @param request  请求对象
-     * @param response 响应对象
-     * @param handler  当前请求的处理器对象
      */
     protected void onUnauthenticated(CurbRequestContext context,
                                      HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -327,9 +300,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 判断是否通过权限验证
-     *
-     * @param context 当前请求上下文对象
-     * @return 是否通过权限验证
      */
     protected boolean isAuthorized(CurbRequestContext context) {
         return context.isAuthorized();
@@ -337,11 +307,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 权限验证通过时处理函数
-     *
-     * @param context  当前请求上下文对象
-     * @param request  请求对象
-     * @param response 响应对象
-     * @param handler  当前请求的处理器对象
      */
     protected void onAuthorized(CurbRequestContext context,
                                 HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -350,11 +315,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
 
     /**
      * 处理无作权限情况
-     *
-     * @param context  当前请求上下文对象
-     * @param request  请求对象
-     * @param response 响应对象
-     * @param handler  当前请求的处理器对象
      */
     protected void onUnauthorized(CurbRequestContext context,
                                   HttpServletRequest request, HttpServletResponse response, Object handler) {

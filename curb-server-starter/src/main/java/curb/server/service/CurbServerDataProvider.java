@@ -1,6 +1,7 @@
 package curb.server.service;
 
 import curb.core.CurbDataProvider;
+import curb.core.CurbRequestContext;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.Group;
@@ -14,7 +15,6 @@ import curb.server.converter.GroupConverter;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 /**
@@ -55,13 +55,12 @@ public class CurbServerDataProvider implements CurbDataProvider {
     }
 
     @Override
-    public App getApp(HttpServletRequest request) {
-        AppPO appPO = getAppPO(request);
+    public App getApp(String url) {
+        AppPO appPO = getAppPO(url);
         return toApp(appPO);
     }
 
-    private AppPO getAppPO(HttpServletRequest request) {
-        String url = CurbUtil.getUrl(request);
+    private AppPO getAppPO(String url) {
         AppPO appPO = appService.findLongestMatch(url);
         if (appPO == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
@@ -79,8 +78,8 @@ public class CurbServerDataProvider implements CurbDataProvider {
     }
 
     @Override
-    public Group getGroup(HttpServletRequest request) {
-        App app = CurbUtil.getApp(request);
+    public Group getGroup(CurbRequestContext request) {
+        App app = request.getApp();
         if (app == null) {
             throw ErrorEnum.NOT_FOUND.toCurbException();
         }
@@ -92,9 +91,8 @@ public class CurbServerDataProvider implements CurbDataProvider {
     }
 
     @Override
-    public User getUser(HttpServletRequest request) {
-        String encryptedToken = ServletUtil.getCookie(request, properties.getTokenName());
-        Group group = CurbUtil.getGroup(request);
+    public User getUser(String encryptedToken, CurbRequestContext context) {
+        Group group = context.getGroup();
         String groupSecret = groupService.getGroupSecret(group.getGroupId());
         CurbServerProperties.TokenProperties tokenProperties = properties.getToken();
         CurbToken token = CurbToken.decrypt(encryptedToken, groupSecret, tokenProperties.getAlgorithm());
@@ -105,10 +103,13 @@ public class CurbServerDataProvider implements CurbDataProvider {
     }
 
     @Override
-    public UserAppPermissions getUserAppPermissions(User user, App app, Group group) {
+    public UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
+        User user = context.getUser();
         if (user == null) {
             return UserAppPermissions.none();
         }
+        Group group = context.getGroup();
+        App app = context.getApp();
         return userPermissionService.getUserAppPermissions(group, app, user.getUserId());
     }
 

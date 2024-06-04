@@ -1,7 +1,6 @@
 package curb.server.page;
 
 import curb.core.CurbDataProvider;
-import curb.server.configuration.CurbServerProperties;
 import curb.server.service.AppMenuService;
 import curb.server.service.AppService;
 import curb.server.service.PageService;
@@ -16,12 +15,11 @@ import org.springframework.web.util.UrlPathHelper;
 public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
 
     @Bean
-    public CurbPageRequestHandler amisPageRequestHandler(CurbServerProperties properties,
-                                                         CurbDataProvider dataProvider,
+    public CurbPageRequestHandler amisPageRequestHandler(CurbDataProvider dataProvider,
                                                          PageService pageService,
                                                          AppService appService,
                                                          AppMenuService appMenuService) {
-        return new CurbPageRequestHandler(properties, dataProvider, pageService, appService, appMenuService);
+        return new CurbPageRequestHandler(dataProvider, pageService, appService, appMenuService);
     }
 
     @Bean
@@ -37,17 +35,7 @@ public class CurbPageConfiguration extends DelegatingWebMvcConfiguration {
         mapping.setCorsConfigurations(getCorsConfigurations());
         mapping.setPathMatcher(pathMatcher);
         mapping.setUrlPathHelper(urlPathHelper);
-//
-//        PathMatchConfigurer configurer = getPathMatchConfigurer();
-//
-//        UrlPathHelper pathHelper = configurer.getUrlPathHelper();
-//        if (pathHelper != null) {
-//            mapping.setUrlPathHelper(pathHelper);
-//        }
-//        PathMatcher pathMatcher = configurer.getPathMatcher();
-//        if (pathMatcher != null) {
-//            mapping.setPathMatcher(pathMatcher);
-//        }
+
         return mapping;
     }
 

@@ -9,6 +9,7 @@ import com.google.common.cache.LoadingCache;
 import curb.client.configuration.CurbClientProperties;
 import curb.core.ApiResult;
 import curb.core.CurbDataProvider;
+import curb.core.CurbRequestContext;
 import curb.core.ErrorEnum;
 import curb.core.model.App;
 import curb.core.model.AppDetail;
@@ -21,7 +22,6 @@ import curb.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -54,26 +54,26 @@ public class CurbClientDataProvider implements CurbDataProvider {
     }
 
     @Override
-    public Group getGroup(HttpServletRequest request) {
-        return appDetailCache.get().getGroup();
-    }
-
-    @Override
-    public App getApp(HttpServletRequest request) {
+    public App getApp(String url) {
         return appDetailCache.get().getApp();
     }
 
     @Override
-    public User getUser(HttpServletRequest request) {
-        String token = ServletUtil.getCookie(request, properties.getTokenName());
-        if (StringUtil.isBlank(token)) {
-            return null;
-        }
-        return curbApiHttpClient.getUser(token).getData();
+    public Group getGroup(CurbRequestContext context) {
+        return appDetailCache.get().getGroup();
     }
 
     @Override
-    public UserAppPermissions getUserAppPermissions(User user, App app, Group group) {
+    public User getUser(String encryptedToken, CurbRequestContext context) {
+        if (StringUtil.isBlank(encryptedToken)) {
+            return null;
+        }
+        return curbApiHttpClient.getUser(encryptedToken).getData();
+    }
+
+    @Override
+    public UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
+        User user = context.getUser();
         if (user == null || user.getUserId() == null) {
             return UserAppPermissions.none();
         }

@@ -13,7 +13,6 @@ import curb.core.util.CurbUtil;
 import curb.core.util.JsonUtil;
 import curb.core.util.MenuUtil;
 import curb.core.util.ServletUtil;
-import curb.server.configuration.CurbServerProperties;
 import curb.server.enums.AppState;
 import curb.server.po.AppPO;
 import curb.server.service.AppMenuService;
@@ -35,8 +34,6 @@ public class CurbPageRequestHandler extends AbstractController {
 
     private static final String CURB_PAGE_ATTRIBUTE = "CURB_PAGE";
 
-    private final CurbServerProperties properties;
-
     private final PageService pageService;
 
     private final CurbDataProvider curbDataProvider;
@@ -51,10 +48,9 @@ public class CurbPageRequestHandler extends AbstractController {
             "  text-anchor: middle;\n" +
             "}</style></svg>";
 
-    public CurbPageRequestHandler(CurbServerProperties properties, CurbDataProvider curbDataProvider, PageService pageService, AppService appService, AppMenuService appMenuService) {
-        this.properties = properties;
-        this.pageService = pageService;
+    public CurbPageRequestHandler(CurbDataProvider curbDataProvider, PageService pageService, AppService appService, AppMenuService appMenuService) {
         this.curbDataProvider = curbDataProvider;
+        this.pageService = pageService;
         this.appService = appService;
         this.appMenuService = appMenuService;
     }
@@ -67,7 +63,8 @@ public class CurbPageRequestHandler extends AbstractController {
      * @see CurbPageRequestHandlerMapping
      */
     public CurbPageRequestHandler checkHandler(HttpServletRequest request) {
-        App app = curbDataProvider.getApp(request);
+        String url = CurbUtil.getUrl(request);
+        App app = curbDataProvider.getApp(url);
         if (app == null) {
             return null;
         }
@@ -117,7 +114,7 @@ public class CurbPageRequestHandler extends AbstractController {
         User user = context.getUser();
 
         List<Menu> appMenu = appMenuService.listWithSystemMenu(app.getAppId());
-        UserAppPermissions userAppPermissions = getUserAppPermissions(user, app, group, request);
+        UserAppPermissions userAppPermissions = getUserAppPermissions(context);
         List<Menu> userMenu = MenuUtil.buildUserMenu(appMenu, userAppPermissions);
         List<AmisMenuVo> curbMenu = new ArrayList<>(AmisMenuVo.fromMenuList(userMenu));
 
@@ -154,11 +151,11 @@ public class CurbPageRequestHandler extends AbstractController {
         return new ModelAndView("/page-amis", modelMap);
     }
 
-    private UserAppPermissions getUserAppPermissions(User user, App app, Group group, HttpServletRequest request) {
-        PermissionResult permissionResult = CurbUtil.getPermissionResult(request);
+    private UserAppPermissions getUserAppPermissions(CurbRequestContext context) {
+        PermissionResult permissionResult = context.getPermissionResult();
         if (permissionResult != null) {
             return permissionResult.getUserAppPermissions();
         }
-        return curbDataProvider.getUserAppPermissions(user, app, group);
+        return curbDataProvider.getUserAppPermissions(context);
     }
 }
