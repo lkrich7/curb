@@ -51,6 +51,19 @@ public class ReverseProxyProperties {
      */
     private List<Route> routes;
 
+    private static List<String> defaultIgnoredHeaders() {
+        return Arrays.stream(new String[]{
+                HttpHeaders.CONNECTION,
+                HttpHeaders.PROXY_AUTHENTICATE,
+                HttpHeaders.PROXY_AUTHORIZATION,
+                HttpHeaders.TRANSFER_ENCODING,
+                HttpHeaders.UPGRADE,
+                HttpHeaders.HOST,
+                "Keep-Alive",
+                "Trailers",
+        }).collect(Collectors.toList());
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -124,24 +137,15 @@ public class ReverseProxyProperties {
                 .collect(Collectors.toSet());
     }
 
-
-    private static List<String> defaultIgnoredHeaders() {
-        return Arrays.stream(new String[]{
-                HttpHeaders.CONNECTION,
-                HttpHeaders.PROXY_AUTHENTICATE,
-                HttpHeaders.PROXY_AUTHORIZATION,
-                HttpHeaders.TRANSFER_ENCODING,
-                HttpHeaders.UPGRADE,
-                HttpHeaders.HOST,
-                "Keep-Alive",
-                "Trailers",
-        }).collect(Collectors.toList());
-    }
-
     /**
      * 反向代理目标路由配置
      */
     public static class Route {
+
+        /**
+         * 路由名称
+         */
+        private String name;
 
         /**
          * 代理目标服务器地址
@@ -152,6 +156,14 @@ public class ReverseProxyProperties {
          * 代理路径Pattern (AntPath)
          */
         private List<String> pathPatterns;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
 
         public String getServer() {
             return server;
@@ -172,7 +184,8 @@ public class ReverseProxyProperties {
         @Override
         public String toString() {
             return "Route{" +
-                    "server='" + server + '\'' +
+                    "name='" + name + '\'' +
+                    ", server='" + server + '\'' +
                     ", pathPatterns=" + pathPatterns +
                     '}';
         }
