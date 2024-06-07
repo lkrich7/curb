@@ -85,6 +85,20 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
     }
 
     /**
+     * 判断请求是否匹配到反向代理路由
+     *
+     * @param request 请求对象
+     * @return 是否匹配
+     */
+    public boolean isMatched(HttpServletRequest request) {
+        try {
+            return getHandlerInternal(request) != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * 根据配置解析访问控制参数
      */
     protected CurbAccessConfig resolveAccessConfig(HttpServletRequest request, ReverseProxyProperties.Route route) {
@@ -164,8 +178,8 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
      */
     private static class AccessConfig implements CurbAccessConfig {
 
-        private AccessLevel accessLevel;
-        private String path;
+        private final AccessLevel accessLevel;
+        private final String path;
 
         public AccessConfig(AccessLevel accessLevel, String path) {
             this.accessLevel = accessLevel;
@@ -297,7 +311,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
         /**
          * 处理转发响应头数据
          *
-         * @param response 请求的响应对象
+         * @param response         请求的响应对象
          * @param upstreamResponse 上游响应对象
          */
         private void forwardResponseHeaders(HttpServletResponse response, ClientHttpResponse upstreamResponse) {
