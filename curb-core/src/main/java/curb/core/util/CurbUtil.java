@@ -21,6 +21,7 @@ public enum CurbUtil {
         long startTime = System.currentTimeMillis();
         CurbRequestContext context = new CurbRequestContext();
         context.setStartTime(startTime);
+        context.setIp(ServletUtil.getIp(request));
         context.setMethod(request.getMethod());
         context.setUrl(getUrl(request));
         setContext(request, context);

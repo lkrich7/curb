@@ -6,38 +6,62 @@ import java.util.Date;
  * 操作日志
  */
 public class OpLogPO {
+
     /**
      * 操作日志ID(主键)
      */
     private Long logId;
+
     /**
-     * 操作用户ID
+     * 操作发生时间
      */
-    private Integer userId;
+    private Date eventTime;
+
     /**
-     * 操作类型
+     * 操作者用户名
      */
-    private Integer type;
+    private String username;
+
     /**
-     * 操作标题
+     * 操作者IP
      */
-    private String title;
+    private String ip;
+
     /**
-     * 操作详情
+     * 项目组ID
      */
-    private String content;
+    private Integer groupId;
+
     /**
-     * 操作时间
+     * 应用ID
      */
-    private Date opTime;
+    private Integer appId;
+
     /**
-     * 数据创建时间
+     * 操作的HTTP方法
      */
-    private Date createTime;
+    private String method;
+
     /**
-     * 数据更新时间
+     * 操作的URL
      */
-    private Date updateTime;
+    private String url;
+
+    /**
+     * 操作耗时(单位毫秒)
+     */
+    private Integer cost;
+
+    /**
+     * 操作执行状态
+     * @see curb.core.AccessState
+     */
+    private Integer state;
+
+    /**
+     * 执行结果
+     */
+    private String result;
 
     public Long getLogId() {
         return logId;
@@ -47,73 +71,83 @@ public class OpLogPO {
         this.logId = logId;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Date getEventTime() {
+        return eventTime;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setEventTime(Date eventTime) {
+        this.eventTime = eventTime;
     }
 
-    public Integer getType() {
-        return type;
+    public String getUsername() {
+        return username;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getTitle() {
-        return title;
+    public String getIp() {
+        return ip;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
-    public String getContent() {
-        return content;
+    public Integer getGroupId() {
+        return groupId;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
     }
 
-    public Date getOpTime() {
-        return opTime;
+    public Integer getAppId() {
+        return appId;
     }
 
-    public void setOpTime(Date opTime) {
-        this.opTime = opTime;
+    public void setAppId(Integer appId) {
+        this.appId = appId;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public String getMethod() {
+        return method;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
+    public String getUrl() {
+        return url;
     }
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    @Override
-    public String toString() {
-        return "OpLogPO{" +
-                "logId=" + logId +
-                ", userId=" + userId +
-                ", type=" + type +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", opTime=" + opTime +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                '}';
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }

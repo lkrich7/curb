@@ -10,6 +10,7 @@ import curb.core.model.UserState;
  * 请求上下文
  */
 public class CurbRequestContext {
+    private String ip;
     private String method;
     private String url;
     private App app;
@@ -20,12 +21,14 @@ public class CurbRequestContext {
     private AccessState accessState;
     private boolean testMode;
     private long startTime;
+    private long endTime;
+
 
     /**
      * 计算请求总耗时
      */
-    public long totalTime() {
-        return System.currentTimeMillis() - startTime;
+    public int costMs() {
+        return (int)(endTime - startTime);
     }
 
     /**
@@ -69,6 +72,14 @@ public class CurbRequestContext {
 
     public void setAccessState(AccessState accessState) {
         this.accessState = accessState;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public String getMethod() {
@@ -135,6 +146,14 @@ public class CurbRequestContext {
         this.startTime = startTime;
     }
 
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public String toString() {
         return "CurbRequestContext{" +
@@ -148,6 +167,7 @@ public class CurbRequestContext {
                 ", accessState=" + accessState +
                 ", testMode=" + testMode +
                 ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 '}';
     }
 }

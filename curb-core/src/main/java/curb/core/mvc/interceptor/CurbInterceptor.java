@@ -168,6 +168,7 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         if (context == null) {
             return;
         }
+        context.setEndTime(System.currentTimeMillis());
         recordRequest(context, request, response, handler, ex);
     }
 
@@ -189,8 +190,9 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         LOGGER.info("{} T({}) G({}) A({}) {} {}ms: {} {} {}({})@{}",
                 context.getAccessState(), context.isTestMode(),
                 context.getGroup().getGroupId(), context.getApp().getAppId(),
-                level, context.totalTime(),
-                context.getMethod(), context.getUrl(), username, context.userState(), ServletUtil.getIp(request));
+                level, context.costMs(),
+                context.getMethod(), context.getUrl(), username, context.userState(), context.getIp());
+        dataProvider.recordRequest(context);
     }
 
     /**
