@@ -33,19 +33,10 @@ public enum ApiSignUtil {
         return makeSign(digest, secret);
     }
 
-    public static String signAndPutMap(Map<String, String> paramsMap, String secret) {
+    public static String signAndPutToMap(String secret, Map<String, String> paramsMap) {
         String signature = sign(paramsMap, secret);
         paramsMap.put(SIGN_PARAM_NAME, signature);
         return signature;
-    }
-
-    public static String signAndJoinToUrl(String path, Map<String, String> paramsMap, String secret) {
-        signAndPutMap(paramsMap, secret);
-        String paramStr = joinParams(paramsMap);
-        if (StringUtil.isBlank(paramStr)) {
-            return path;
-        }
-        return path + "?" + paramStr;
     }
 
     public static boolean checkSignMatched(HttpServletRequest request, String secret) {
@@ -82,14 +73,13 @@ public enum ApiSignUtil {
         return joinParams(sortedParams);
     }
 
-    private static String joinParams(Map<String, String> params) {
+    public static String joinParams(Map<String, String> params) {
         if (params == null || params.isEmpty()) {
             return "";
         }
-        String ret = params.entrySet().stream()
+        return params.entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + encode(entry.getValue()))
                 .collect(Collectors.joining("&"));
-        return ret;
     }
 
     private static String encode(String value) {

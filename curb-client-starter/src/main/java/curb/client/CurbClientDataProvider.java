@@ -17,7 +17,6 @@ import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserPermission;
-import curb.core.util.ServletUtil;
 import curb.core.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class CurbClientDataProvider implements CurbDataProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CurbClientDataProvider.class);
 
-    private final CurbApi curbApiHttpClient;
+    private final CurbApi curbApiClient;
 
     private final CurbClientProperties properties;
 
@@ -41,8 +40,8 @@ public class CurbClientDataProvider implements CurbDataProvider {
 
     private final LoadingCache<Integer, UserAppPermissions> userAppPermissionsCache;
 
-    public CurbClientDataProvider(CurbApi curbApiHttpClient, CurbClientProperties properties) {
-        this.curbApiHttpClient = curbApiHttpClient;
+    public CurbClientDataProvider(CurbApi curbApiClient, CurbClientProperties properties) {
+        this.curbApiClient = curbApiClient;
         this.properties = properties;
 
         this.appDetailCache = Suppliers.memoizeWithExpiration(newAppDetailSupplier(), 60, TimeUnit.SECONDS);
@@ -68,7 +67,7 @@ public class CurbClientDataProvider implements CurbDataProvider {
         if (StringUtil.isBlank(encryptedToken)) {
             return null;
         }
-        return curbApiHttpClient.getUser(encryptedToken).getData();
+        return curbApiClient.getUser(encryptedToken).getData();
     }
 
     @Override
@@ -85,19 +84,14 @@ public class CurbClientDataProvider implements CurbDataProvider {
     }
 
     private Supplier<AppDetail> newAppDetailSupplier() {
-        return new Supplier<AppDetail>() {
-            @Override
-            public AppDetail get() {
-                return curbApiHttpClient.getAppDetail().getData();
-            }
-        };
+        return () -> curbApiClient.getAppDetail().getData();
     }
 
     private CacheLoader<Integer, UserAppPermissions> newUserAppPermissionsCacheLoader() {
         return new CacheLoader<Integer, UserAppPermissions>() {
             @Override
             public UserAppPermissions load(Integer userId) {
-                ApiResult<List<UserPermission>> result = curbApiHttpClient.listUserPermissions(userId);
+                ApiResult<List<UserPermission>> result = curbApiClient.listUserPermissions(userId);
                 if (result.getStatus() == 0 && result.getData() != null) {
                     return UserAppPermissions.build(result.getData());
                 } else {
