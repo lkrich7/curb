@@ -7,15 +7,18 @@ import curb.core.model.App;
 import curb.core.model.Group;
 import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
-import curb.core.util.CurbUtil;
-import curb.core.util.ServletUtil;
 import curb.server.bo.CurbToken;
 import curb.server.configuration.CurbServerProperties;
 import curb.server.converter.GroupConverter;
 import curb.server.po.AppPO;
 import curb.server.po.GroupPO;
+import curb.server.po.OpLogPO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * 服务端数据服务
@@ -30,28 +33,24 @@ public class CurbServerDataProvider implements CurbDataProvider {
 
     private final UserPermissionService userPermissionService;
 
+    private final OpLogService opLogService;
+
     private final CurbServerProperties properties;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CurbServerDataProvider.class);
 
     public CurbServerDataProvider(GroupService groupService,
                                   AppService appService,
                                   UserService userService,
                                   UserPermissionService userPermissionService,
+                                  OpLogService opLogService,
                                   CurbServerProperties properties) {
         this.groupService = groupService;
         this.appService = appService;
         this.userService = userService;
         this.userPermissionService = userPermissionService;
+        this.opLogService = opLogService;
         this.properties = properties;
-    }
-
-    @Override
-    public String toString() {
-        return "CurbServerDataProvider{" +
-                "groupService=" + groupService +
-                ", appService=" + appService +
-                ", userService=" + userService +
-                ", userPermissionService=" + userPermissionService +
-                '}';
     }
 
     @Override
@@ -111,6 +110,26 @@ public class CurbServerDataProvider implements CurbDataProvider {
         Group group = context.getGroup();
         App app = context.getApp();
         return userPermissionService.getUserAppPermissions(group, app, user.getUserId());
+    }
+
+    @Override
+    public void recordRequest(CurbRequestContext context) {
+        try {
+            OpLogPO po = new OpLogPO();
+            po.setEventTime(new Date(context.getStartTime()));
+            po.setUsername(Optional.ofNullable(context.getUser()).map(User::getUsername).orElse(""));
+            po.setIp(context.getIp());
+            po.setGroupId(context.getGroup().getGroupId());
+            po.setAppId(context.getApp().getAppId());
+            po.setMethod(context.getMethod());
+            po.setUrl(context.getUrl());
+            po.setCost(context.costMs());
+            po.setState(context.getAccessState().getCode());
+            po.setResult("");
+            opLogService.create(po);
+        } catch (Exception e) {
+            LOGGER.error("error on record request.(context:{}): {}", context, e.getMessage(), e);
+        }
     }
 
 }

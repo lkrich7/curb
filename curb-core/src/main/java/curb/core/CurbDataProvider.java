@@ -43,4 +43,10 @@ public interface CurbDataProvider {
      */
     UserAppPermissions getUserAppPermissions(CurbRequestContext context);
 
+    /**
+     * 记录请求
+     *
+     * @param context 当前请求上下文对象
+     */
+    void recordRequest(CurbRequestContext context);
 }

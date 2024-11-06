@@ -61,20 +61,6 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         this.curbProperties = properties;
     }
 
-    private static String buildLogMessage(HttpServletRequest request, AccessLevel accessLevel,
-                                          Group group, App app, User user, UserState userState, boolean inTestMode) {
-        return String.format("T(%s) G(%s) A(%s) %s (%s %s) %s(%s)@%s",
-                inTestMode,
-                group.getGroupId(),
-                app.getAppId(),
-                accessLevel,
-                request.getMethod(),
-                CurbUtil.getUrl(request),
-                user == null ? null : user.getUsername(),
-                userState,
-                ServletUtil.getIp(request));
-    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -168,6 +154,8 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         if (context == null) {
             return;
         }
+        context.setEndTime(System.currentTimeMillis());
+        context.setHttpStatus(response.getStatus());
         recordRequest(context, request, response, handler, ex);
     }
 
@@ -189,8 +177,9 @@ public class CurbInterceptor implements HandlerInterceptor, ApplicationContextAw
         LOGGER.info("{} T({}) G({}) A({}) {} {}ms: {} {} {}({})@{}",
                 context.getAccessState(), context.isTestMode(),
                 context.getGroup().getGroupId(), context.getApp().getAppId(),
-                level, context.totalTime(),
-                context.getMethod(), context.getUrl(), username, context.userState(), ServletUtil.getIp(request));
+                level, context.costMs(),
+                context.getMethod(), context.getUrl(), username, context.userState(), context.getIp());
+        dataProvider.recordRequest(context);
     }
 
     /**
