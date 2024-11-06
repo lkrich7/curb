@@ -2,31 +2,47 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="curb.server.dao.OpLogDAO">
     <resultMap id="OpLogMap" type="curb.server.po.OpLogPO">
-        <id property="id" column="id"/>
-        <result property="user" column="user"/>
-        <result property="type" column="type"/>
-        <result property="content" column="content"/>
-        <result property="createTime" column="create_time"/>
+        <id property="logId" column="log_id"/>
+        <result property="eventTime" column="event_time"/>
+        <result property="username" column="username"/>
+        <result property="ip" column="ip"/>
+        <result property="groupId" column="group_id"/>
+        <result property="appId" column="app_id"/>
+        <result property="method" column="method"/>
+        <result property="url" column="url"/>
+        <result property="cost" column="cost"/>
+        <result property="state" column="state"/>
+        <result property="result" column="result"/>
     </resultMap>
+
+    <sql id="tablename">curb_op_log</sql>
+
     <sql id="condition">
-        <trim prefix="WHERE" prefixOverrides="AND||OR">
-            <if test="id != null">AND id = #{id}</if>
-            <if test="user != null">AND `user` = #{user}</if>
-            <if test="type != null">AND `type` = #{type}</if>
-            <if test="content != null">AND `content` LIKE concat('%', #{content}, '%')</if>
+        <trim prefix="WHERE" prefixOverrides="AND">
+            <if test="username != null">AND username = #{username}</if>
+            <if test="groupId != null">AND group_id = #{groupId}</if>
+            <if test="appId != null">AND app_id = #{appId}</if>
+            <if test="state != null">AND state = #{state}</if>
         </trim>
     </sql>
-    <insert id="insert" parameterType="curb.server.po.OpLogPO" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO op_log(`user`, `type`, `content`, create_time) VALUES (#{user}, #{type}, #{content}, now())
-    </insert>
-    <select id="countByParam" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM op_log <include refid="condition"/>
+
+    <select id="countByCondition" resultType="int">
+        SELECT COUNT(*) FROM <include refid="tablename"/> <include refid="condition"/>
     </select>
-    <select id="getByParam" resultMap="OpLogMap">
-        SELECT * FROM op_log <include refid="condition"/>
+
+    <select id="listByCondition" resultMap="OpLogMap">
+        SELECT * FROM <include refid="tablename"/> <include refid="condition"/>
         ORDER BY id DESC
         <if test="limit != null and limit > 0">
             LIMIT<if test="start != null  and start > 0">#{start},</if>#{limit}
         </if>
     </select>
+
+    <insert id="insert" parameterType="curb.server.po.OpLogPO" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO <include refid="tablename"/>(
+        event_time, username, `ip`, group_id, app_id, `method`, `url`, `cost`, `state`, result
+        ) VALUES (
+        #{eventTime}, #{username}, #{ip}, #{groupId}, #{appId}, #{method}, #{url}, #{cost}, #{state}, #{result}
+        )
+    </insert>
 </mapper>

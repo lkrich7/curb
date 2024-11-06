@@ -151,18 +151,23 @@ CREATE TABLE IF NOT EXISTS `curb_user_role_system` (
   UNIQUE KEY `UK_ROLE_USER` (`role_id`,`group_id`,`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户与系统角色关系表';
 
-CREATE TABLE IF NOT EXISTS `curb_log` (
+CREATE TABLE IF NOT EXISTS `curb_op_log` (
   `log_id` bigint UNSIGNED NOT NULL COMMENT '操作日志ID',
-  `user_id` INT UNSIGNED NOT NULL COMMENT '用户ID',
+  `event_time` DATETIME NOT NULL COMMENT '操作发生时间',
+  `username` VARCHAR(32) NOT NULL COMMENT '操作者用户名',
+  `ip` VARCHAR(32) NOT NULL COMMENT '操作者IP',
   `group_id` INT UNSIGNED NOT NULL COMMENT '项目组ID',
   `app_id` INT UNSIGNED NOT NULL COMMENT '应用ID',
-  `oper_time` DATETIME NOT NULL COMMENT '操作时间',
-  `oper_detail` VARCHAR(4000) NOT NULL COMMENT '操作详情',
+  `method` VARCHAR(10) NOT NULL COMMENT '操作的HTTP方法',
+  `url` VARCHAR(500) NOT NULL COMMENT '操作的URL',
+  `cost` INT NOT NULL COMMENT '操作耗时(单位毫秒)',
+  `state` TINYINT UNSIGNED NOT NULL COMMENT '访问控制检查结果',
+  `result` VARCHAR(255) NOT NULL COMMENT '操作结果数据',
   `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT '数据创建时间',
   `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() COMMENT '最近更新时间',
   PRIMARY KEY (`log_id`) USING BTREE,
-  KEY `idx_user_id_oper_time` (`user_id`, `oper_time`) USING BTREE,
-  KEY `idx_group_id_app_id_oper_time` (`group_id`, `app_id`, `oper_time`) USING BTREE
+  KEY `idx_username_event_time_group_id_app_id` (`username`, `event_time`, `group_id`, `app_id`) USING BTREE,
+  KEY `idx_event_time_group_id_app_id_username` (`event_time`, `group_id`, `app_id`, `username`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户操作日志表';
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

@@ -11,6 +11,7 @@ import curb.server.page.CurbPageConfiguration;
 import curb.server.service.AppService;
 import curb.server.service.CurbServerDataProvider;
 import curb.server.service.GroupService;
+import curb.server.service.OpLogService;
 import curb.server.service.UserPermissionService;
 import curb.server.service.UserService;
 import org.mybatis.spring.annotation.MapperScan;
@@ -45,8 +46,11 @@ public class CurbServerAutoConfiguration {
                                                          AppService appService,
                                                          UserService userService,
                                                          UserPermissionService userPermissionService,
+                                                         OpLogService opLogService,
                                                          CurbServerProperties properties) {
-        return new CurbServerDataProvider(groupService, appService, userService, userPermissionService, properties);
+        return new CurbServerDataProvider(groupService, appService,
+                userService, userPermissionService,
+                opLogService, properties);
     }
 
     @Bean

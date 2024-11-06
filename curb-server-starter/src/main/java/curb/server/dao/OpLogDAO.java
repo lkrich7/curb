@@ -15,7 +15,7 @@ public interface OpLogDAO {
 
     int insert(OpLogPO opLogPO);
 
-    int countByParam(Map<String, Object> map);
+    int countByCondition(Map<String, Object> map);
 
-    List<OpLogPO> getByParam(Map<String, Object> map);
+    List<OpLogPO> listByCondition(Map<String, Object> map);
 }

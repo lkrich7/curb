@@ -83,6 +83,11 @@ public class CurbClientDataProvider implements CurbDataProvider {
         }
     }
 
+    @Override
+    public void recordRequest(CurbRequestContext context) {
+        // TODO: 待实现
+    }
+
     private Supplier<AppDetail> newAppDetailSupplier() {
         return () -> curbApiClient.getAppDetail().getData();
     }
