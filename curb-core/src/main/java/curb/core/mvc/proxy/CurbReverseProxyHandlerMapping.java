@@ -109,8 +109,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
         String path = null;
         if (accessLevel == AccessLevel.PERMISSION) {
             String raw = parseUriFromRequest(request);
-            String url = rewriteUrl(raw, route);
-            path = URI.create(url).getPath();
+            path = rewriteUri(raw, route).getPath();
         }
         return new AccessConfig(accessLevel, path);
     }
@@ -149,14 +148,16 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
         return request.getRequestURI() + "?" + query;
     }
 
-    private String rewriteUrl(String uri, ReverseProxyProperties.Route route) {
+    private URI rewriteUri(String uri, ReverseProxyProperties.Route route) {
         uri = stripPrefix(uri);
         String server = route.getServer();
+        String rewrite;
         if (server.endsWith("/")) {
-            return server + uri;
+            rewrite = server + uri;
         } else {
-            return server + "/" + uri;
+            rewrite = server + "/" + uri;
         }
+        return URI.create(rewrite);
     }
 
     private String stripPrefix(String uri) {
@@ -216,11 +217,11 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
         @Override
         public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
             String uri = parseUriFromRequest(request);
-            String url = rewriteUrl(uri, route);
+            URI rewriteURI = rewriteUri(uri, route);
             HttpMethod method = HttpMethod.resolve(request.getMethod());
             Assert.notNull(method, String.format("不支持的请求方法:(%s %s)", request.getMethod(), uri));
-            log.info("proxy request: {} {} {} upstream to: {}", request.getMethod(), uri, request.getProtocol(), url);
-            restTemplate.execute(url, method, req -> forwardRequest(request, req), res -> forwardResponse(response, res));
+            log.info("proxy request: {} {} {} upstream to: {}", request.getMethod(), uri, request.getProtocol(), rewriteURI);
+            restTemplate.execute(rewriteURI, method, req -> forwardRequest(request, req), res -> forwardResponse(response, res));
         }
 
         /**
