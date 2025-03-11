@@ -3,6 +3,8 @@ package curb.core.mvc.proxy;
 import curb.core.AccessLevel;
 import curb.core.CurbAccessConfig;
 import curb.core.configuration.ReverseProxyProperties;
+import curb.core.util.CollectionUtil;
+import curb.core.util.IOUtil;
 import curb.core.util.ServletUtil;
 import curb.core.util.StringUtil;
 import org.slf4j.Logger;
@@ -11,10 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
@@ -65,11 +63,11 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
             return;
         }
         for (ReverseProxyProperties.Route route : routes) {
-            if (!StringUtils.hasText(route.getServer())) {
+            if (StringUtil.isBlank(route.getServer())) {
                 log.warn("Skip the incorrect route configuration {}: server field should not be empty.", route);
                 continue;
             }
-            if (CollectionUtils.isEmpty(route.getPathPatterns())) {
+            if (CollectionUtil.isEmpty(route.getPathPatterns())) {
                 log.warn("Skip the incorrect route configuration {}: path-patterns field should not be empty.", route);
                 continue;
             }
@@ -219,7 +217,9 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
             String uri = parseUriFromRequest(request);
             URI rewriteURI = rewriteUri(uri, route);
             HttpMethod method = HttpMethod.resolve(request.getMethod());
-            Assert.notNull(method, String.format("不支持的请求方法:(%s %s)", request.getMethod(), uri));
+            if (method == null) {
+                throw new IllegalArgumentException(String.format("不支持的请求方法:(%s %s)", request.getMethod(), uri));
+            }
             log.info("proxy request: {} {} {} upstream to: {}", request.getMethod(), uri, request.getProtocol(), rewriteURI);
             restTemplate.execute(rewriteURI, method, req -> forwardRequest(request, req), res -> forwardResponse(response, res));
         }
@@ -243,7 +243,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
                     ServletInputStream is = request.getInputStream();
                     OutputStream os = upstreamRequest.getBody()
             ) {
-                StreamUtils.copy(is, os);
+                IOUtil.copy(is, os);
             }
         }
 
@@ -304,7 +304,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
                     InputStream source = upstreamResponse.getBody();
                     ServletOutputStream target = response.getOutputStream();
             ) {
-                StreamUtils.copy(source, target);
+                IOUtil.copy(source, target);
             }
             return null;
         }

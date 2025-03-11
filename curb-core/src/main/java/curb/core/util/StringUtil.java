@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public enum StringUtil {
     ;
 
-    private static boolean isEmpty(CharSequence s) {
+    public static boolean isEmpty(CharSequence s) {
         return s == null || s.length() == 0;
     }
 
@@ -42,22 +42,54 @@ public enum StringUtil {
         return !isBlank(cs);
     }
 
-    public static String trimToEmpty(String str) {
-        str = StringUtils.trimWhitespace(str);
-        return str == null ? "" : str;
-    }
-
-    public static String trimToNull(String str) {
-        str = StringUtils.trimWhitespace(str);
-        return str == null || str.isEmpty() ? null : str;
+    /**
+     * 去除字符串首尾空白字符
+     *
+     * @param str 字符串
+     * @return 去除空白字符后的字符串，如果str 为 null，则返回 null
+     */
+    public static String trim(String str) {
+        if (isEmpty(str)) {
+            return str;
+        }
+        int beginIndex = 0;
+        int endIndex = str.length() - 1;
+        while (beginIndex <= endIndex && Character.isWhitespace(str.charAt(beginIndex))) {
+            beginIndex++;
+        }
+        while (endIndex > beginIndex && Character.isWhitespace(str.charAt(endIndex))) {
+            endIndex--;
+        }
+        return str.substring(beginIndex, endIndex + 1);
     }
 
     /**
-     * 分割字符串
+     * 去除字符串首尾空白字符，如果str 为 null，则返回空字符串
      *
-     * @param toSplit
-     * @param delimiter
+     * @param str 字符串
+     * @return 去除空白字符后的字符串
+     */
+    public static String trimToEmpty(String str) {
+        str = trim(str);
+        return isEmpty(str) ? "" : str;
+    }
+
+    /**
+     * 去除字符串首尾空白字符，如果str 为 null，则返回 null
+     * @param str
      * @return
+     */
+    public static String trimToNull(String str) {
+        str = trim(str);
+        return isEmpty(str) ? null : str;
+    }
+
+    /**
+     * 分割字符串为数组
+     *
+     * @param toSplit   待分割字符串
+     * @param delimiter 分隔符
+     * @return 分割后的字符串数组
      */
     public static String[] split(String toSplit, String delimiter) {
         return StringUtils.delimitedListToStringArray(toSplit, delimiter);

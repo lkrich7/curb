@@ -2,10 +2,8 @@ package curb.core.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.TreeMap;
@@ -57,7 +55,7 @@ public enum ApiSignUtil {
 
     private static String makeSign(String digest, String secret) {
         digest = digest + "&" + secret;
-        return DigestUtils.md5DigestAsHex(digest.getBytes(StandardCharsets.UTF_8));
+        return Digest.MD5.digestAsHex(digest);
     }
 
     private static String buildDigest(HttpServletRequest request) {

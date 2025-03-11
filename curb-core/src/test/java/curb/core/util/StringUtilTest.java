@@ -7,9 +7,15 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class StringUtilTest {
+
+    @Test
+    public void testTrimToEmpty() {
+        assertEquals("", StringUtil.trimToEmpty(null));
+        assertEquals("", StringUtil.trimToEmpty(""));
+        assertEquals("hello world", StringUtil.trimToEmpty("\u00A0 \t \r \n hello world \t \t \n \r  "));
+    }
 
     @Test
     public void testSplit() {

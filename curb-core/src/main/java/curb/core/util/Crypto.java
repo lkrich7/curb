@@ -12,14 +12,11 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Base64;
 
 public enum Crypto {
     AES("AES", "ECB", "PKCS5Padding"),
     ;
 
-    private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder().withoutPadding();
-    private static final Base64.Decoder BASE64_DECODER = Base64.getUrlDecoder();
     private final String algorithm;
     private final String mode;
     private final String padding;
@@ -37,14 +34,14 @@ public enum Crypto {
         try {
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] output = cipher.doFinal(input);
-            return BASE64_ENCODER.encodeToString(output);
+            return Base64Codec.URL_SAFE.encodeToString(output);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException(e);
         }
     }
 
     public String decrypt(String encrypted, String secret) {
-        byte[] input = BASE64_DECODER.decode(encrypted);
+        byte[] input = Base64Codec.URL_SAFE.decode(encrypted);
         Cipher cipher = buildCipher();
         Key key = initKey(secret);
         try {
