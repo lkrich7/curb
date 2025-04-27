@@ -2,7 +2,7 @@ package curb.server.page;
 
 import org.springframework.web.servlet.handler.AbstractHandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Curb 托管页面的请求处理器映射类

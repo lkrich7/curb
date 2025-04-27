@@ -7,7 +7,7 @@ import curb.core.configuration.CurbProperties;
 import curb.core.mvc.interceptor.CurbInterceptor;
 import curb.server.page.CurbPageRequestHandler;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Curb服务器拦截器

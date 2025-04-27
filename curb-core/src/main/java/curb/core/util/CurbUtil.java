@@ -7,7 +7,7 @@ import curb.core.model.PermissionResult;
 import curb.core.model.User;
 import org.springframework.web.context.request.RequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 工具类

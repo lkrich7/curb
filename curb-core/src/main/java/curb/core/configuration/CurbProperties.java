@@ -4,7 +4,7 @@ import curb.core.model.User;
 import curb.core.model.UserAppPermissions;
 import curb.core.model.UserState;
 
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.Set;
 

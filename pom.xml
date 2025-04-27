@@ -19,7 +19,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>8</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -30,7 +30,7 @@
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 
-        <spring-boot.version>2.2.13.RELEASE</spring-boot.version>
+        <spring-boot.version>3.4.4</spring-boot.version>
         <mybatis-spring-boot-starter.version>1.3.2</mybatis-spring-boot-starter.version>
         <javaee-api.version>7.0</javaee-api.version>
         <guava.version>19.0</guava.version>
@@ -44,16 +44,16 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
+                <version>3.4.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-api</artifactId>
-                <version>${javaee-api.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>javax</groupId>-->
+<!--                <artifactId>javaee-api</artifactId>-->
+<!--                <version>${javaee-api.version}</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -147,11 +147,11 @@
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot.version}</version>
-                </plugin>
+<!--                <plugin>-->
+<!--                    <groupId>#.org.springframework.boot</groupId>-->
+<!--                    <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                    <version>3.4.4</version>-->
+<!--                </plugin>-->
             </plugins>
         </pluginManagement>
 

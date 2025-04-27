@@ -17,10 +17,10 @@ import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.handler.AbstractUrlHandlerMapping;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -216,7 +216,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
         public void handleRequest(HttpServletRequest request, HttpServletResponse response) {
             String uri = parseUriFromRequest(request);
             URI rewriteURI = rewriteUri(uri, route);
-            HttpMethod method = HttpMethod.resolve(request.getMethod());
+            HttpMethod method = HttpMethod.valueOf(request.getMethod());
             if (method == null) {
                 throw new IllegalArgumentException(String.format("不支持的请求方法:(%s %s)", request.getMethod(), uri));
             }
@@ -298,7 +298,7 @@ public class CurbReverseProxyHandlerMapping extends AbstractUrlHandlerMapping {
          * @param upstreamResponse 上游响应对象
          */
         private Void forwardResponse(HttpServletResponse response, ClientHttpResponse upstreamResponse) throws IOException {
-            response.setStatus(upstreamResponse.getRawStatusCode());
+            response.setStatus(upstreamResponse.getStatusCode().value());
             forwardResponseHeaders(response, upstreamResponse);
             try (
                     InputStream source = upstreamResponse.getBody();

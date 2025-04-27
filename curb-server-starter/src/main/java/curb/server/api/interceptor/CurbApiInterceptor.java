@@ -4,17 +4,16 @@ import curb.core.util.ApiSignUtil;
 import curb.core.ErrorEnum;
 import curb.server.po.AppPO;
 import curb.server.service.AppService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.ServletRequestUtils;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * API接口参数签名验证拦截器
  */
-public class CurbApiInterceptor extends HandlerInterceptorAdapter {
+public class CurbApiInterceptor implements HandlerInterceptor {
 
     private static final long EXPIRE_MILLIS = 300L * 1000L;
 

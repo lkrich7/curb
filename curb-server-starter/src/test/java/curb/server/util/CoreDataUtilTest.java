@@ -5,7 +5,7 @@ import curb.core.model.Menu;
 import curb.core.util.IOUtil;
 import curb.core.util.JsonUtil;
 import curb.server.page.CurbPage;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CoreDataUtilTest {
 

@@ -2,9 +2,10 @@ package curb.server.bo;
 
 import curb.core.model.User;
 import curb.core.util.Crypto;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class CurbTokenTest {
 

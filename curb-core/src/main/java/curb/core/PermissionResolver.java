@@ -2,7 +2,7 @@ package curb.core;
 
 import curb.core.model.Permission;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 请求权限对象解析器接口

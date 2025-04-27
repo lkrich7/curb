@@ -2,7 +2,7 @@ package curb.core.mvc.proxy;
 
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * 反向代理转发multipart请求，避免将原始HttpServletRequest 转为 MultipartHttpServletRequest，而造成无法转发的问题
